@@ -51,6 +51,7 @@ export const obtenerProteccionAsignada = (
 
     if (tablero) {
       const prot = tablero.proteccionCabecera || tablero.proteccionDiferencial;
+      console.log('Depuración Protección:', { tablero, prot });
       if (prot && prot.in_amp) {
         return prot;
       }
