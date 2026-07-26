@@ -8,17 +8,19 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
     capacidades: initialData.capacidades || [],
     tipo_interruptor: initialData.tipo_interruptor || 'compacto',
     energia_pasante: initialData.energia_pasante || null,
+    sensibilidad: initialData.sensibilidad || 30,
   } : {
     marca_id: 1,
     modelo: '',
     tipo_proteccion: 'Interruptor Automatico',
-    in_amp: 1,
+    in_amp: 25,
     curva_disparo: 'C',
-    polos: 1,
+    polos: 2,
     specs_tecnicas: {},
     capacidades: [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }],
     tipo_interruptor: 'compacto',
     energia_pasante: null,
+    sensibilidad: 30,
   });
 
   const [saving, setSaving] = useState(false);
@@ -32,6 +34,7 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
   const isCompacto = formData.in_amp <= 32;
 
   const computeEnergiaPasante = () => {
+    if (formData.tipo_proteccion === 'Interruptor Diferencial') return null;
     if (isCompacto && formData.capacidades.length > 0) {
       const capacidad = formData.capacidades[0];
       // Solo clase 2 y 3 están soportadas por la función de cálculo
@@ -107,7 +110,11 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Corriente Nominal (In)</label>
             <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.in_amp} onChange={e => setFormData({ ...formData, in_amp: Number(e.target.value) })}>
-              {[1,2,3,4,6,10,16,20,25,32,40,50,63].map(val => (<option key={val} value={val}>{val} A</option>))}
+              {formData.tipo_proteccion === 'Interruptor Diferencial' ? (
+                [25, 40, 63].map(val => (<option key={val} value={val}>{val} A</option>))
+              ) : (
+                [1,2,3,4,6,10,16,20,25,32,40,50,63].map(val => (<option key={val} value={val}>{val} A</option>))
+              )}
             </select>
           </div>
           
@@ -129,38 +136,50 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
               </select>
             </div>
           )}
+
+          {formData.tipo_proteccion === 'Interruptor Diferencial' && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[var(--text-secondary)]">Sensibilidad</label>
+              <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.sensibilidad} onChange={e => setFormData({ ...formData, sensibilidad: Number(e.target.value) })}>
+                <option value={30}>30 mA</option>
+                <option value={300}>300 mA</option>
+              </select>
+            </div>
+          )}
         </div>
         
-        <div className="grid grid-cols-3 gap-6 mt-8">
-          {formData.capacidades.map((cap: any, i: number) => (
-            <React.Fragment key={i}>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--text-secondary)]">Ue (V)</label>
-                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
-                  <option value={230}>230 V</option>
-                  <option value={400}>400 V</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--text-secondary)]">Icn (kA)</label>
-                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.icn_ka} onChange={e => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
-                  <option value={3}>3 kA</option>
-                  <option value={4.5}>4.5 kA</option>
-                  <option value={6}>6 kA</option>
-                  <option value={10}>10 kA</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--text-secondary)]">Clase Lim.</label>
-                <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.clase_limitacion} onChange={e => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
-                  <option value={1}>Clase 1</option>
-                  <option value={2}>Clase 2</option>
-                  <option value={3}>Clase 3</option>
-                </select>
-              </div>
-            </React.Fragment>
-          ))}
-        </div>
+        {formData.tipo_proteccion === 'Interruptor Automatico' && (
+          <div className="grid grid-cols-3 gap-6 mt-8">
+            {formData.capacidades.map((cap: any, i: number) => (
+              <React.Fragment key={i}>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Ue (V)</label>
+                  <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.tension_v} onChange={e => updateCapacidad(i, 'tension_v', Number(e.target.value))}>
+                    <option value={230}>230 V</option>
+                    <option value={400}>400 V</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Icn (kA)</label>
+                  <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.icn_ka} onChange={e => updateCapacidad(i, 'icn_ka', Number(e.target.value))}>
+                    <option value={3}>3 kA</option>
+                    <option value={4.5}>4.5 kA</option>
+                    <option value={6}>6 kA</option>
+                    <option value={10}>10 kA</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--text-secondary)]">Clase Lim.</label>
+                  <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.clase_limitacion} onChange={e => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
+                    <option value={1}>Clase 1</option>
+                    <option value={2}>Clase 2</option>
+                    <option value={3}>Clase 3</option>
+                  </select>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
         <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
             {initialData && onDelete ? (
                 <button onClick={handleDelete} className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors px-4 py-2 rounded-lg hover:bg-red-900/20">
