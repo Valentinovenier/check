@@ -34,6 +34,8 @@ export const obtenerProteccionAsignada = (
     // Si es un tablero (LineaPrincipal o LineaSeccional) o el tramo general
     let tablero: any = undefined;
 
+    console.log('Depuración: Buscando tablero. tablerosVivienda:', tablerosVivienda, 'targetId:', targetId);
+
     if (targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
       tablero = tablerosVivienda.find(t => t.id === targetId);
     } else if (targetId === 'int-general-salida' || targetId === 'tp') {
@@ -42,6 +44,7 @@ export const obtenerProteccionAsignada = (
     }
 
     if (!tablero) {
+      console.log('Depuración: Tablero no encontrado por targetId. Intentando otras búsquedas.');
       if (tableroOrigenId) {
         tablero = tablerosVivienda.find(t => t.id === tableroOrigenId);
       }
@@ -52,10 +55,12 @@ export const obtenerProteccionAsignada = (
 
     if (tablero) {
       const prot = tablero.proteccionCabecera || tablero.proteccionDiferencial;
-      console.log('Depuración Protección Detallada:', { tablero, prot, hasInAmp: prot?.in_amp });
+      console.log('Depuración: Tablero encontrado:', tablero, 'Protección encontrada:', prot);
       if (prot && (prot.in_amp !== undefined)) {
         return prot;
       }
+    } else {
+        console.log('Depuración: No se encontró ningún tablero adecuado.');
     }
 
     return undefined;
