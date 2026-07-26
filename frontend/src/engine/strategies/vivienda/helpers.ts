@@ -10,16 +10,11 @@ export const obtenerProteccionAsignada = (
   tramoId?: string,
   tableroOrigenId?: string
 ): Proteccion | undefined => {
-  if (!project) {
-    console.log('Depuración: No hay project.');
-    return undefined;
-  }
-  
+  if (!project) return undefined;
+
   const targetId = (conductor as any)?.destinoId || tramoId;
   const tipoTramo = conductor?.tipoTramo;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(tipoTramo || '');
-  
-  console.log('Depuración: Iniciar búsqueda', { targetId, tipoTramo, isPanelTramo, tieneDatosVivienda: !!project.datosVivienda });
 
   // 1. Proyectos Residenciales (Vivienda)
   if (project.datosVivienda) {
@@ -30,10 +25,8 @@ export const obtenerProteccionAsignada = (
     if (!isPanelTramo && targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
       const circ = circuitosVivienda.find(c => c.id === targetId);
       if (circ && circ.proteccion && circ.proteccion.in_amp) {
-        console.log('Depuración: Protección encontrada en circuito terminal.');
         return circ.proteccion;
       }
-      console.log('Depuración: No se encontró protección en circuito terminal.');
       return undefined;
     }
 
@@ -47,29 +40,21 @@ export const obtenerProteccionAsignada = (
     }
 
     if (!tablero) {
-      console.log('Depuración: Tablero no encontrado por targetId principal.');
       if (tableroOrigenId) tablero = tablerosVivienda.find(t => t.id === tableroOrigenId);
       if (!tablero) tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
     }
 
     if (tablero) {
       const prot = tablero.proteccionCabecera || tablero.proteccionDiferencial;
-      console.log('Depuración: Tablero encontrado:', tablero, 'Protección:', prot);
       if (prot && (prot.in_amp !== undefined)) {
         return prot;
       }
-      console.log('Depuración: Tablero encontrado pero sin protección válida.');
-    } else {
-        console.log('Depuración: No se encontró tablero en datosVivienda.');
     }
-  } else {
-    console.log('Depuración: No hay datosVivienda.');
   }
 
   // 2. Proyectos Industriales / Comerciales (Fallback)
-  console.log('Depuración: Intentando fallback industrial');
   if (!isPanelTramo && targetId) {
-    const allTablerosInd = [project.tableroPrincipal, ...(project.tableroPrincipal ? [] : []), ...(project.tableros || [])].filter(Boolean);
+    const allTablerosInd = [project.tableroPrincipal, ...(project.tableros || [])].filter(Boolean);
     for (const t of allTablerosInd) {
       const ct = t?.circuitosTerminales?.find(c => c.id === targetId);
       if (ct && ct.proteccion && ct.proteccion.in_amp) {
@@ -94,6 +79,5 @@ export const obtenerProteccionAsignada = (
     }
   }
 
-  console.log('Depuración: No se encontró protección en ninguna parte.');
   return undefined;
 };
