@@ -11,6 +11,7 @@ export const obtenerProteccionAsignada = (
   tableroOrigenId?: string
 ): Proteccion | undefined => {
   if (!project) return undefined;
+  console.log('Depuración: Entrando en obtenerProteccionAsignada', { conductor, tramoId, tieneDatosVivienda: !!project.datosVivienda });
 
   const targetId = (conductor as any)?.destinoId || tramoId;
   const tipoTramo = conductor?.tipoTramo;
