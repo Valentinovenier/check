@@ -27,7 +27,7 @@ export const obtenerProteccionAsignada = (
     const circuitosVivienda = project.datosVivienda.circuitosCalculados || [];
 
     // Si es un circuito terminal
-    if (!isPanelTramo && targetId && targetId !== 'int-general-salida') {
+    if (!isPanelTramo && targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
       const circ = circuitosVivienda.find(c => c.id === targetId);
       if (circ && circ.proteccion && circ.proteccion.in_amp) {
         console.log('Depuración: Protección encontrada en circuito terminal.');
