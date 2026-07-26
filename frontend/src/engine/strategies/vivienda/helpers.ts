@@ -30,11 +30,14 @@ export const obtenerProteccionAsignada = (
       return undefined;
     }
 
-    // Si es un tablero (LineaPrincipal o LineaSeccional)
+    // Si es un tablero (LineaPrincipal o LineaSeccional) o el tramo general
     let tablero: any = undefined;
 
     if (targetId && targetId !== 'int-general-salida') {
       tablero = tablerosVivienda.find(t => t.id === targetId);
+    } else if (targetId === 'int-general-salida') {
+      // Buscar tablero principal si es el tramo general
+      tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
     }
 
     if (!tablero) {
