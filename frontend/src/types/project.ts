@@ -38,6 +38,7 @@ export interface Conductor {
   tipoTramo?: 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal';
   tipoCircuito?: string;
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
+  temperaturaAmbiente?: number;
   tempSuelo?: number;
   resistividadTermica?: number;
   separacionBordes?: string;

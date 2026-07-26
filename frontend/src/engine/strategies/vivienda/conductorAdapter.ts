@@ -46,7 +46,7 @@ export const adaptarConductorACondiciones = (
     metodoInstalacion: conductor.metodoInstalacion || 'B1',
     longitudMetros: conductor.longitud || 0,
     corrienteDiseñoAmperes: corrienteDiseño,
-    temperaturaAmbiente: project.tempAmbiente || 30,
+    temperaturaAmbiente: conductor.temperaturaAmbiente || project.tempAmbiente || 30,
     canalizacionId: conductor.canalizacionId,
     tipoInstalacion: project.tipoInstalacion || 'Monofásica',
     tempSuelo: conductor.tempSuelo,
