@@ -36,14 +36,19 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
 
   // Recalcular automáticamente si tiene protección asignada y faltan resultados pero hay datos suficientes
   useEffect(() => {
-    if (project && tieneProteccionAsignada && conductor && !conductor.resultadoCalculo && conductor.metodoInstalacion && conductor.longitud) {
-      const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
-      if (calculated.resultadoCalculo) {
-        onChange(calculated);
-      }
+    if (project && tieneProteccionAsignada && conductor && !conductor.resultadoCalculo) {
+        // Solo calcular si tenemos los datos mínimos necesarios
+        if (conductor.metodoInstalacion && conductor.longitud) {
+            const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
+            if (calculated.resultadoCalculo) {
+                onChange(calculated);
+            }
+        }
     }
-  }, [project, tieneProteccionAsignada, tramoId]);
-  
+  }, [project, tieneProteccionAsignada, tramoId, conductor]);
+
+  const datosFaltantes = !conductor?.metodoInstalacion || !conductor?.longitud;
+
   // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
     const found = project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
@@ -58,7 +63,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         newConductor.canalizacionId = undefined;
     }
     
-    if (project && tieneProteccionAsignada) {
+    // Intentar calcular solo si tenemos lo mínimo
+    if (project && tieneProteccionAsignada && newConductor.metodoInstalacion && newConductor.longitud) {
         newConductor = calcularConductorResidencial(newConductor, project);
     } else {
         newConductor.resultadoCalculo = undefined;
@@ -81,40 +87,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             </div>
         ) : (
         <div className="grid grid-cols-1 gap-4">
-            {/* Método de Instalación */}
-            <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
-                {(necesitaCanalizacion && !conductor?.canalizacionId && !canalizacionVinculada) ? (
-                    <div className="p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-amber-300 text-xs">
-                        Debe asignar este circuito a una canalización en la sección "Canalizaciones" antes de configurar el método de instalación.
-                    </div>
-                ) : (
-                    <select 
-                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                        value={conductor?.metodoInstalacion || ''}
-                        onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
-                    >
-                        <option value="">Selecciona Método</option>
-                        {(() => {
-                            const canalizacion = canalizacionVinculada;
-                            const norma = circuito?.normaCable || canalizacion?.normaCable || 'IRAM 2178';
-                            const esTramoGeneral = tramoId === 'int-general-salida' || conductor?.tipoTramo === 'LineaPrincipal';
-                            const esCableFlexible = !esTramoGeneral && ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
-                            
-                            return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                                if (esTramoGeneral) return true;
-                                if (esCableFlexible) {
-                                    return m.value === 'sinEnvoltura' || m.value === 'B1';
-                                } else {
-                                    return m.value !== 'sinEnvoltura' && m.value !== 'B1';
-                                }
-                            }).map((m) => (
-                                <option key={m.value} value={m.value}>{m.label}</option>
-                            ));
-                        })()}
-                    </select>
-                )}
-            </div>
+            {datosFaltantes && (
+                <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg text-blue-300 text-xs">
+                    ℹ️ Complete el Método de Instalación y la Longitud para calcular la sección.
+                </div>
+            )}
+
 
             <div>
                 <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">
