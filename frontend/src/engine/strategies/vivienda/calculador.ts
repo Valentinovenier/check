@@ -208,11 +208,12 @@ export const calcularTramoResidencial = (
         if (InElegida <= 32) {
             // Automatizado para protecciones <= 32A
             const rango = InElegida <= 16 ? 'hasta16A' : 'entre16A32A';
-            const clase = (proteccionSeleccionada?.capacidades[0]?.clase_limitacion === 3) ? 'clase3' : 'clase2';
+            const capacidad = proteccionSeleccionada?.capacidades?.[0];
+            const clase = (capacidad?.clase_limitacion === 3) ? 'clase3' : 'clase2';
             const curva = (proteccionSeleccionada?.curva_disparo === 'B') ? 'tipoB' : 'tipoC';
             
             // Aproximación simplificada tomando el Icn del proyecto (fallback a 6000A)
-            const Icn = proteccionSeleccionada?.capacidades[0]?.icn_ka ? (proteccionSeleccionada.capacidades[0].icn_ka * 1000) : 6000;
+            const Icn = capacidad?.icn_ka ? (capacidad.icn_ka * 1000) : 6000;
             
             energiaFalla = (valoresEnergiaPasante as any)[rango][clase][curva][Icn] || Math.pow(Ik_max, 2) * 0.1;
             fuenteEnergia = `(tablas AEA para ${rango}, ${clase}, ${curva})`;
