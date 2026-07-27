@@ -49,18 +49,19 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     return found;
   }, [project, conductor, tramoId]);
 
-  console.log('Depuración ViviendaConductorForm:', { tramoId, canalizacionVinculada, conductor });
-
   // Nuevo useMemo para el filtrado reactivo
   const metodosDisponibles = useMemo(() => {
     const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
     
-    // Determinación de norma con manejo explícito de valores undefined o vacíos
+    // Determinación de norma con manejo explícito:
+    // 1. Si es tramo principal ('tp'): norma seleccionable en el conductor (fallback IRAM 2178)
+    // 2. Si NO es tramo principal: norma del circuito terminal o canalización vinculada
     let norma = 'IRAM 2178';
     if (esTramoPrincipal) {
         norma = conductor?.normaCable || 'IRAM 2178';
-    } else if (canalizacionVinculada?.normaCable) {
-        norma = canalizacionVinculada.normaCable;
+    } else {
+        // Buscar norma en el circuito (si existe) o canalización vinculada
+        norma = circuito?.normaCable || canalizacionVinculada?.normaCable || 'IRAM 2178';
     }
     
     // Reglas
@@ -71,7 +72,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         : METODOS_INSTALACION_VIVIENDA.map(m => m.value);
 
     return METODOS_INSTALACION_VIVIENDA.filter(m => metodosPermitidos.includes(m.value));
-  }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable]);
+  }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable, circuito?.normaCable]);
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
