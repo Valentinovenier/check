@@ -10,7 +10,8 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Validación robusta: verificar existencia de los arrays antes de renderizar
-  const tienePasos = resultado?.pasosVerificacion && Array.isArray(resultado.pasosVerificacion) && resultado.pasosVerificacion.length > 0;
+  const pasos = resultado?.pasosVerificacion;
+  const tienePasos = pasos && Array.isArray(pasos) && pasos.length > 0;
   
   if (!resultado || !tienePasos) {
     return null;
@@ -41,7 +42,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
           </div>
 
           <div className="space-y-2">
-            {resultado.pasosVerificacion.map((paso, idx) => (
+            {pasos.map((paso, idx) => (
               <div key={idx} className={`p-3 rounded-lg border flex flex-col md:flex-row md:items-center justify-between gap-2 ${paso.cumple ? 'bg-emerald-900/10 border-emerald-900/30' : 'bg-red-900/10 border-red-900/30'}`}>
                 <div className="flex items-start gap-3">
                     <div className="mt-0.5">
