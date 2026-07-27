@@ -300,7 +300,7 @@ export const calcularTramoResidencial = (
     cumpleCapacidadCorriente: cumpleTodo,
     cumpleCaidaTension: cumpleTodo,
     advertencias: advertencias.length > 0 ? advertencias : undefined,
-    pasosVerificacion
+    pasosVerificacion: pasosVerificacion.filter(p => p !== null && p !== undefined)
   };
 };
 

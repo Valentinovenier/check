@@ -42,7 +42,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
           </div>
 
           <div className="space-y-2">
-            {pasos.map((paso, idx) => (
+            {pasos.filter(paso => paso !== null && paso !== undefined).map((paso, idx) => (
               <div key={idx} className={`p-3 rounded-lg border flex flex-col md:flex-row md:items-center justify-between gap-2 ${paso.cumple ? 'bg-emerald-900/10 border-emerald-900/30' : 'bg-red-900/10 border-red-900/30'}`}>
                 <div className="flex items-start gap-3">
                     <div className="mt-0.5">
