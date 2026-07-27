@@ -41,6 +41,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                          calculated.resultadoCalculo.pasosVerificacion.length > 0;
 
         if (esValido && JSON.stringify(calculated.resultadoCalculo) !== JSON.stringify(conductor.resultadoCalculo)) {
+            console.log('Depuración ViviendaConductorForm - onChange:', calculated);
             onChange(calculated);
         }
     }
