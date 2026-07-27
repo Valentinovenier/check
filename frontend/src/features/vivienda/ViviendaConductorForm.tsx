@@ -116,22 +116,18 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                                 const norma = conductor?.normaCable || 'IRAM 2178';
                                 const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
                                 
-                                // Regla: Cables sin envoltura (IRAM-NM 247-3 / IRAM 62267)
-                                // Generalmente usados en cañerías/cablecanales interiores.
-                                const normaSinEnvoltura = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
+                                // Reglas explícitas del usuario
+                                const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
+                                    ? ['B1']
+                                    : ['IRAM 2178', 'IRAM 62266'].includes(norma)
+                                    ? ['B2', 'D1', 'D2']
+                                    : METODOS_INSTALACION_VIVIENDA.map(m => m.value); // Fallback
 
                                 return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                                    // Líneas principales suelen permitir mayor flexibilidad o métodos específicos
+                                    // Líneas principales suelen permitir mayor flexibilidad
                                     if (esTramoPrincipal) return true;
-
-                                    if (normaSinEnvoltura) {
-                                        // Permite métodos de interior (ej: B1, sinEnvoltura)
-                                        return ['sinEnvoltura', 'B1'].includes(m.value);
-                                    } else {
-                                        // Cables con envoltura (IRAM 2178, IRAM 62266) permiten interior y subterráneo
-                                        // Excluimos métodos exclusivos de sin envoltura
-                                        return !['sinEnvoltura'].includes(m.value);
-                                    }
+                                    
+                                    return metodosPermitidos.includes(m.value);
                                 }).map((m) => (
                                     <option key={m.value} value={m.value}>{m.label}</option>
                                 ));
