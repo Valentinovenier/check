@@ -123,7 +123,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                 <input 
                     type="number"
                     className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.metodoInstalacion?.startsWith('D') ? (conductor?.tempSuelo ?? 25) : (conductor?.temperaturaAmbiente ?? 30)}
+                    value={conductor?.metodoInstalacion?.startsWith('D') ? (conductor?.tempSuelo ?? 25) : (conductor?.temperaturaAmbiente ?? 40)}
                     onChange={(e) => {
                         const val = parseFloat(e.target.value) || 0;
                         if (conductor?.metodoInstalacion?.startsWith('D')) {

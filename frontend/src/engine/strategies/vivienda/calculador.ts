@@ -188,18 +188,41 @@ export const calcularTramoResidencial = (
         
         // PASO 6: Verificación de Cortocircuito Térmico
         const K = 115;
-        // Si hay una protección seleccionada con energía pasante definida, usarla.
-        // Si no, usar cálculo simplificado con t=0.1s
-        const energiaFalla = (proteccionSeleccionada && proteccionSeleccionada.energia_pasante) 
-            ? proteccionSeleccionada.energia_pasante 
-            : Math.pow(Ik_max, 2) * 0.1;
-            
         const capacidadCable = Math.pow(K * s, 2);
         
-        const cumplePaso6 = capacidadCable >= energiaFalla;
+        let energiaFalla = 0;
+        let fuenteEnergia = "";
+        let cumplePaso6 = false;
+
+        // Búsqueda de I²t
+        if (InElegida <= 32) {
+            // Automatizado para protecciones <= 32A
+            const rango = InElegida <= 16 ? 'hasta16A' : 'entre16A32A';
+            const clase = (proteccionSeleccionada?.capacidades[0]?.clase_limitacion === 3) ? 'clase3' : 'clase2';
+            const curva = (proteccionSeleccionada?.curva_disparo === 'B') ? 'tipoB' : 'tipoC';
+            
+            // Aproximación simplificada tomando el Icn del proyecto (fallback a 6000A)
+            const Icn = proteccionSeleccionada?.capacidades[0]?.icn_ka ? (proteccionSeleccionada.capacidades[0].icn_ka * 1000) : 6000;
+            
+            energiaFalla = (valoresEnergiaPasante as any)[rango][clase][curva][Icn] || Math.pow(Ik_max, 2) * 0.1;
+            fuenteEnergia = `(tablas AEA para ${rango}, ${clase}, ${curva})`;
+            cumplePaso6 = capacidadCable >= energiaFalla;
+        } else {
+            // Requerido para protecciones > 32A
+            if (proteccionSeleccionada?.energia_pasante) {
+                energiaFalla = proteccionSeleccionada.energia_pasante;
+                fuenteEnergia = "(dato de catálogo)";
+                cumplePaso6 = capacidadCable >= energiaFalla;
+            } else {
+                energiaFalla = 0;
+                fuenteEnergia = "(ERROR: REQUIERE DATO ENERGÍA PASANTE)";
+                cumplePaso6 = false;
+            }
+        }
+            
         pasosActuales.push({
             numero: 6, nombre: "Exigencia Térmica", 
-            valor: `K²S²=${capacidadCable.toFixed(0)}, I²t=${energiaFalla.toFixed(0)}${proteccionSeleccionada?.energia_pasante ? ' (de protección)' : ' (simplificado)'}`,
+            valor: `K²S²=${capacidadCable.toFixed(0)}, I²t=${energiaFalla.toFixed(0)} ${fuenteEnergia}`,
             condicion: "K²S² >= I²t", cumple: cumplePaso6
         });
         
