@@ -17,6 +17,8 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
+  console.log('ViviendaConductorForm - tramoId:', tramoId);
+  
   const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
@@ -131,11 +133,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         </select>
                     )}
                 </div>
-            </div>
 
-            <div className="space-y-4">
-                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">2. Configuración Técnica y Cálculo</h3>
-                
                 {datosFaltantes && (
                     <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg text-blue-300 text-xs">
                         ℹ️ Complete el Método de Instalación y la Longitud para calcular la sección.
