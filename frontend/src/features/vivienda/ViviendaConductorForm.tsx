@@ -20,24 +20,18 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
-  // Buscar circuito correspondiente en datosVivienda
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
-
-  // Solo los circuitos terminales requieren vinculación a canalización
   const esCircuitoTerminal = Boolean(circuito) || conductor?.tipoTramo === 'CircuitoTerminal';
   const necesitaCanalizacion = esCircuitoTerminal && !isPanelTramo && !esTramoProtegido && tramoId !== 'int-general-salida';
   
-  // Verificar si tiene protección asignada buscando el circuito o tablero en los datos del proyecto
   const proteccionAsignada = useMemo(() => {
     return obtenerProteccionAsignada(project, conductor, tramoId);
   }, [project, conductor, tramoId]);
 
   const tieneProteccionAsignada = Boolean(proteccionAsignada);
 
-  // Recalcular automáticamente si tiene protección asignada y faltan resultados pero hay datos suficientes
   useEffect(() => {
     if (project && tieneProteccionAsignada && conductor && !conductor.resultadoCalculo) {
-        // Solo calcular si tenemos los datos mínimos necesarios
         if (conductor.metodoInstalacion && conductor.longitud) {
             const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
             if (calculated.resultadoCalculo) {
@@ -49,7 +43,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
 
   const datosFaltantes = !conductor?.metodoInstalacion || !conductor?.longitud;
 
-  // Buscar canalización vinculada si no está en el conductor
   const canalizacionVinculada = useMemo(() => {
     const found = project?.canalizaciones?.find(c => c.circuitosIds.includes(tramoId || ''));
     if (conductor?.canalizacionId) return project?.canalizaciones?.find(c => c.id === conductor.canalizacionId);
@@ -63,7 +56,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         newConductor.canalizacionId = undefined;
     }
     
-    // Intentar calcular solo si tenemos lo mínimo
     if (project && tieneProteccionAsignada && newConductor.metodoInstalacion && newConductor.longitud) {
         newConductor = calcularConductorResidencial(newConductor, project);
     } else {
@@ -88,11 +80,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         ) : (
         <div className="grid grid-cols-1 gap-6">
             
-            {/* SECCIÓN 1: Configuración del Tramo y Método */}
             <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">1. Configuración del Tramo y Método</h3>
                 
-                {/* Norma del Cable */}
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Norma del Cable</label>
                     <select 
@@ -106,7 +96,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     </select>
                 </div>
 
-                {/* Método de Instalación */}
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     {(necesitaCanalizacion && !conductor?.canalizacionId && !canalizacionVinculada) ? (
@@ -141,7 +130,6 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                 </div>
             </div>
 
-            {/* SECCIÓN 2: Configuración Técnica y Cálculo */}
             <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">2. Configuración Técnica y Cálculo</h3>
                 
@@ -151,86 +139,85 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                     </div>
                 )}
 
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">
+                        {conductor?.metodoInstalacion?.startsWith('D') ? 'Temp. Suelo (°C)' : 'Temp. Ambiente (°C)'}
+                    </label>
+                    <input 
+                        type="number"
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.metodoInstalacion?.startsWith('D') ? (conductor?.tempSuelo ?? 25) : (conductor?.temperaturaAmbiente ?? 40)}
+                        onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            if (conductor?.metodoInstalacion?.startsWith('D')) {
+                                handleDataChange({ tempSuelo: val });
+                            } else {
+                                handleDataChange({ temperaturaAmbiente: val });
+                            }
+                        }}
+                    />
+                </div>
 
+                {conductor?.metodoInstalacion?.startsWith('D') && (
+                    <>
+                        <div>
+                            <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Resistividad Térmica (K·m/W)</label>
+                            <input 
+                                type="number"
+                                step="0.1"
+                                className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                                value={conductor?.resistividadTermica ?? 1.0}
+                                onChange={(e) => handleDataChange({ resistividadTermica: parseFloat(e.target.value) || 1.0 })}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Separación de bordes</label>
+                            <select 
+                                className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                                value={conductor?.separacionBordes || 'en_contacto'}
+                                onChange={(e) => handleDataChange({ separacionBordes: e.target.value })}
+                            >
+                                <option value="en_contacto">En contacto</option>
+                                {conductor.metodoInstalacion.startsWith('D1') && (
+                                    <>
+                                        <option value="sep_0.25">0.25m</option>
+                                        <option value="sep_0.5">0.5m</option>
+                                        <option value="sep_1.0">1.0m</option>
+                                    </>
+                                )}
+                                {conductor.metodoInstalacion.startsWith('D2') && (
+                                    <>
+                                        <option value="sep_un_diam">Separados un diámetro</option>
+                                        <option value="sep_0.125">0.125m</option>
+                                        <option value="sep_0.25">0.25m</option>
+                                        <option value="sep_0.5">0.5m</option>
+                                    </>
+                                )}
+                            </select>
+                        </div>
+                    </>
+                )}
 
-            <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">
-                    {conductor?.metodoInstalacion?.startsWith('D') ? 'Temp. Suelo (°C)' : 'Temp. Ambiente (°C)'}
-                </label>
-                <input 
-                    type="number"
-                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.metodoInstalacion?.startsWith('D') ? (conductor?.tempSuelo ?? 25) : (conductor?.temperaturaAmbiente ?? 40)}
-                    onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        if (conductor?.metodoInstalacion?.startsWith('D')) {
-                            handleDataChange({ tempSuelo: val });
-                        } else {
-                            handleDataChange({ temperaturaAmbiente: val });
-                        }
-                    }}
-                />
-            </div>
-
-            {conductor?.metodoInstalacion?.startsWith('D') && (
-                <>
-                    <div>
-                        <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Resistividad Térmica (K·m/W)</label>
-                        <input 
-                            type="number"
-                            step="0.1"
-                            className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                            value={conductor?.resistividadTermica ?? 1.0}
-                            onChange={(e) => handleDataChange({ resistividadTermica: parseFloat(e.target.value) || 1.0 })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Separación de bordes</label>
-                        <select 
-                            className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                            value={conductor?.separacionBordes || 'en_contacto'}
-                            onChange={(e) => handleDataChange({ separacionBordes: e.target.value })}
-                        >
-                            <option value="en_contacto">En contacto</option>
-                            {conductor.metodoInstalacion.startsWith('D1') && (
-                                <>
-                                    <option value="sep_0.25">0.25m</option>
-                                    <option value="sep_0.5">0.5m</option>
-                                    <option value="sep_1.0">1.0m</option>
-                                </>
-                            )}
-                            {conductor.metodoInstalacion.startsWith('D2') && (
-                                <>
-                                    <option value="sep_un_diam">Separados un diámetro</option>
-                                    <option value="sep_0.125">0.125m</option>
-                                    <option value="sep_0.25">0.25m</option>
-                                    <option value="sep_0.5">0.5m</option>
-                                </>
-                            )}
-                        </select>
-                    </div>
-                </>
-            )}
-
-            <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Longitud (m)</label>
-                <input 
-                    type="number"
-                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.longitud || ''}
-                    onChange={(e) => handleDataChange({ longitud: parseFloat(e.target.value) || 0 })}
-                />
-            </div>
-            
-            <div>
-                <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Caída de Tensión Máxima Permitida (%)</label>
-                <input 
-                    type="number"
-                    step="0.1"
-                    className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                    value={conductor?.caidaMaxPermitida ?? 3.0}
-                    onChange={(e) => handleDataChange({ caidaMaxPermitida: parseFloat(e.target.value) || 3.0 })}
-                />
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Longitud (m)</label>
+                    <input 
+                        type="number"
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.longitud || ''}
+                        onChange={(e) => handleDataChange({ longitud: parseFloat(e.target.value) || 0 })}
+                    />
+                </div>
+                
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Caída de Tensión Máxima Permitida (%)</label>
+                    <input 
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.caidaMaxPermitida ?? 3.0}
+                        onChange={(e) => handleDataChange({ caidaMaxPermitida: parseFloat(e.target.value) || 3.0 })}
+                    />
+                </div>
             </div>
         </div>
         )}
