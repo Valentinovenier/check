@@ -49,6 +49,25 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     return found;
   }, [project, conductor, tramoId]);
 
+  // Nuevo useMemo para el filtrado reactivo
+  const metodosDisponibles = useMemo(() => {
+    const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
+    
+    // Determinación de norma
+    const norma = esTramoPrincipal
+        ? (conductor?.normaCable || 'IRAM 2178')
+        : (canalizacionVinculada?.normaCable || 'IRAM 2178');
+
+    // Reglas
+    const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
+        ? ['sinEnvoltura']
+        : ['IRAM 2178', 'IRAM 62266'].includes(norma)
+        ? ['B2', 'D1', 'D2']
+        : METODOS_INSTALACION_VIVIENDA.map(m => m.value);
+
+    return METODOS_INSTALACION_VIVIENDA.filter(m => metodosPermitidos.includes(m.value));
+  }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable]);
+
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
     
@@ -112,32 +131,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                             onChange={(e) => handleDataChange({ metodoInstalacion: e.target.value })}
                         >
                             <option value="">Selecciona Método</option>
-                            {(() => {
-                                const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
-                                
-                                // Lógica de norma:
-                                // 1. Si es tramo principal ('tp'): norma seleccionable en el conductor (fallback IRAM 2178)
-                                // 2. Si NO es tramo principal: norma estricta de la canalización vinculada
-                                const norma = esTramoPrincipal
-                                    ? (conductor?.normaCable || 'IRAM 2178')
-                                    : (canalizacionVinculada?.normaCable || 'IRAM 2178'); // Fallback por seguridad
-
-                                // Reglas explícitas del usuario:
-                                // Norma (sin envoltura) -> B1
-                                // Norma (con envoltura) -> B2, D1, D2
-                                const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
-                                    ? ['sinEnvoltura']
-                                    : ['IRAM 2178', 'IRAM 62266'].includes(norma)
-                                    ? ['B2', 'D1', 'D2']
-                                    : METODOS_INSTALACION_VIVIENDA.map(m => m.value);
-
-                                return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                                    // Aplicar filtrado estrictamente según la norma elegida, incluso en tramo principal
-                                    return metodosPermitidos.includes(m.value);
-                                }).map((m) => (
-                                    <option key={m.value} value={m.value}>{m.label}</option>
-                                ));
-                            })()}
+                            {metodosDisponibles.map((m) => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))}
                         </select>
                     )}
                 </div>
