@@ -55,11 +55,14 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const metodosDisponibles = useMemo(() => {
     const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
     
-    // Determinación de norma
-    const norma = esTramoPrincipal
-        ? (conductor?.normaCable || 'IRAM 2178')
-        : (canalizacionVinculada?.normaCable || 'IRAM 2178');
-
+    // Determinación de norma con manejo explícito de valores undefined o vacíos
+    let norma = 'IRAM 2178';
+    if (esTramoPrincipal) {
+        norma = conductor?.normaCable || 'IRAM 2178';
+    } else if (canalizacionVinculada?.normaCable) {
+        norma = canalizacionVinculada.normaCable;
+    }
+    
     // Reglas
     const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
         ? ['sinEnvoltura']
