@@ -17,14 +17,12 @@ interface Props {
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
   const { state: project } = useProject();
   
-  console.log('ViviendaConductorForm - tramoId:', tramoId);
-  
-  const esTramoProtegido = tramoId === 'int-general-salida' || hideCanalizacion;
+  const esTramoProtegido = tramoId === 'tp' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
 
   const circuito = useMemo(() => project?.datosVivienda?.circuitosCalculados.find(c => c.id === tramoId), [project, tramoId]);
   const esCircuitoTerminal = Boolean(circuito) || conductor?.tipoTramo === 'CircuitoTerminal';
-  const necesitaCanalizacion = esCircuitoTerminal && !isPanelTramo && !esTramoProtegido && tramoId !== 'int-general-salida';
+  const necesitaCanalizacion = esCircuitoTerminal && !isPanelTramo && !esTramoProtegido && tramoId !== 'tp';
   
   const proteccionAsignada = useMemo(() => {
     return obtenerProteccionAsignada(project, conductor, tramoId);
@@ -85,7 +83,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">1. Configuración del Tramo y Método</h3>
                 
-                {tramoId === 'int-general-salida' && (
+                {tramoId === 'tp' && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Norma del Cable</label>
                     <select 
