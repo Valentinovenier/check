@@ -114,15 +114,23 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                             <option value="">Selecciona Método</option>
                             {(() => {
                                 const norma = conductor?.normaCable || 'IRAM 2178';
-                                const esTramoGeneral = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
-                                const esCableFlexible = !esTramoGeneral && ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
+                                const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
                                 
+                                // Regla: Cables sin envoltura (IRAM-NM 247-3 / IRAM 62267)
+                                // Generalmente usados en cañerías/cablecanales interiores.
+                                const normaSinEnvoltura = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
+
                                 return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                                    if (esTramoGeneral) return true;
-                                    if (esCableFlexible) {
-                                        return m.value === 'sinEnvoltura' || m.value === 'B1';
+                                    // Líneas principales suelen permitir mayor flexibilidad o métodos específicos
+                                    if (esTramoPrincipal) return true;
+
+                                    if (normaSinEnvoltura) {
+                                        // Permite métodos de interior (ej: B1, sinEnvoltura)
+                                        return ['sinEnvoltura', 'B1'].includes(m.value);
                                     } else {
-                                        return m.value !== 'sinEnvoltura' && m.value !== 'B1';
+                                        // Cables con envoltura (IRAM 2178, IRAM 62266) permiten interior y subterráneo
+                                        // Excluimos métodos exclusivos de sin envoltura
+                                        return !['sinEnvoltura'].includes(m.value);
                                     }
                                 }).map((m) => (
                                     <option key={m.value} value={m.value}>{m.label}</option>
