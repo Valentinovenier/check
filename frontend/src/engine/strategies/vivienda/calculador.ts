@@ -8,6 +8,7 @@ import { calcularFactorAgrupamiento } from '../industrial/canalizacionService';
 import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 import { getFactorResistividad } from '../../../data/factoresResistividad';
+import { valoresEnergiaPasante } from '../../../data/energiaPasante';
 import { adaptarConductorACondiciones } from './conductorAdapter';
 import { obtenerProteccionAsignada } from './helpers';
 
