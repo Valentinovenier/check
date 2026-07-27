@@ -83,6 +83,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">1. Configuración del Tramo y Método</h3>
                 
+                {tramoId === 'int-general-salida' && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Norma del Cable</label>
                     <select 
@@ -93,8 +94,10 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         <option value="IRAM 2178">IRAM 2178</option>
                         <option value="IRAM-NM 247-3">IRAM-NM 247-3 (Flexible)</option>
                         <option value="IRAM 62267">IRAM 62267 (Libre de Halógenos)</option>
+                        <option value="IRAM 62266">IRAM 62266</option>
                     </select>
                 </div>
+                )}
 
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
