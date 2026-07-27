@@ -113,15 +113,18 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         >
                             <option value="">Selecciona Método</option>
                             {(() => {
+                                // Obtener norma activa, con fallback a 'IRAM 2178'
                                 const norma = conductor?.normaCable || 'IRAM 2178';
                                 const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
                                 
-                                // Reglas explícitas del usuario
+                                // Reglas explícitas del usuario:
+                                // Norma (sin envoltura) -> B1 (que en uiMappers es 'sinEnvoltura')
+                                // Norma (con envoltura) -> B2, D1, D2
                                 const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
-                                    ? ['B1']
+                                    ? ['sinEnvoltura']
                                     : ['IRAM 2178', 'IRAM 62266'].includes(norma)
                                     ? ['B2', 'D1', 'D2']
-                                    : METODOS_INSTALACION_VIVIENDA.map(m => m.value); // Fallback
+                                    : METODOS_INSTALACION_VIVIENDA.map(m => m.value); // Fallback: todo
 
                                 return METODOS_INSTALACION_VIVIENDA.filter(m => {
                                     // Líneas principales suelen permitir mayor flexibilidad
