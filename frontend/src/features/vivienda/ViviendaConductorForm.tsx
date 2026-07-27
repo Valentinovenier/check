@@ -31,15 +31,15 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const tieneProteccionAsignada = Boolean(proteccionAsignada);
 
   useEffect(() => {
-    if (project && tieneProteccionAsignada && conductor && !conductor.resultadoCalculo) {
-        if (conductor.metodoInstalacion && conductor.longitud) {
-            const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
-            if (calculated.resultadoCalculo) {
-                onChange(calculated);
-            }
+    // Calculamos siempre si tenemos datos mínimos, permitiendo refrescar el resultado si cambian parámetros
+    if (project && tieneProteccionAsignada && conductor && conductor.metodoInstalacion && conductor.longitud) {
+        const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
+        // Solo actualizar si el resultado es realmente diferente para evitar bucles infinitos
+        if (JSON.stringify(calculated.resultadoCalculo) !== JSON.stringify(conductor.resultadoCalculo)) {
+            onChange(calculated);
         }
     }
-  }, [project, tieneProteccionAsignada, tramoId, conductor]);
+  }, [project, tieneProteccionAsignada, tramoId, conductor?.metodoInstalacion, conductor?.longitud, conductor?.normaCable, conductor?.tempSuelo, conductor?.temperaturaAmbiente, conductor?.resistividadTermica, conductor?.separacionBordes, conductor?.caidaMaxPermitida]);
 
   const datosFaltantes = !conductor?.metodoInstalacion || !conductor?.longitud;
 
