@@ -9,9 +9,14 @@ interface Props {
 export const DetalleCalculoConductor = ({ resultado }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!resultado || !resultado.pasosVerificacion || resultado.pasosVerificacion.length === 0) {
+  // Validación robusta: verificar existencia de los arrays antes de renderizar
+  const tienePasos = resultado?.pasosVerificacion && Array.isArray(resultado.pasosVerificacion) && resultado.pasosVerificacion.length > 0;
+  
+  if (!resultado || !tienePasos) {
     return null;
   }
+
+  const advertencias = Array.isArray(resultado.advertencias) ? resultado.advertencias : [];
 
   return (
     <div className="mt-4 border border-slate-700 rounded-xl overflow-hidden bg-slate-900">
@@ -30,7 +35,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
                 <span className="text-slate-400">Sección recomendada: </span>
                 <span className="font-bold text-[var(--accent)]">{resultado.seccionRecomendada} mm²</span>
              </p>
-             {resultado.advertencias && resultado.advertencias.map((adv, idx) => (
+             {advertencias.map((adv, idx) => (
                 <p key={idx} className="text-xs text-amber-400 mt-1">{adv}</p>
              ))}
           </div>
