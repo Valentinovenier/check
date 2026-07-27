@@ -49,6 +49,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     return found;
   }, [project, conductor, tramoId]);
 
+  console.log('Depuración ViviendaConductorForm:', { tramoId, canalizacionVinculada, conductor });
+
   // Nuevo useMemo para el filtrado reactivo
   const metodosDisponibles = useMemo(() => {
     const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
