@@ -132,9 +132,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                                     : METODOS_INSTALACION_VIVIENDA.map(m => m.value);
 
                                 return METODOS_INSTALACION_VIVIENDA.filter(m => {
-                                    // Líneas principales suelen permitir mayor flexibilidad
-                                    if (esTramoPrincipal) return true;
-                                    
+                                    // Aplicar filtrado estrictamente según la norma elegida, incluso en tramo principal
                                     return metodosPermitidos.includes(m.value);
                                 }).map((m) => (
                                     <option key={m.value} value={m.value}>{m.label}</option>
