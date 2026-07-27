@@ -65,7 +65,10 @@ export const getAdmisible = (
   // Find the first table that actually has data for this section
   const tabla = tablas.find(t => !!t.datos[seccion]);
 
-  if (!tabla) return undefined;
+  if (!tabla) {
+      console.error(`[ERROR] No se encontró tabla de corriente para: Norma=${norma}, Seccion=${seccion}, Metodo=${metodo}`);
+      return 0; // Retornar 0 en lugar de undefined para ser manejado en la capa superior
+  }
   
   const datosSeccion = tabla.datos[seccion];
 

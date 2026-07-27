@@ -21,13 +21,22 @@ export const calcularConductorResidencial = (
   
   if (condiciones.longitudMetros && condiciones.metodoInstalacion && condiciones.tipoTramo) {
       const resultado = calcularTramoResidencial(condiciones, project, proteccion);
-      return {
-          ...conductor,
-          resultadoCalculo: resultado,
-          seccion: resultado.seccionRecomendada
-      };
+      
+      // Solo retornar el conductor con resultado si el cálculo fue exitoso y tiene datos válidos (pasos de verificación)
+      if (resultado.pasosVerificacion && resultado.pasosVerificacion.length > 0) {
+          return {
+              ...conductor,
+              resultadoCalculo: resultado,
+              seccion: resultado.seccionRecomendada
+          };
+      }
   }
-  return conductor;
+  
+  // En caso de fallo o datos insuficientes, retornar conductor sin resultado y sin sobreescribir la sección manualmente
+  return {
+      ...conductor,
+      resultadoCalculo: undefined,
+  };
 };
 
 export const calcularTramoResidencial = (
