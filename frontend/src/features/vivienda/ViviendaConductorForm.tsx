@@ -114,7 +114,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                             <option value="">Selecciona Método</option>
                             {(() => {
                                 const norma = conductor?.normaCable || 'IRAM 2178';
-                                const esTramoGeneral = tramoId === 'int-general-salida' || conductor?.tipoTramo === 'LineaPrincipal';
+                                const esTramoGeneral = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
                                 const esCableFlexible = !esTramoGeneral && ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
                                 
                                 return METODOS_INSTALACION_VIVIENDA.filter(m => {
