@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, FileText, Server, Cable } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, ClipboardList, Network } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Project } from '../types/project';
 import { SaveIndicator } from '../components/SaveIndicator';
@@ -32,9 +32,9 @@ export const DashboardLayout = ({
     ? [
         { icon: Settings, label: 'Parámetros', id: 'parametros' },
         { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
-        { icon: Cable, label: 'Canalizaciones', id: 'canalizaciones' },
+        { icon: Network, label: 'Canalizaciones', id: 'canalizaciones' },
         { icon: Zap, label: 'Protecciones', id: 'protecciones' },
-        { icon: FileText, label: 'Conductores', id: 'conductores' },
+        { icon: Cable, label: 'Conductores', id: 'conductores' },
         { icon: FileText, label: 'Informe', id: 'informe' },
       ]
     : [];
