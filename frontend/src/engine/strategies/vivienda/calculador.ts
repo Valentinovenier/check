@@ -68,7 +68,6 @@ export const calcularTramoResidencial = (
 
   const canalizacion = project.canalizaciones?.find(c => c.id === condiciones.canalizacionId);
   const nCircuitos = canalizacion ? canalizacion.circuitosIds.length : 1;
-  console.log('[DEBUG] Vivienda Calculador - CanalizacionId:', condiciones.canalizacionId, 'CanalizacionEncontrada:', !!canalizacion, 'nCircuitos:', nCircuitos);
   const seccionesComerciales = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70];
   let seccionElegida = seccionesComerciales.find(s => s >= seccionMinima) || seccionMinima;
   

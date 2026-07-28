@@ -34,6 +34,7 @@ export const adaptarConductorACondiciones = (
       } else if (conductor.tipoTramo === 'CircuitoTerminal' && (conductor as any).destinoId) {
           const circuitoId = (conductor as any).destinoId;
           const circuito = project.datosVivienda.circuitosCalculados?.find(c => c.id === circuitoId);
+          console.log('[DEBUG] Adaptador - Conductor:', conductor, 'CircuitoEncontrado:', !!circuito, 'CircuitoCanalizacionId:', (circuito as any)?.canalizacionId);
           if (circuito) {
               corrienteDiseño = getCircuitoNominalCurrent(circuito as unknown as CircuitoTerminal, project);
               // CRUCIAL: Si no está en el conductor, buscar en el objeto circuito

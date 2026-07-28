@@ -83,6 +83,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
     
+    // Si no tiene ID de canalización pero existe una vinculada, la asignamos automáticamente
+    if (!newConductor.canalizacionId && canalizacionVinculada) {
+        newConductor.canalizacionId = canalizacionVinculada.id;
+    }
+    
     if (isPanelTramo || esTramoProtegido) {
         newConductor.canalizacionId = undefined;
     }
