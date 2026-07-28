@@ -24,11 +24,15 @@ const getPotenciaCircuito = (c: any, project?: Project): number => {
             }
 
             console.log(`DEBUG: Circuito ${c.id} - Total puntos IUG: ${puntosIUG}`);
-            // AEA 770: Minimo 1 punto por circuito IUG. Si puntos es 0, usamos 1 punto de 60 VA por defecto.
+            
+            // AEA 770: Si puntosIUG es 0, usamos 1 punto de 60 VA por defecto.
             const puntos = puntosIUG > 0 ? puntosIUG : 1;
-            return c.tieneTomacorrientesDerivados 
+            const potencia = c.tieneTomacorrientesDerivados 
                 ? 2200 
                 : (2 / 3) * puntos * 60;
+                
+            console.log(`DEBUG: Circuito ${c.id} - Potencia final calculada: ${potencia} VA`);
+            return potencia;
         case 'tomacorrientes_usos_generales': 
             return 2200;
         case 'usos_especiales': 
