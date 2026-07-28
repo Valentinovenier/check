@@ -40,7 +40,6 @@ export const calcularCanalizacionIterativa = (
       };
       
       // 3. Usar el motor robusto existente
-      console.log('[DEBUG] Llamando a calcularConductorTramo con agrupamiento=', condicionesConAgrupamiento.agrupamiento, 'tieneCustom=', !!condicionesConAgrupamiento.customFactorAgrupamiento);
       const resultado = calcularConductorTramo(
           condicionesConAgrupamiento,
           condiciones.ib,

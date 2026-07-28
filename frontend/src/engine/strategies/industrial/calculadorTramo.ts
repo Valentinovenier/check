@@ -73,9 +73,7 @@ export const calcularConductorTramo = (
       
       // Si existe una estrategia inyectada, usarla
       if (condiciones.customFactorAgrupamiento) {
-          const factor = condiciones.customFactorAgrupamiento(totalCircuits);
-          console.log(`[DEBUG] Custom F_Agrup (nCircuitosBase=${nCircuitos}, nCond=${nCond}, total=${totalCircuits}) => ${factor}`);
-          return factor;
+          return condiciones.customFactorAgrupamiento(totalCircuits);
       }
       
       if (totalCircuits === 1) return 1.0;

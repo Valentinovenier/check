@@ -4,7 +4,7 @@ import { getAdmisible } from '../industrial/corrienteProvider';
 import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura } from '../industrial/helpers/normativeFactors';
-import { calcularFactorAgrupamiento } from '../industrial/canalizacionService';
+import { getFactorAgrupamientoVivienda } from './agrupamientoProvider';
 import { calcularImpedanciaTransformador } from '../industrial/transformador';
 import { PARAMETROS_CALCULO_VIVIENDA } from '../../../data/vivienda/parametrosCalculo';
 import { getFactorResistividad } from '../../../data/factoresResistividad';
@@ -125,7 +125,7 @@ export const calcularTramoResidencial = (
 
     const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
-    const factorAgrup = calcularFactorAgrupamiento(nCircuitos, condiciones.tipoInstalacion || 'Monofásica');
+    const factorAgrup = getFactorAgrupamientoVivienda(nCircuitos);
     const factorResistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     const IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
