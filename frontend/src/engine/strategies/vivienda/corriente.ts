@@ -25,8 +25,8 @@ const getPotenciaCircuito = (c: any, project?: Project): number => {
 
             console.log(`DEBUG: Circuito ${c.id} - Total puntos IUG: ${puntosIUG}`);
             
-            // AEA 770: Si puntosIUG es 0, usamos 1 punto de 60 VA por defecto.
-            const puntos = puntosIUG > 0 ? puntosIUG : 1;
+            // Si el circuito no tiene tomas (0 puntos), la potencia es 0.
+            const puntos = puntosIUG;
             const potencia = c.tieneTomacorrientesDerivados 
                 ? 2200 
                 : (2 / 3) * puntos * 60;
