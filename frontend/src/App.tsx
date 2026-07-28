@@ -136,6 +136,7 @@ export default function App() {
         setProjects([...projects, projectToAdd]);
         setSelectedProject(newProject);
         setLastSaved(newProject);
+        setCurrentPage('parametros'); // <--- Redirigir a parámetros
         setIsModalOpen(false);
       } else if (response.status === 401) {
         localStorage.removeItem('token');
