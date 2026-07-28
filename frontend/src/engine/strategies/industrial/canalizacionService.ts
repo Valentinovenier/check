@@ -9,10 +9,16 @@ export const getCircuitosPorCanalizacion = (project: Project, canalizacionId: st
   const canalizacion = project.canalizaciones?.find(c => c.id === canalizacionId);
   if (!canalizacion) return [];
 
+  console.log('[DEBUG] canalizacion.circuitosIds:', canalizacion.circuitosIds);
+  console.log('[DEBUG] project.informeConductores length:', project.informeConductores?.length);
+  
   // Obtenemos los elementos que están en el informe y que figuran en el circuitosIds de esta canalización
-  return (project.informeConductores || []).filter(
+  const circuitosEncontrados = (project.informeConductores || []).filter(
     (c: any) => canalizacion.circuitosIds.includes(c.id)
   );
+
+  console.log('[DEBUG] Circuitos filtrados por canalización:', circuitosEncontrados.length);
+  return circuitosEncontrados;
 };
 
 export const calcularFactorAgrupamiento = (
