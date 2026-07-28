@@ -105,7 +105,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         ...project,
         tableroPrincipal: nuevoTableroPrincipal,
         canalizaciones: canalizacionesActualizadas.map(c => 
-            c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
+            c.id === canalizacionId ? { ...c, circuitosIds: newIds, cantidadCircuitos: newIds.length } : c
         )
     });
     
