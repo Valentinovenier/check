@@ -140,6 +140,18 @@ export interface Canalizacion {
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
 }
 
+export interface DatosCaratula {
+  propietario?: string;
+  direccion?: string;
+  ciudad?: string;
+  provincia?: string;
+  instaladorNombre?: string;
+  instaladorCategoria?: string;
+  instaladorMatricula?: string;
+  instaladorTelefono?: string;
+  instaladorEmail?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -151,6 +163,7 @@ export interface Project {
   armonicos: HarmonicDistortion;
   
   datosVivienda?: DatosVivienda;
+  datosCaratula?: DatosCaratula;
 
   tableroPrincipal: Tablero; 
   

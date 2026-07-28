@@ -104,10 +104,24 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
   };
 
   const updateTomas = (ambienteId: string, circuitoId: string, tipo: 'IUG' | 'TUG' | 'TUE', valor: number) => {
+      const ambiente = datos.ambientes.find(a => a.id === ambienteId);
+      if (!ambiente) return;
+
+      const limite = tipo === 'IUG' ? ambiente.puntosIUG : tipo === 'TUG' ? ambiente.puntosTUG : 999;
+      
+      // Calcular total asignado a otros circuitos para este mismo tipo y ambiente
+      const tomasAmbiente = datos.tomasPorAmbiente?.[ambienteId] || {};
+      const asignadoOtroCircuito = Object.entries(tomasAmbiente).reduce((acc: number, [cId, tomas]: [string, TomasCircuito]) => {
+          if (cId !== circuitoId) return acc + (tomas[tipo] || 0);
+          return acc;
+      }, 0);
+      
+      const valorFinal = Math.min(valor, Math.max(0, limite - asignadoOtroCircuito));
+
       const nuevasTomas = { ...datos.tomasPorAmbiente };
       if (!nuevasTomas[ambienteId]) nuevasTomas[ambienteId] = {};
       if (!nuevasTomas[ambienteId][circuitoId]) nuevasTomas[ambienteId][circuitoId] = { IUG: 0, TUG: 0, TUE: 0 };
-      nuevasTomas[ambienteId][circuitoId][tipo] = valor;
+      nuevasTomas[ambienteId][circuitoId][tipo] = valorFinal;
       
       onChange({ ...project, datosVivienda: { ...datos, tomasPorAmbiente: nuevasTomas } });
   };
@@ -189,33 +203,53 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                             )
                         })}
                     </div>
-                    {datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id)).map(circuito => (
-                        <div key={`input-${circuito.id}`} className="flex items-center gap-3 bg-black/20 p-2 rounded text-[10px]">
-                            <span className="font-bold text-white w-20">{circuito.nombre}</span>
-                            {circuito.tipo === 'iluminacion_usos_generales' && (
-                                <div className="flex items-center">
-                                    <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                        value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0}
-                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, 0))} />
-                                    <button 
-                                        className="ml-1 bg-slate-700 hover:bg-slate-600 text-white rounded w-6 h-6 flex items-center justify-center font-bold"
-                                        onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', (datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.IUG ?? 0) + 1)}
-                                    >+</button>
-                                </div>
-                            )}
-                            {(circuito.tipo === 'tomacorrientes_usos_generales') && (
-                                <div className="flex items-center">
-                                    <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
-                                        value={datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0}
-                                        onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, 0))} />
-                                    <button 
-                                        className="ml-1 bg-slate-700 hover:bg-slate-600 text-white rounded w-6 h-6 flex items-center justify-center font-bold"
-                                        onClick={() => updateTomas(ambiente.id, circuito.id, 'TUG', (datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id]?.TUG ?? 0) + 1)}
-                                    >+</button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                    {datos.circuitosCalculados.filter(c => c.ambientesIds.includes(ambiente.id)).map(circuito => {
+                        const tomasAsignadas = datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id] || { IUG: 0, TUG: 0, TUE: 0 };
+                        
+                        // Calcular total asignado a otros circuitos para este mismo tipo y ambiente
+                        const tomasAmbiente = datos.tomasPorAmbiente?.[ambiente.id] || {};
+                        const asignadoOtroCircuitoIUG = Object.entries(tomasAmbiente).reduce((acc: number, [cId, tomas]: [string, TomasCircuito]) => {
+                            if (cId !== circuito.id) return acc + (tomas.IUG || 0);
+                            return acc;
+                        }, 0);
+                        const asignadoOtroCircuitoTUG = Object.entries(tomasAmbiente).reduce((acc: number, [cId, tomas]: [string, TomasCircuito]) => {
+                            if (cId !== circuito.id) return acc + (tomas.TUG || 0);
+                            return acc;
+                        }, 0);
+
+                        const disabledIUG = (tomasAsignadas.IUG + asignadoOtroCircuitoIUG) >= ambiente.puntosIUG;
+                        const disabledTUG = (tomasAsignadas.TUG + asignadoOtroCircuitoTUG) >= ambiente.puntosTUG;
+
+                        return (
+                            <div key={`input-${circuito.id}`} className="flex items-center gap-3 bg-black/20 p-2 rounded text-[10px]">
+                                <span className="font-bold text-white w-20">{circuito.nombre}</span>
+                                {circuito.tipo === 'iluminacion_usos_generales' && (
+                                    <div className="flex items-center">
+                                        <input type="number" placeholder="IUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
+                                            value={tomasAsignadas.IUG}
+                                            onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, 0))} />
+                                        <button 
+                                            className={`ml-1 rounded w-6 h-6 flex items-center justify-center font-bold ${disabledIUG ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+                                            onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', tomasAsignadas.IUG + 1)}
+                                            disabled={disabledIUG}
+                                        >+</button>
+                                    </div>
+                                )}
+                                {(circuito.tipo === 'tomacorrientes_usos_generales') && (
+                                    <div className="flex items-center">
+                                        <input type="number" placeholder="TUG" className="w-16 bg-slate-800 p-1 rounded text-center text-white" 
+                                            value={tomasAsignadas.TUG}
+                                            onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, 0))} />
+                                        <button 
+                                            className={`ml-1 rounded w-6 h-6 flex items-center justify-center font-bold ${disabledTUG ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+                                            onClick={() => updateTomas(ambiente.id, circuito.id, 'TUG', tomasAsignadas.TUG + 1)}
+                                            disabled={disabledTUG}
+                                        >+</button>
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
                 </div>
                 )}
             </div>
