@@ -66,15 +66,17 @@ export const calcularConductorTramo = (
   const metodo = condiciones.metodoInstalacion;
   
   const getFagrup = (nCond: number) => {
-      // Si existe una estrategia inyectada, usarla
-      if (condiciones.customFactorAgrupamiento) {
-          return condiciones.customFactorAgrupamiento(nCircuitos * nCond);
-      }
-
       // Calculamos la cantidad total de circuitos físicos agrupados.
       // nCircuitos es la cantidad de circuitos base que el usuario agrupó.
       // nCond es la cantidad de cables en paralelo por fase.
       const totalCircuits = nCircuitos * nCond;
+      
+      // Si existe una estrategia inyectada, usarla
+      if (condiciones.customFactorAgrupamiento) {
+          const factor = condiciones.customFactorAgrupamiento(totalCircuits);
+          console.log(`[DEBUG] Custom F_Agrup (nCircuitosBase=${nCircuitos}, nCond=${nCond}, total=${totalCircuits}) => ${factor}`);
+          return factor;
+      }
       
       if (totalCircuits === 1) return 1.0;
       
