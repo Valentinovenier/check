@@ -1,18 +1,30 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Project, Conductor } from '../types/project';
+import { Project, Conductor, DatosCaratula } from '../types/project';
 import { DatosVivienda, CircuitoCalculado, Ambiente } from '../types/vivienda';
 
 /**
  * Genera y descarga el Informe Técnico (Carpeta Técnica Modelo) en formato PDF
  * siguiendo las especificaciones de AEA 90364-7-770 y la estructura del modelo oficial.
  */
-export const generatePdfReport = (project: Project): void => {
+export const generatePdfReport = (project: Project, overrideCaratula?: DatosCaratula): void => {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
   });
+
+  const caratula: DatosCaratula = {
+    propietario: overrideCaratula?.propietario || project.datosCaratula?.propietario || 'Sr/Sra. Propietario',
+    direccion: overrideCaratula?.direccion || project.datosCaratula?.direccion || 'Av. Emilio Olmos 5130',
+    ciudad: overrideCaratula?.ciudad || project.datosCaratula?.ciudad || 'Córdoba',
+    provincia: overrideCaratula?.provincia || project.datosCaratula?.provincia || 'Córdoba',
+    instaladorNombre: overrideCaratula?.instaladorNombre || project.datosCaratula?.instaladorNombre || 'Mario Hildebrando Schmidtson',
+    instaladorCategoria: overrideCaratula?.instaladorCategoria || project.datosCaratula?.instaladorCategoria || 'Categoría III Habilitado',
+    instaladorMatricula: overrideCaratula?.instaladorMatricula || project.datosCaratula?.instaladorMatricula || '123456789-00001',
+    instaladorTelefono: overrideCaratula?.instaladorTelefono || project.datosCaratula?.instaladorTelefono || '3515xxxxxx',
+    instaladorEmail: overrideCaratula?.instaladorEmail || project.datosCaratula?.instaladorEmail || 'nombre@hmail.com',
+  };
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -87,7 +99,7 @@ export const generatePdfReport = (project: Project): void => {
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
-  doc.text(`Propietario: ${project.datosVivienda ? 'Sr/Sra. Propietario' : 'Cliente General'}`, pageWidth / 2, cursorY + 32, { align: 'center' });
+  doc.text(`Propietario: ${caratula.propietario}`, pageWidth / 2, cursorY + 32, { align: 'center' });
   
   cursorY += 55;
 
@@ -100,23 +112,23 @@ export const generatePdfReport = (project: Project): void => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(colorText);
-  doc.text('Av. Principal N° 1234, Barrio Centro', marginLeft, cursorY); cursorY += 5;
-  doc.text('Córdoba, Argentina', marginLeft, cursorY);
+  doc.text(`${caratula.direccion}`, marginLeft, cursorY); cursorY += 5;
+  doc.text(`${caratula.ciudad}, ${caratula.provincia}`, marginLeft, cursorY);
   cursorY += 15;
 
   // Datos del Instalador Electricista
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(colorDark);
-  doc.text('Instalador Electricista Categoría III Habilitado:', marginLeft, cursorY);
+  doc.text(`Instalador Electricista ${caratula.instaladorCategoria}:`, marginLeft, cursorY);
   cursorY += 6;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(colorText);
-  doc.text('Técnico / Ing. Electricista Habilitado', marginLeft, cursorY); cursorY += 5;
-  doc.text('N° Habilitación: 123456789-00001', marginLeft, cursorY); cursorY += 5;
-  doc.text('Tel.: (0351) 15X-XXXXXX', marginLeft, cursorY); cursorY += 5;
-  doc.text('Correo: contacto@ingenieriaelectrica.com', marginLeft, cursorY);
+  doc.text(`${caratula.instaladorNombre}`, marginLeft, cursorY); cursorY += 5;
+  doc.text(`N° habilitación: ${caratula.instaladorMatricula}`, marginLeft, cursorY); cursorY += 5;
+  doc.text(`Tel.: ${caratula.instaladorTelefono}`, marginLeft, cursorY); cursorY += 5;
+  doc.text(`Correo: ${caratula.instaladorEmail}`, marginLeft, cursorY);
 
   // Pie institucional de Carátula
   doc.setFont('helvetica', 'bold');
