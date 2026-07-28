@@ -66,9 +66,6 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
                     {saving ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
             )}
-            <button onClick={onDelete} className="text-red-400 hover:text-red-300 flex items-center gap-2">
-                <Trash2 size={16} /> Eliminar
-            </button>
         </div>
       </div>
       
