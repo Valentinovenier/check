@@ -189,6 +189,7 @@ export default function App() {
                 if (proj) {
                   setSelectedProject(proj);
                   setLastSaved(proj);
+                  console.log("Navigating to parametros");
                   setCurrentPage('parametros'); // Navegar a parámetros al entrar a un proyecto
                 }
               }}
