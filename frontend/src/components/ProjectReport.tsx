@@ -6,15 +6,15 @@ import { generatePdfReport } from '../utils/generatePdfReport';
 export const ProjectReport = ({ project }: { project: Project }) => {
   const [showCaratulaForm, setShowCaratulaForm] = useState(false);
   const [caratula, setCaratula] = useState<DatosCaratula>({
-    propietario: project.datosCaratula?.propietario || 'Sr. Juan PEREZ',
-    direccion: project.datosCaratula?.direccion || 'Av. Emilio Olmos 5130',
-    ciudad: project.datosCaratula?.ciudad || 'Córdoba',
-    provincia: project.datosCaratula?.provincia || 'Córdoba',
-    instaladorNombre: project.datosCaratula?.instaladorNombre || 'Mario Hildebrando Schmidtson',
-    instaladorCategoria: project.datosCaratula?.instaladorCategoria || 'Categoría III Habilitado',
-    instaladorMatricula: project.datosCaratula?.instaladorMatricula || '123456789-00001',
-    instaladorTelefono: project.datosCaratula?.instaladorTelefono || '3515xxxxxx',
-    instaladorEmail: project.datosCaratula?.instaladorEmail || 'nombre@hmail.com',
+    propietario: project.datosCaratula?.propietario || '',
+    direccion: project.datosCaratula?.direccion || '',
+    ciudad: project.datosCaratula?.ciudad || '',
+    provincia: project.datosCaratula?.provincia || '',
+    instaladorNombre: project.datosCaratula?.instaladorNombre || '',
+    instaladorCategoria: project.datosCaratula?.instaladorCategoria || '',
+    instaladorMatricula: project.datosCaratula?.instaladorMatricula || '',
+    instaladorTelefono: project.datosCaratula?.instaladorTelefono || '',
+    instaladorEmail: project.datosCaratula?.instaladorEmail || '',
   });
 
   const handlePrint = () => window.print();
