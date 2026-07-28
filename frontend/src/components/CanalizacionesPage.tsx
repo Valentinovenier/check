@@ -81,29 +81,23 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       return;
     }
 
-    // 3. Función recursiva para actualizar el circuito dentro de la jerarquía de tableros
-    const actualizarTablerosRecursivo = (tablero: any): any => {
+    // 3. Función para actualizar el circuito dentro de la estructura de la vivienda
+    const actualizarCircuitosVivienda = (datosVivienda: any): any => {
         return {
-            ...tablero,
-            circuitosTerminales: tablero.circuitosTerminales.map((c: any) => 
+            ...datosVivienda,
+            circuitosCalculados: datosVivienda.circuitosCalculados.map((c: any) => 
                 c.id === circuitoId ? {
                     ...c,
-                    conductor: {
-                        ...c.conductor,
-                        canalizacionId: estaAsignado ? undefined : canalizacionId
-                    }
+                    canalizacionId: estaAsignado ? undefined : canalizacionId
                 } : c
-            ),
-            subTableros: tablero.subTableros ? tablero.subTableros.map(actualizarTablerosRecursivo) : []
+            )
         };
     };
 
-    const nuevoTableroPrincipal = actualizarTablerosRecursivo(project.tableroPrincipal);
-    
     // 4. Aplicar cambios a todo el proyecto
     onChange({
         ...project,
-        tableroPrincipal: nuevoTableroPrincipal,
+        datosVivienda: project.datosVivienda ? actualizarCircuitosVivienda(project.datosVivienda) : undefined,
         canalizaciones: canalizacionesActualizadas.map(c => 
             c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
         )
