@@ -20,7 +20,11 @@ export const calcularCanalizacionIterativa = (
   const MAX_ITERACIONES = 10;
 
   // 1. Obtener número de circuitos real desde la topología
-  const nCircuitos = canalizacion.cantidadCircuitos || 1;
+  const circuitosEnCanalizacion = project.datosVivienda?.circuitosCalculados?.filter(c => 
+      canalizacion.circuitosIds.includes(c.id)
+  ) || [];
+  
+  const nCircuitos = circuitosEnCanalizacion.length || 1;
   const tempAmbiente = project.tempAmbiente || 30;
 
   while (!convergio && iteraciones < MAX_ITERACIONES) {

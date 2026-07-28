@@ -138,7 +138,6 @@ export interface Canalizacion {
   nombre: string;
   circuitosIds: string[];
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
-  cantidadCircuitos?: number;
 }
 
 export interface DatosCaratula {
