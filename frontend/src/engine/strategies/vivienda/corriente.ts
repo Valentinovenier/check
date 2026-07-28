@@ -13,13 +13,17 @@ const getPotenciaCircuito = (c: any, project?: Project): number => {
             // AEA 770: Sumar puntos IUG asignados en todos los ambientes para ESTE circuito
             let puntosIUG = 0;
             if (project && project.datosVivienda && project.datosVivienda.tomasPorAmbiente) {
-                Object.values(project.datosVivienda.tomasPorAmbiente).forEach((amb: any) => {
-                    puntosIUG += (amb[c.id]?.IUG || 0);
+                console.log(`DEBUG: Calculando IUG para circuito ${c.id}`);
+                Object.entries(project.datosVivienda.tomasPorAmbiente).forEach(([ambId, amb]: [string, any]) => {
+                    const puntos = amb[c.id]?.IUG || 0;
+                    if (puntos > 0) console.log(`DEBUG: Ambiente ${ambId} aporta ${puntos} puntos al circuito ${c.id}`);
+                    puntosIUG += puntos;
                 });
             } else {
                 puntosIUG = c.puntosIUG || 0;
             }
 
+            console.log(`DEBUG: Circuito ${c.id} - Total puntos IUG: ${puntosIUG}`);
             // AEA 770: Minimo 1 punto por circuito IUG. Si puntos es 0, usamos 1 punto de 60 VA por defecto.
             const puntos = puntosIUG > 0 ? puntosIUG : 1;
             return c.tieneTomacorrientesDerivados 
