@@ -20,28 +20,30 @@ export const ProjectList = ({ projects = [], onSelectProject, onAddNew, onDelete
 
       {/* Tarjetas de Proyectos */}
       {projects?.map((project) => (
-        <div
+        <button
           key={project.id}
+          onClick={() => onSelectProject(project.id)}
           className="relative w-full h-48 bg-[var(--bg-secondary)] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between text-left hover:border-[var(--accent)] transition-all group"
         >
-          <div className="flex justify-between items-start">
-            <button
-              onClick={() => onSelectProject(project.id)}
-              className="bg-[var(--bg-primary)] p-3 rounded-xl text-[var(--accent)]"
-            >
+          <div className="flex justify-between items-start w-full">
+            <div className="bg-[var(--bg-primary)] p-3 rounded-xl text-[var(--accent)]">
               <Folder size={24} />
-            </button>
+            </div>
             <button 
-              className="text-slate-500 hover:text-white"
-              onClick={() => setOpenMenuId(openMenuId === project.id ? null : project.id)}
+              className="text-slate-500 hover:text-white p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenMenuId(openMenuId === project.id ? null : project.id);
+              }}
             >
               <MoreVertical size={20} />
             </button>
             {openMenuId === project.id && (
-              <div className="absolute top-12 right-6 bg-[var(--bg-primary)] border border-slate-700 rounded-lg shadow-xl z-10">
+              <div className="absolute top-16 right-6 bg-[var(--bg-primary)] border border-slate-700 rounded-lg shadow-xl z-10">
                 <button
                   className="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 w-full"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onDelete(project.id);
                     setOpenMenuId(null);
                   }}
@@ -52,14 +54,14 @@ export const ProjectList = ({ projects = [], onSelectProject, onAddNew, onDelete
               </div>
             )}
           </div>
-          <button onClick={() => onSelectProject(project.id)} className="text-left">
+          <div className="text-left">
             <h3 className="text-lg font-bold text-white group-hover:text-[var(--accent)] transition-colors">{project.name}</h3>
             <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mt-1">
               <Calendar size={14} />
               <span>{project.createdAt}</span>
             </div>
-          </button>
-        </div>
+          </div>
+        </button>
       ))}
     </div>
   );
