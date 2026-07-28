@@ -9,17 +9,17 @@ export const adaptarConductorACondiciones = (
   const canalizacion = project.canalizaciones?.find(c => c.id === conductor.canalizacionId);
   const normaCable = canalizacion?.normaCable || conductor.normaCable || 'IRAM 2178';
 
+  let canalizacionId = conductor.canalizacionId;
   let corrienteDiseño = 16; // Fallback
   
   if (project.datosVivienda) {
       if (conductor.tipoTramo === 'LineaPrincipal') {
           corrienteDiseño = getTableroNominalCurrent(project.tableroPrincipal, project);
       } else if (conductor.tipoTramo === 'LineaSeccional') {
-          // Intentar encontrar el tablero destino o usar el principal como fallback
+          // ... (código existente de tablero) ...
           const destinoId = (conductor as any).destinoId;
           const tableroDestino = project.datosVivienda.tableros?.find(t => t.id === destinoId);
           if (tableroDestino) {
-              // Convertir TableroVivienda a BaseTablero para la función
               const baseTablero: any = {
                   id: tableroDestino.id,
                   nombre: tableroDestino.nombre,
@@ -36,6 +36,10 @@ export const adaptarConductorACondiciones = (
           const circuito = project.datosVivienda.circuitosCalculados?.find(c => c.id === circuitoId);
           if (circuito) {
               corrienteDiseño = getCircuitoNominalCurrent(circuito as unknown as CircuitoTerminal, project);
+              // CRUCIAL: Si no está en el conductor, buscar en el objeto circuito
+              if (!canalizacionId) {
+                  canalizacionId = (circuito as any).canalizacionId;
+              }
           }
       }
   }
@@ -47,7 +51,7 @@ export const adaptarConductorACondiciones = (
     longitudMetros: conductor.longitud || 0,
     corrienteDiseñoAmperes: corrienteDiseño,
     temperaturaAmbiente: conductor.temperaturaAmbiente || project.tempAmbiente || 40,
-    canalizacionId: conductor.canalizacionId,
+    canalizacionId: canalizacionId, // Usar el ID recuperado
     tipoInstalacion: project.tipoInstalacion || 'Monofásica',
     tempSuelo: conductor.tempSuelo,
     resistividadTermica: conductor.resistividadTermica,
