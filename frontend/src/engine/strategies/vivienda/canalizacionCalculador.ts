@@ -2,6 +2,7 @@ import { Project, Canalizacion } from '../../../types/project';
 import { calcularConductorTramo } from '../industrial/calculadorTramo';
 import { CondicionesTramo } from '../../../types/project';
 import { getCircuitosPorCanalizacion } from '../industrial/canalizacionService';
+import { getFactorAgrupamientoVivienda } from './agrupamientoProvider';
 
 /**
  * Calcula todas las secciones de conductores en una canalización de forma iterativa
@@ -34,7 +35,8 @@ export const calcularCanalizacionIterativa = (
           norma: '5', 
           agrupamiento: nCircuitos,
           tipoInstalacion: condiciones.tipoInstalacion || project.tipoInstalacion || 'Trifásica',
-          tipoCable: (condiciones as any).tipoCable // Ajuste para cumplir el tipo
+          tipoCable: (condiciones as any).tipoCable, // Ajuste para cumplir el tipo
+          customFactorAgrupamiento: getFactorAgrupamientoVivienda // Inyectar lógica de vivienda
       };
       
       // 3. Usar el motor robusto existente

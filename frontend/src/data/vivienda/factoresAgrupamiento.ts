@@ -1,14 +1,16 @@
-// Factores de corrección por agrupamiento (Tabla 770.12.II)
-// AEA-90364-7-770
+// frontend/src/data/vivienda/factoresAgrupamiento.ts
 
-export const FACTORES_AGRUPAMIENTO_VIVIENDA = {
-  // Se aplica a las intensidades de la Tabla 770.12.I (cables sin envoltura)
-  // Nota: Los valores base de la tabla 770.12.I ya consideran 1 circuito
-  // Si hay más circuitos, se multiplica por estos factores
-  agrupamiento: {
-    "2_monofasicos": { maxCircuitos: 4, factor: 0.80 },
-    "3_monofasicos": { maxCircuitos: 6, factor: 0.70 },
-    "2_trifasicos": { maxCircuitos: 6, factor: 0.80 },
-    "3_trifasicos": { maxCircuitos: 9, factor: 0.70 },
-  }
+/**
+ * Factores de corrección por agrupamiento para instalaciones en viviendas (AEA 770).
+ * Basado en los requisitos específicos del usuario:
+ * 2 circuitos: 0.80
+ * 3 circuitos: 0.70
+ */
+export const FACTORES_AGRUPAMIENTO_VIVIENDA: Record<number, number> = {
+  1: 1.00,
+  2: 0.80,
+  3: 0.70,
+  4: 0.65, // Valor conservador si no se especifica
+  5: 0.60, // Valor conservador si no se especifica
+  6: 0.55  // Valor conservador si no se especifica
 };
