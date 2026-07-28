@@ -13,6 +13,7 @@ export const calcularCanalizacionIterativa = (
   canalizacion: Canalizacion,
   tramosEnCanalizacion: { id: string, condiciones: CondicionesTramo & { ib: number, longitudKm: number, ik: number, tApertura: number, cosPhi: number, caidaMax: number }, catalogo: any[] }[]
 ) => {
+  console.log('[DEBUG] Ejecutando calcularCanalizacionIterativa para canalizacion:', canalizacion.id);
   let seccionesActuales: Record<string, number> = {};
   let convergio = false;
   let iteraciones = 0;

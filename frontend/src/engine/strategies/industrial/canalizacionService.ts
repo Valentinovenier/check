@@ -9,16 +9,18 @@ export const getCircuitosPorCanalizacion = (project: Project, canalizacionId: st
   const canalizacion = project.canalizaciones?.find(c => c.id === canalizacionId);
   if (!canalizacion) return [];
 
-  console.log('[DEBUG] canalizacion.circuitosIds:', canalizacion.circuitosIds);
-  console.log('[DEBUG] project.informeConductores length:', project.informeConductores?.length);
-  
-  // Obtenemos los elementos que están en el informe y que figuran en el circuitosIds de esta canalización
-  const circuitosEncontrados = (project.informeConductores || []).filter(
+  // En proyectos de vivienda, los circuitos están en datosVivienda.circuitosCalculados
+  // y la canalización referencia a estos circuitos mediante sus IDs.
+  if (project.projectType === 'Vivienda' && project.datosVivienda?.circuitosCalculados) {
+      return project.datosVivienda.circuitosCalculados.filter(
+        (c: any) => canalizacion.circuitosIds.includes(c.id)
+      );
+  }
+
+  // Comportamiento para proyectos industriales
+  return (project.informeConductores || []).filter(
     (c: any) => canalizacion.circuitosIds.includes(c.id)
   );
-
-  console.log('[DEBUG] Circuitos filtrados por canalización:', circuitosEncontrados.length);
-  return circuitosEncontrados;
 };
 
 export const calcularFactorAgrupamiento = (
