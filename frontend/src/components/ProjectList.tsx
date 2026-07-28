@@ -26,9 +26,6 @@ export const ProjectList = ({ projects = [], onSelectProject, onAddNew, onDelete
             <div className="bg-[var(--bg-primary)] p-3 rounded-xl text-[var(--accent)]">
               <Folder size={24} />
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${project.status === 'completed' ? 'bg-green-900 text-green-300' : 'bg-amber-900 text-amber-300'}`}>
-              {project.status === 'completed' ? 'Completado' : 'En proceso'}
-            </span>
           </div>
           <div>
             <h3 className="text-lg font-bold text-white group-hover:text-[var(--accent)] transition-colors">{project.name}</h3>

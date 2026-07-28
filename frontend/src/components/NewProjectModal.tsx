@@ -46,25 +46,35 @@ export const NewProjectModal = ({ onClose, onCreate }: { onClose: () => void, on
             Seleccioná el tipo de instalación
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {PROJECT_TYPES.map((option) => (
-              <div 
-                key={option.id}
-                onClick={() => setSelectedType(option.id)}
-                className={`cursor-pointer p-4 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-3 ${
-                  selectedType === option.id 
-                    ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-white shadow-lg ring-1 ring-[var(--accent)]' 
-                    : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-500 hover:bg-slate-900'
-                }`}
-              >
-                <div className={`${selectedType === option.id ? 'text-[var(--accent)]' : 'text-slate-500'}`}>
-                  {option.icon}
+            {PROJECT_TYPES.map((option) => {
+              const isComingSoon = option.id !== 'Vivienda';
+              return (
+                <div 
+                  key={option.id}
+                  onClick={() => !isComingSoon && setSelectedType(option.id)}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-3 ${
+                    isComingSoon ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  } ${
+                    selectedType === option.id 
+                      ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-white shadow-lg ring-1 ring-[var(--accent)]' 
+                      : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-500 hover:bg-slate-900'
+                  }`}
+                >
+                  {isComingSoon && (
+                    <span className="text-[10px] bg-slate-800 px-2 py-1 rounded-full text-white">
+                      Próximamente...
+                    </span>
+                  )}
+                  <div className={`${selectedType === option.id ? 'text-[var(--accent)]' : 'text-slate-500'}`}>
+                    {option.icon}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">{option.label}</p>
+                    <p className="text-[10px] opacity-70">{option.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-sm">{option.label}</p>
-                  <p className="text-[10px] opacity-70">{option.description}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
