@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, ClipboardList, Network } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, ClipboardList, Network, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Project } from '../types/project';
 import { SaveIndicator } from '../components/SaveIndicator';
@@ -63,6 +63,15 @@ export const DashboardLayout = ({
             </button>
           ))}
         </nav>
+        
+        {/* Logout button */}
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[var(--text-secondary)] hover:text-red-400 hover:bg-[var(--bg-primary)] transition-all duration-200"
+        >
+          <LogOut size={20} />
+          <span className="font-medium">Cerrar Sesión</span>
+        </button>
       </aside>
 
       {/* Main Area */}
