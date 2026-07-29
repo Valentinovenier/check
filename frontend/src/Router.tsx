@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import App from './App';
 import { LandingPage } from './components/LandingPage';
 import { LoginPage } from './components/LoginPage';
@@ -13,14 +14,37 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+const AuthRedirect = () => {
+    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/app');
+        }
+    }, [isAuthenticated, navigate]);
+
+    return null;
+};
+
 const LoginPageWrapper = () => {
     const navigate = useNavigate();
-    return <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />;
+    return (
+        <>
+            <AuthRedirect />
+            <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />
+        </>
+    );
 };
 
 const RegisterPageWrapper = () => {
     const navigate = useNavigate();
-    return <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />;
+    return (
+        <>
+            <AuthRedirect />
+            <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />
+        </>
+    );
 };
 
 const LandingPageWrapper = () => {
