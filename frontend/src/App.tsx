@@ -13,6 +13,7 @@ import { useAuth } from './context/AuthContext';
 import { useProject } from './context/ProjectDataContext';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
+import { LandingPage } from './components/LandingPage';
 import { UnifilarPage } from './components/UnifilarPage';
 import { ProteccionesPage } from './components/ProteccionesPage';
 import { CanalizacionesPage } from './components/CanalizacionesPage';
@@ -23,7 +24,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
+  const [authView, setAuthView] = useState<'landing' | 'login' | 'register'>('landing');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -45,8 +46,6 @@ export default function App() {
         
         if (Array.isArray(data)) {
           const parsed = data.map((p: any) => {
-            // El backend parece devolver la estructura: { id, name, data: string_json }
-            // Necesitamos extraer p.data y parsearlo si es string, o usarlo directamente si ya es objeto.
             let projectData;
             try {
               projectData = typeof p.data === 'string' ? JSON.parse(p.data) : p.data;
@@ -55,7 +54,6 @@ export default function App() {
               projectData = {};
             }
             
-            // Retornamos el objeto proyecto fusionando id, name y el contenido del campo data
             return {
               ...projectData,
               id: p.id,
@@ -82,10 +80,27 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return showRegister ? (
-      <RegisterPage onLoginClick={() => setShowRegister(false)} />
-    ) : (
-      <LoginPage onRegisterClick={() => setShowRegister(true)} />
+    if (authView === 'login') {
+      return (
+        <LoginPage
+          onRegisterClick={() => setAuthView('register')}
+          onLandingClick={() => setAuthView('landing')}
+        />
+      );
+    }
+    if (authView === 'register') {
+      return (
+        <RegisterPage
+          onLoginClick={() => setAuthView('login')}
+          onLandingClick={() => setAuthView('landing')}
+        />
+      );
+    }
+    return (
+      <LandingPage
+        onLoginClick={() => setAuthView('login')}
+        onRegisterClick={() => setAuthView('register')}
+      />
     );
   }
 

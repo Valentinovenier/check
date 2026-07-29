@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface RegisterPageProps {
   onLoginClick: () => void;
+  onLandingClick?: () => void;
 }
 
-export const RegisterPage = ({ onLoginClick }: RegisterPageProps) => {
+export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +40,16 @@ export const RegisterPage = ({ onLoginClick }: RegisterPageProps) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="px-8 py-6 mt-4 text-left bg-gray-800 shadow-lg rounded-lg">
-        <h3 className="text-2xl font-bold text-white text-center">Registrarse</h3>
+      <div className="px-8 py-6 mt-4 text-left bg-gray-800 shadow-lg rounded-lg max-w-md w-full">
+        {onLandingClick && (
+          <button
+            onClick={onLandingClick}
+            className="text-xs font-semibold text-emerald-400 hover:underline mb-4 inline-block"
+          >
+            ← Volver a la Landing Page
+          </button>
+        )}
+        <h3 className="text-2xl font-bold text-white text-center mb-2">Registrarse</h3>
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
             <div>
