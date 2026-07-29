@@ -17,10 +17,13 @@ export const getFactorAgrupamientoVivienda = (
     const tipoCable = conductor?.tipoCable || 'Multipolar';
     const separacion = conductor?.separacionBordes || 'en_contacto';
 
+    console.log('[DEBUG] getFactorAgrupamientoVivienda - Evaluando:', { metodo, tipoCable, separacion, nCircuitos });
+
     // Lógica para método D2 (Tabla B52-18)
     if (metodo === 'D2') {
         const tablaD2 = FACTORES_AGRUPAMIENTO_SUBTERRANEO['D2'];
         const factor = tablaD2[separacion]?.[nCircuitos];
+        console.log('[DEBUG] getFactorAgrupamientoVivienda - Factor D2:', factor);
         if (factor) return factor;
     }
 
@@ -28,6 +31,7 @@ export const getFactorAgrupamientoVivienda = (
     if (metodo === 'D1') {
         const tablaD1 = FACTORES_AGRUPAMIENTO_SUBTERRANEO['D1'];
         const factor = tablaD1[tipoCable]?.[separacion]?.[nCircuitos];
+        console.log('[DEBUG] getFactorAgrupamientoVivienda - Factor D1:', factor);
         if (factor) return factor;
     }
 
