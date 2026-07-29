@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  mp_subscription_id TEXT,
   subscription_status TEXT DEFAULT 'pending',
-  subscription_id TEXT
+  subscription_end_date DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS projects (
