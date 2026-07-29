@@ -12,7 +12,15 @@ export class ViviendaStrategy implements BaseProjectStrategy {
         tipoCircuito: condiciones.tipoCircuito as TipoCircuito,
         metodoInstalacion: (condiciones.metodoInstalacion === 'sinEnvoltura' ? 'sinEnvoltura' : 'B2') as 'B2' | 'D1' | 'D2' | 'sinEnvoltura' // Adaptación simple
     };
-    return calcularTramoResidencial(condicionesRes, project);
+    
+    // Creamos un conductor dummy para cumplir con la firma necesaria para los cálculos de agrupamiento
+    const conductorDummy: any = {
+        metodoInstalacion: condiciones.metodoInstalacion,
+        tipoCable: 'Multipolar',
+        separacionBordes: 'en_contacto'
+    };
+    
+    return calcularTramoResidencial(condicionesRes, project, conductorDummy);
   }
 
   validarReglas(project: Project): boolean {
