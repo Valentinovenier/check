@@ -9,21 +9,24 @@ import {
   Users,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
   ChevronDown,
   Building2,
   Wrench,
   GraduationCap,
-  HelpCircle,
   LogIn,
   Cpu,
-  Calculator,
-  Crown
+  Crown,
+  Star,
+  Download,
+  Globe,
+  Award,
+  BarChart3,
+  BookOpen,
 } from 'lucide-react';
 
 interface LandingPageProps {
   onLoginClick: () => void;
-  onRegisterClick: () => void;
+  onRegisterClick?: () => void;
 }
 
 export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
@@ -35,10 +38,17 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
-      {/* NAVEGACIÓN SUPERIOR */}
+
+      {/* ═══════════════════════════════════════════════
+          NAVEGACIÓN SUPERIOR
+      ═══════════════════════════════════════════════ */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* Logo */}
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 p-0.5 shadow-lg shadow-emerald-500/20">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
                 <Zap className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
@@ -54,12 +64,15 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             </div>
           </div>
 
+          {/* Navegación */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#funcionalidades" className="hover:text-emerald-400 transition-colors">Funcionalidades</a>
             <a href="#beneficios" className="hover:text-emerald-400 transition-colors">Beneficios</a>
+            <a href="#destinatarios" className="hover:text-emerald-400 transition-colors">¿Para quién es?</a>
             <a href="#faq" className="hover:text-emerald-400 transition-colors">Preguntas Frecuentes</a>
           </nav>
 
+          {/* CTA único: Iniciar Sesión */}
           <div className="flex items-center gap-3">
             <button
               onClick={onLoginClick}
@@ -72,23 +85,463 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         </div>
       </header>
 
-      {/* HERO SECTION */}
-      <section className="relative pt-20 pb-24 overflow-hidden">
-        {/* Efectos de luces */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-emerald-500/15 blur-[120px] rounded-full pointer-events-none" />
+      {/* ═══════════════════════════════════════════════
+          HERO SECTION
+      ═══════════════════════════════════════════════ */}
+      <section className="relative pt-24 pb-28 overflow-hidden">
+        {/* Blobs de fondo */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-emerald-500/15 blur-[140px] rounded-full pointer-events-none" />
         <div className="absolute top-1/3 right-10 w-[400px] h-[300px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[350px] h-[250px] bg-teal-600/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h1 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tight">
-            Calculadora Eléctrica <br />
-            <span className="text-emerald-400">AEA 770</span> Profesional
-          </h1>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            La solución integral para instaladores e ingenieros. Dimensionamiento, protecciones y generación de informes normativos en segundos.
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Badge de confianza */}
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold">
+              <Star className="w-4 h-4 fill-emerald-400" />
+              Norma AEA 90364-7-770 — Reglamentación Ley 10281
+            </div>
+          </div>
+
+          {/* Título principal */}
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">
+              Cálculos Eléctricos y <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+                Carpetas Técnicas AEA
+              </span>{' '}
+              en Segundos
+            </h1>
+            <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+              La plataforma web para instaladores e ingenieros que automatiza el dimensionamiento de
+              conductores, verificación de protecciones, tableros y genera informes técnicos
+              profesionales en PDF.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={onLoginClick}
+                className="px-8 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/25 flex items-center gap-3 group"
+              >
+                <span>Acceder a la Plataforma</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <a
+                href="#funcionalidades"
+                className="px-8 py-4 text-base font-semibold text-slate-300 bg-slate-800/60 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all rounded-xl flex items-center gap-3"
+              >
+                <BookOpen className="w-5 h-5 text-slate-400" />
+                <span>Ver Funcionalidades</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Badges de características */}
+          <div className="mt-14 flex flex-wrap justify-center gap-3">
+            {[
+              { icon: CheckCircle2, text: '100% en el Navegador' },
+              { icon: CheckCircle2, text: 'Sin Instalaciones' },
+              { icon: CheckCircle2, text: 'Norma AEA 770' },
+              { icon: CheckCircle2, text: 'PDF Descargable' },
+              { icon: CheckCircle2, text: 'Viviendas e Industrias' },
+            ].map((badge, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-sm"
+              >
+                <badge.icon className="w-4 h-4 text-emerald-400" />
+                {badge.text}
+              </div>
+            ))}
+          </div>
+
+          {/* Mockup / Vista previa de la interfaz */}
+          <div className="mt-16 max-w-5xl mx-auto">
+            <div className="relative rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl shadow-emerald-500/10 bg-slate-900">
+              {/* Barra del navegador falsa */}
+              <div className="flex items-center gap-2 px-4 py-3 bg-slate-800 border-b border-slate-700">
+                <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500/70" />
+                <div className="flex-1 mx-4 bg-slate-700 rounded-md h-6 flex items-center px-3">
+                  <span className="text-xs text-slate-400">https://saasingenieriaelectrica200417.pages.dev</span>
+                </div>
+              </div>
+              {/* Contenido del mockup */}
+              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Panel izquierdo */}
+                <div className="space-y-3">
+                  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <div className="text-xs text-emerald-400 font-bold mb-2 uppercase tracking-wider">Proyecto</div>
+                    <div className="space-y-2">
+                      {['Tablero Principal', 'Cocina', 'Dormitorios', 'Baños'].map((t, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                          {t}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                    <div className="text-xs text-cyan-400 font-bold mb-2 uppercase tracking-wider">Tipo Instalación</div>
+                    <div className="text-sm text-white font-semibold">Vivienda Individual</div>
+                    <div className="text-xs text-slate-400 mt-1">AEA 90364-7-770</div>
+                  </div>
+                </div>
+                {/* Panel central (tabla de cálculos) */}
+                <div className="md:col-span-2 bg-slate-800 rounded-xl p-4 border border-slate-700 overflow-hidden">
+                  <div className="text-xs text-teal-400 font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Resultados de Cálculo
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { circuito: 'Cocina', ib: '14.5 A', seccion: '2.5 mm²', estado: 'OK' },
+                      { circuito: 'Iluminación', ib: '3.2 A', seccion: '1.5 mm²', estado: 'OK' },
+                      { circuito: 'Toma Corriente', ib: '8.7 A', seccion: '2.5 mm²', estado: 'OK' },
+                      { circuito: 'Aire Acond.', ib: '18.0 A', seccion: '4 mm²', estado: 'OK' },
+                    ].map((row, i) => (
+                      <div key={i} className="grid grid-cols-4 gap-2 text-xs py-1.5 border-b border-slate-700/50">
+                        <span className="text-slate-300">{row.circuito}</span>
+                        <span className="text-slate-400">{row.ib}</span>
+                        <span className="text-emerald-400 font-semibold">{row.seccion}</span>
+                        <span className="text-emerald-400 font-bold">{row.estado}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full w-4/5 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" />
+                    </div>
+                    <span className="text-xs text-emerald-400 font-semibold whitespace-nowrap">Cálculo completo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          SECCIÓN FUNCIONALIDADES
+      ═══════════════════════════════════════════════ */}
+      <section id="funcionalidades" className="py-24 bg-slate-900/50 border-t border-b border-slate-800/80 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">
+              Funcionalidades Principales
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+              Todo lo que necesitas para tus Proyectos Eléctricos
+            </h2>
+            <p className="mt-4 text-slate-400 text-base">
+              Una sola herramienta que centraliza desde el cálculo normativo hasta la documentación final.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Cpu,
+                color: 'text-emerald-400',
+                bg: 'bg-emerald-500/10 border-emerald-500/20',
+                title: 'Dimensionamiento de Conductores',
+                desc: 'Calcula la sección recomendada y la caída de tensión de cada circuito según AEA 770 y el tipo de instalación (vivienda, industria, etc.).',
+              },
+              {
+                icon: ShieldCheck,
+                color: 'text-teal-400',
+                bg: 'bg-teal-500/10 border-teal-500/20',
+                title: 'Verificación de Protecciones',
+                desc: 'Validación automática de la regla IB ≤ In ≤ Iz e interruptores diferenciales. Detecta incompatibilidades antes de presentar el proyecto.',
+              },
+              {
+                icon: FileText,
+                color: 'text-cyan-400',
+                bg: 'bg-cyan-500/10 border-cyan-500/20',
+                title: 'Carpeta Técnica en 1 Clic',
+                desc: 'Genera informes PDF con memoria descriptiva, matriz de cálculo y carátula oficial, listos para presentar ante entes de fiscalización.',
+              },
+              {
+                icon: Layers,
+                color: 'text-indigo-400',
+                bg: 'bg-indigo-500/10 border-indigo-500/20',
+                title: 'Diagramas Unifilares',
+                desc: 'Editor interactivo para estructurar la jerarquía de tableros y circuitos terminales con visualización en tiempo real.',
+              },
+              {
+                icon: BarChart3,
+                color: 'text-violet-400',
+                bg: 'bg-violet-500/10 border-violet-500/20',
+                title: 'Cómputo Métrico de Materiales',
+                desc: 'BOM automático: cuadro consolidado de protecciones, canalizaciones, caños, cajas y conductores por metraje.',
+              },
+              {
+                icon: Globe,
+                color: 'text-sky-400',
+                bg: 'bg-sky-500/10 border-sky-500/20',
+                title: 'Viviendas e Instalaciones Industriales',
+                desc: 'Motor de cálculo adaptado para distintos tipos de instalación: residencial, industrial, trifásico y más.',
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className="p-6 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all group"
+              >
+                <div className={`w-12 h-12 rounded-xl border ${feature.bg} flex items-center justify-center mb-5`}>
+                  <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-slate-400 leading-relaxed">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          TARJETA SUSCRIPCIÓN PREMIUM
+      ═══════════════════════════════════════════════ */}
+      <section className="py-24 px-4 bg-slate-900/30">
+        <div className="text-center mb-12">
+          <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">Planes</span>
+          <h2 className="text-3xl font-bold text-white">Suscripción Premium</h2>
+          <p className="text-slate-400 mt-2">Acceso completo a todas las funcionalidades de la plataforma.</p>
+        </div>
+        <div className="max-w-md mx-auto bg-slate-900 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-500/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4">
+            <Crown className="w-8 h-8 text-emerald-400" />
+          </div>
+          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+
+          <h3 className="text-2xl font-bold text-white mb-1">Acceso Total</h3>
+          <p className="text-slate-400 text-sm mb-5">Todo incluido, sin límites.</p>
+          <div className="flex items-baseline gap-1 mb-7">
+            <span className="text-4xl font-black text-white">$15.000</span>
+            <span className="text-slate-400">/ mes</span>
+          </div>
+          <ul className="space-y-4 mb-8 text-slate-300">
+            {[
+              'Cálculos normativos AEA 90364-7-770',
+              'Informes técnicos en PDF',
+              'Cómputo métrico automático (BOM)',
+              'Diagramas unifilares interactivos',
+              'Proyectos ilimitados',
+              'Soporte prioritario',
+            ].map((feature, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={onLoginClick}
+            className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
+          >
+            Suscribirse Ahora
+          </button>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          SECCIÓN BENEFICIOS
+      ═══════════════════════════════════════════════ */}
+      <section id="beneficios" className="py-24 relative border-t border-slate-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">
+              Beneficios
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+              ¿Por qué usar ElectroSaaS?
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                icon: Clock,
+                color: 'text-emerald-400',
+                title: 'Ahorro de Tiempo de hasta 80%',
+                desc: 'Pasa de horas haciendo cálculos manuales en Excel a generar el proyecto completo en minutos. Ingresás los datos, la plataforma hace el resto.',
+              },
+              {
+                icon: Award,
+                color: 'text-teal-400',
+                title: 'Garantía de Cumplimiento Normativo',
+                desc: 'Cumplimiento estricto de AEA 90364-7-770 y normativas provinciales (ERSeP/ENRE). Reducís los rechazos en entes de fiscalización y distribuidoras.',
+              },
+              {
+                icon: FileText,
+                color: 'text-cyan-400',
+                title: 'Presentación Profesional',
+                desc: 'Entregá a tus clientes carpetas técnicas con estética impecable, listas para firmar e imprimir. Mejorá tu imagen profesional.',
+              },
+              {
+                icon: Cloud,
+                color: 'text-indigo-400',
+                title: '100% Cloud (Sin Descargas)',
+                desc: 'Accedé desde cualquier computadora, tablet o navegador sin instalaciones complicadas. Tus proyectos quedan guardados y accesibles siempre.',
+              },
+            ].map((benefit, i) => (
+              <div
+                key={i}
+                className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 hover:border-slate-700 transition-all flex gap-6"
+              >
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
+                  <benefit.icon className={`w-6 h-6 ${benefit.color}`} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">{benefit.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          SECCIÓN DESTINATARIOS
+      ═══════════════════════════════════════════════ */}
+      <section id="destinatarios" className="py-24 bg-slate-900/50 border-t border-slate-800/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">
+              ¿Para quién es?
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+              Diseñado para Profesionales del Sector Eléctrico
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: Wrench,
+                title: 'Electricistas Habilitados e Instaladores',
+                desc: 'Confeccioná la documentación técnica requerida para la habilitación de obras, de forma rápida y sin errores.',
+                color: 'text-emerald-400',
+                bg: 'bg-emerald-500/10 border-emerald-500/20',
+              },
+              {
+                icon: Users,
+                title: 'Ingenieros y Proyectistas Eléctricos',
+                desc: 'Acelerá la memoria de cálculo y la especificación de tableros en proyectos comerciales, industriales y residenciales.',
+                color: 'text-teal-400',
+                bg: 'bg-teal-500/10 border-teal-500/20',
+              },
+              {
+                icon: Building2,
+                title: 'Arquitectos y Directores de Obra',
+                desc: 'Dimensioná demandas, computá materiales y estimá costos en etapa de diseño sin depender de un especialista.',
+                color: 'text-cyan-400',
+                bg: 'bg-cyan-500/10 border-cyan-500/20',
+              },
+              {
+                icon: GraduationCap,
+                title: 'Estudiantes y Docentes',
+                desc: 'Herramienta didáctica para auditar proyectos, verificar ejercicios normativos y aprender el cálculo eléctrico aplicado.',
+                color: 'text-indigo-400',
+                bg: 'bg-indigo-500/10 border-indigo-500/20',
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="p-6 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 transition-all"
+              >
+                <div className={`w-12 h-12 rounded-xl border ${item.bg} flex items-center justify-center mb-4`}>
+                  <item.icon className={`w-6 h-6 ${item.color}`} />
+                </div>
+                <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          SECCIÓN FAQ
+      ═══════════════════════════════════════════════ */}
+      <section id="faq" className="py-24 border-t border-slate-800/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">FAQ</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Preguntas Frecuentes</h2>
+          </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: '¿Qué reglamentación utiliza para los cálculos?',
+                a: 'La plataforma aplica la norma AEA 90364-7-770 (Instalaciones en Viviendas) y la reglamentación de la Ley 10281. Para instalaciones industriales, incorpora los criterios de dimensionamiento según IRAM y AEA de aplicación general.',
+              },
+              {
+                q: '¿Puedo descargar los informes en PDF?',
+                a: 'Sí. Todos los informes generados se pueden descargar como PDF directamente desde la plataforma. El PDF incluye carátula, memoria descriptiva, matriz de cálculo de conductores, resumen de protecciones y lista de materiales.',
+              },
+              {
+                q: '¿Requiere instalar algún software?',
+                a: 'No. ElectroSaaS funciona 100% en el navegador web. No necesitás descargar ni instalar nada. Basta con un navegador moderno (Chrome, Firefox, Edge) y conexión a Internet.',
+              },
+              {
+                q: '¿Los informes sirven para presentar ante la distribuidora o ente fiscalizador?',
+                a: 'Sí. El formato y el contenido están pensados para cumplir los requisitos de presentación técnica. Igualmente, siempre es recomendable verificar con tu distribuidora local los requisitos específicos de formato que puedan exigir.',
+              },
+            ].map((faq, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden transition-all"
+              >
+                <button
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left group"
+                >
+                  <span className="font-bold text-white group-hover:text-emerald-400 transition-colors pr-4">
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-300 ${
+                      openFaq === idx ? 'rotate-180 text-emerald-400' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === idx && (
+                  <div className="px-6 pb-5">
+                    <p className="text-sm text-slate-400 leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          BANNER CTA FINAL
+      ═══════════════════════════════════════════════ */}
+      <section className="py-24 relative overflow-hidden border-t border-slate-800/80">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-slate-950 to-teal-900/20 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold mb-6">
+            <Zap className="w-4 h-4" />
+            Comenzá hoy
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
+            Empezá a generar tus Carpetas Técnicas{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+              en minutos
+            </span>
+          </h2>
+          <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
+            Calculá, verificá y documentá tus instalaciones eléctricas de forma ágil, normativa y profesional.
           </p>
           <button
             onClick={onLoginClick}
-            className="px-8 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-3 group mx-auto"
+            className="px-10 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 group mx-auto"
           >
             <span>Acceder a la Plataforma</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -96,123 +549,41 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* SECCIÓN FUNCIONALIDADES */}
-      <section id="funcionalidades" className="py-20 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <Cpu className="w-8 h-8 text-emerald-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Cálculo de Conductores</h3>
-              <p className="text-sm text-slate-400">Dimensionamiento completo según normas.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <ShieldCheck className="w-8 h-8 text-teal-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Protecciones</h3>
-              <p className="text-sm text-slate-400">Verificación de reglas de seguridad.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <FileText className="w-8 h-8 text-cyan-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Informes PDF</h3>
-              <p className="text-sm text-slate-400">Carpeta técnica lista para presentar.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <Layers className="w-8 h-8 text-indigo-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Cómputo BOM</h3>
-              <p className="text-sm text-slate-400">Listado consolidado de materiales.</p>
-            </div>
-        </div>
-      </section>
-
-      {/* TARJETA DE PAGO PREMIUM */}
-      <section className="py-20 px-4 bg-slate-900/30">
-        <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white">Suscripción Premium</h2>
-        </div>
-        <div className="max-w-md mx-auto bg-slate-900 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-500/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4">
-            <Crown className="w-8 h-8 text-emerald-400" />
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-2">Acceso Total</h3>
-          <div className="flex items-baseline gap-1 mb-6">
-            <span className="text-4xl font-black text-white">$15.000</span>
-            <span className="text-slate-400">/ mes</span>
-          </div>
-          
-          <ul className="space-y-4 mb-8 text-slate-300">
-            {[
-              "Cálculos normativos AEA 90364-7-770",
-              "Informes técnicos en PDF",
-              "Cómputo métrico automático",
-              "Soporte prioritario"
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          <button
-            onClick={onLoginClick}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all"
-          >
-            Suscribirse Ahora
-          </button>
-        </div>
-      </section>
-
-      {/* SECCIÓN BENEFICIOS */}
-      <section id="beneficios" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800">
-              <Clock className="w-8 h-8 text-emerald-400 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Ahorro de Tiempo</h3>
-              <p className="text-sm text-slate-400">Genera memorias de cálculo en minutos.</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800">
-              <Cloud className="w-8 h-8 text-indigo-400 mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">Acceso 100% Cloud</h3>
-              <p className="text-sm text-slate-400">Accede desde cualquier dispositivo.</p>
-            </div>
-        </div>
-      </section>
-
-      {/* SECCIÓN DESTINATARIOS */}
-      <section id="destinatarios" className="py-20 bg-slate-900/50">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-                { icon: Wrench, title: "Electricistas" },
-                { icon: Users, title: "Ingenieros" },
-                { icon: Building2, title: "Arquitectos" },
-                { icon: GraduationCap, title: "Estudiantes" }
-            ].map((item, i) => (
-                <div key={i} className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-                    <item.icon className="w-8 h-8 text-emerald-400 mb-4" />
-                    <h3 className="text-lg font-bold text-white">{item.title}</h3>
+      {/* ═══════════════════════════════════════════════
+          FOOTER
+      ═══════════════════════════════════════════════ */}
+      <footer className="py-12 border-t border-slate-800/80 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 p-0.5">
+                <div className="w-full h-full bg-slate-950 rounded-md flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-emerald-400" />
                 </div>
-            ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="py-20">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-extrabold text-white text-center mb-12">Preguntas Frecuentes</h2>
-          <div className="space-y-4">
-            {[
-              { q: '¿Qué norma técnica utiliza?', a: 'AEA 90364-7-770.' },
-              { q: '¿Los informes sirven?', a: 'Sí, formato profesional listo para firmar.' },
-            ].map((faq, idx) => (
-              <div key={idx} className="rounded-xl bg-slate-900 border border-slate-800 p-5">
-                <p className="font-bold text-white">{faq.q}</p>
-                <p className="text-sm text-slate-400 mt-2">{faq.a}</p>
               </div>
-            ))}
+              <span className="text-sm font-bold text-slate-300">
+                Electro<span className="text-emerald-400">SaaS</span>
+              </span>
+            </div>
+
+            {/* Links */}
+            <nav className="flex items-center gap-6 text-sm text-slate-500">
+              <a href="#funcionalidades" className="hover:text-slate-300 transition-colors">Funcionalidades</a>
+              <a href="#beneficios" className="hover:text-slate-300 transition-colors">Beneficios</a>
+              <a href="#faq" className="hover:text-slate-300 transition-colors">FAQ</a>
+              <button onClick={onLoginClick} className="hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <LogIn className="w-3.5 h-3.5" />
+                Iniciar Sesión
+              </button>
+            </nav>
+
+            {/* Copyright */}
+            <p className="text-xs text-slate-600">
+              © {new Date().getFullYear()} ElectroSaaS. Todos los derechos reservados.
+            </p>
           </div>
         </div>
-      </section>
-
-      <footer className="py-12 text-center text-slate-500 text-xs border-t border-slate-900">
-        © {new Date().getFullYear()} ElectroSaaS.
       </footer>
     </div>
   );
