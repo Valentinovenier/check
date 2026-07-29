@@ -56,7 +56,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   }, [project, conductor, tramoId]);
 
   // Nuevo useMemo para el filtrado reactivo
-  const metodosDisponibles = useMemo(() => {
+  const { metodosDisponibles, esTipoCableForzado } = useMemo(() => {
     const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
     
     // Determinación de norma con manejo explícito:
@@ -70,6 +70,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         norma = circuito?.normaCable || canalizacionVinculada?.normaCable || 'IRAM 2178';
     }
     
+    const esForzado = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma);
+
     // Reglas
     const metodosPermitidos = ['IRAM-NM 247-3', 'IRAM 62267'].includes(norma)
         ? ['sinEnvoltura']
@@ -77,11 +79,19 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         ? ['B2', 'D1', 'D2']
         : METODOS_INSTALACION_VIVIENDA.map(m => m.value);
 
-    return METODOS_INSTALACION_VIVIENDA.filter(m => metodosPermitidos.includes(m.value));
+    return {
+        metodosDisponibles: METODOS_INSTALACION_VIVIENDA.filter(m => metodosPermitidos.includes(m.value)),
+        esTipoCableForzado: esForzado
+    };
   }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable, circuito?.normaCable]);
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
+    
+    // Si la norma fuerza a Unipolar, aseguramos el tipo
+    if (esTipoCableForzado) {
+        newConductor.tipoCable = 'Unipolar';
+    }
     
     // Si no tiene ID de canalización pero existe una vinculada, la asignamos automáticamente
     if (!newConductor.canalizacionId && canalizacionVinculada) {
@@ -131,6 +141,20 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         <option value="IRAM-NM 247-3">IRAM-NM 247-3 (Flexible)</option>
                         <option value="IRAM 62267">IRAM 62267 (Libre de Halógenos)</option>
                         <option value="IRAM 62266">IRAM 62266</option>
+                    </select>
+                </div>
+                )}
+
+                {!esTipoCableForzado && (
+                <div>
+                    <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Tipo de Cable</label>
+                    <select 
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
+                        value={conductor?.tipoCable || 'Multipolar'}
+                        onChange={(e) => handleDataChange({ tipoCable: e.target.value as any })}
+                    >
+                        <option value="Multipolar">Multipolar</option>
+                        <option value="Unipolar">Unipolar</option>
                     </select>
                 </div>
                 )}
