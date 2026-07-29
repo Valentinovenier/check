@@ -18,6 +18,6 @@ export const AEA_770_RULES: NormativeRules = {
     fuerzaMotriz: 5,
   },
   // Métodos permitidos (ejemplos, esto debe completarse con la norma)
-  allowedMethods: ['A1', 'A2', 'B1', 'B2', 'C'], 
+  allowedMethods: ['A1', 'A2', 'B1', 'B2', 'C', 'D1', 'D2'], 
   simultaneityFactorStrategy: 'vivienda',
 };
