@@ -7,24 +7,19 @@ import { ConductorCalculation } from './components/ConductorCalculation';
 import { ProjectReport } from './components/ProjectReport';
 import { TablerosSeccionales } from './components/TablerosSeccionales';
 import { TablerosVivienda } from './components/TablerosVivienda';
-import { ResidentialTopologyEditor } from './components/ResidentialTopologyEditor';
 import { Project } from './types/project';
 import { useAuth } from './context/AuthContext';
 import { useProject } from './context/ProjectDataContext';
-import { LoginPage } from './components/LoginPage';
-import { RegisterPage } from './components/RegisterPage';
-import { LandingPage } from './components/LandingPage';
 import { UnifilarPage } from './components/UnifilarPage';
 import { ProteccionesPage } from './components/ProteccionesPage';
 import { CanalizacionesPage } from './components/CanalizacionesPage';
 
 export default function App() {
-  const { isAuthenticated, loading, logout } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const { state: selectedProject, setState: setSelectedProject, setLastSaved, lastSavedProject } = useProject();
   const [currentPage, setCurrentPage] = useState('inicio');
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [authView, setAuthView] = useState<'landing' | 'login' | 'register'>('landing');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -79,31 +74,6 @@ export default function App() {
     return <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">Cargando...</div>;
   }
 
-  if (!isAuthenticated) {
-    if (authView === 'login') {
-      return (
-        <LoginPage
-          onRegisterClick={() => setAuthView('register')}
-          onLandingClick={() => setAuthView('landing')}
-        />
-      );
-    }
-    if (authView === 'register') {
-      return (
-        <RegisterPage
-          onLoginClick={() => setAuthView('login')}
-          onLandingClick={() => setAuthView('landing')}
-        />
-      );
-    }
-    return (
-      <LandingPage
-        onLoginClick={() => setAuthView('login')}
-        onRegisterClick={() => setAuthView('register')}
-      />
-    );
-  }
-
   const createProject = async (name: string, projectType: string) => {
     const newProject: Project = {
       id: Date.now().toString(),
@@ -151,7 +121,6 @@ export default function App() {
         setProjects([...projects, projectToAdd]);
         setSelectedProject(newProject);
         setLastSaved(newProject);
-        // Redirigir automáticamente a la sección de parámetros tras crear un proyecto nuevo
         setCurrentPage('parametros'); 
         setIsModalOpen(false);
       } else if (response.status === 401) {
@@ -190,7 +159,6 @@ export default function App() {
   };
 
   const renderContent = () => {
-    // Si NO hay proyecto seleccionado, mostramos la lista de proyectos o login
     if (!selectedProject) {
       if (currentPage === 'inicio') {
         return (
@@ -206,8 +174,7 @@ export default function App() {
                 if (proj) {
                   setSelectedProject(proj);
                   setLastSaved(proj);
-                  console.log("Navigating to parametros");
-                  setCurrentPage('parametros'); // Navegar a parámetros al entrar a un proyecto
+                  setCurrentPage('parametros');
                 }
               }}
               onAddNew={() => setIsModalOpen(true)}
@@ -225,7 +192,6 @@ export default function App() {
       return <div className="text-white">Selecciona un proyecto desde el inicio.</div>;
     }
 
-    // Si HAY proyecto seleccionado, renderizamos la sección elegida
     switch (currentPage) {
       case 'parametros':
         return (

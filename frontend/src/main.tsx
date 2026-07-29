@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import { AppRouter } from './Router';
 import './index.css';
 import { AuthProvider } from './context/AuthContext';
 import { ProjectProvider } from './context/ProjectDataContext';
@@ -11,7 +11,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <ProjectProvider>
         <ToastProvider>
-          <App />
+          <AppRouter />
         </ToastProvider>
       </ProjectProvider>
     </AuthProvider>

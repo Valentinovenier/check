@@ -1,0 +1,49 @@
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import App from './App';
+import { LandingPage } from './components/LandingPage';
+import { LoginPage } from './components/LoginPage';
+import { RegisterPage } from './components/RegisterPage';
+import { useAuth } from './context/AuthContext';
+
+// Este componente servirá de guardia para proteger las rutas de la app
+const PrivateRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) return <div>Cargando...</div>;
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const LoginPageWrapper = () => {
+    const navigate = useNavigate();
+    return <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />;
+};
+
+const RegisterPageWrapper = () => {
+    const navigate = useNavigate();
+    return <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />;
+};
+
+const LandingPageWrapper = () => {
+    const navigate = useNavigate();
+    return <LandingPage onLoginClick={() => navigate('/login')} onRegisterClick={() => navigate('/register')} />;
+};
+
+export const AppRouter = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Rutas Públicas */}
+        <Route path="/" element={<LandingPageWrapper />} />
+        <Route path="/login" element={<LoginPageWrapper />} />
+        <Route path="/register" element={<RegisterPageWrapper />} />
+        
+        {/* Rutas Privadas (La App) */}
+        <Route path="/app/*" element={
+          <PrivateRoute>
+            <App />
+          </PrivateRoute>
+        } />
+      </Routes>
+    </BrowserRouter>
+  );
+};
