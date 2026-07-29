@@ -53,7 +53,9 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
                             Paso {paso.numero}: {paso.nombre}
                         </p>
                         <p className="text-xs text-slate-400 mt-0.5">
-                            Valor: <span className="text-slate-300 font-mono">{paso.valor}</span>
+                            Valor: <span className="text-slate-300 font-mono">
+                                {paso.numero === 2 ? paso.valor.replace(/ \* F.Resist: 1.00/g, '') : paso.valor}
+                            </span>
                         </p>
                     </div>
                 </div>

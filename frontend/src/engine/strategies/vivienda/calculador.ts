@@ -126,7 +126,9 @@ export const calcularTramoResidencial = (
     const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
     const factorAgrup = getFactorAgrupamientoVivienda(nCircuitos);
-    const factorResistividad = condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
+    
+    // El factor de resistividad solo aplica para instalaciones subterráneas (tipo D)
+    const factorResistividad = !esInstalacionAire && condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     const IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
     pasosActuales.push({
