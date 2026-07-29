@@ -188,8 +188,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                                 type="number"
                                 step="0.1"
                                 className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                                value={conductor?.resistividadTermica ?? 1.0}
-                                onChange={(e) => handleDataChange({ resistividadTermica: parseFloat(e.target.value) || 1.0 })}
+                                value={conductor?.resistividadTermica ?? 2.5}
+                                onChange={(e) => handleDataChange({ resistividadTermica: parseFloat(e.target.value) || 2.5 })}
                             />
                         </div>
                         <div>
