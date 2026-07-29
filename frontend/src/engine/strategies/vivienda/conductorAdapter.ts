@@ -52,10 +52,10 @@ export const adaptarConductorACondiciones = (
     longitudMetros: conductor.longitud || 0,
     corrienteDiseñoAmperes: corrienteDiseño,
     temperaturaAmbiente: conductor.temperaturaAmbiente || project.tempAmbiente || 40,
+    tempSuelo: conductor.tempSuelo || 25,
     canalizacionId: canalizacionId, // Usar el ID recuperado
     tipoInstalacion: project.tipoInstalacion || 'Monofásica',
-    tempSuelo: conductor.tempSuelo,
-    resistividadTermica: conductor.resistividadTermica,
+    resistividadTermica: conductor.resistividadTermica || 2.5, // Default a 2.5 para métodos D
     separacionBordes: conductor.separacionBordes,
     normaCable: normaCable as any
   };

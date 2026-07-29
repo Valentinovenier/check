@@ -131,9 +131,12 @@ export const calcularTramoResidencial = (
     const factorResistividad = !esInstalacionAire && condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     const IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
+    const valorBase = `${IzCorregida.toFixed(2)} A (Iz_base: ${IzBase.toFixed(2)}A * F.Temp: ${factorTemp.toFixed(2)} * F.Agrup: ${factorAgrup.toFixed(2)}`;
+    const valorCompleto = !esInstalacionAire ? `${valorBase} * F.Resist: ${factorResistividad.toFixed(2)})` : `${valorBase})`;
+
     pasosActuales.push({
         numero: 2, nombre: "Capacidad de Conducción (Iz)",
-        valor: `${IzCorregida.toFixed(2)} A (Iz_base: ${IzBase.toFixed(2)}A * F.Temp: ${factorTemp.toFixed(2)} * F.Agrup: ${factorAgrup.toFixed(2)} * F.Resist: ${factorResistividad.toFixed(2)})`,
+        valor: valorCompleto,
         condicion: `Iz >= IB`, cumple: IzCorregida >= I_B
     });
     
