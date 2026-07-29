@@ -20,7 +20,7 @@ export const calcularConductorResidencial = (
   const condiciones = adaptarConductorACondiciones(conductor, project);
   
   if (condiciones.longitudMetros && condiciones.metodoInstalacion && condiciones.tipoTramo) {
-      const resultado = calcularTramoResidencial(condiciones, project, proteccion);
+      const resultado = calcularTramoResidencial(condiciones, project, conductor, proteccion);
       
       // Solo retornar el conductor con resultado si el cálculo fue exitoso y tiene datos válidos (pasos de verificación)
       if (resultado.pasosVerificacion && resultado.pasosVerificacion.length > 0) {
@@ -42,6 +42,7 @@ export const calcularConductorResidencial = (
 export const calcularTramoResidencial = (
   condiciones: CondicionesTramoResidencial,
   project: Project,
+  conductor: Conductor,
   proteccionSeleccionada?: Proteccion
 ): ResultadoCalculoResidencial => {
   let advertencias: string[] = [];
