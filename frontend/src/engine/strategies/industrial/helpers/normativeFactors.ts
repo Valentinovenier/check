@@ -8,11 +8,33 @@ import {
   FACTORES_AGRUPAMIENTO_B52_21 
 } from '../../../../data/factoresAgrupamiento';
 
+const TMAX_MAP: Record<string, number> = {
+  'PVC': 70,
+  'XLPE': 90,
+  'Mineral_70': 70,
+  'Mineral_105': 105
+};
+
 export const getFactorTemperatura = (aislacion: string, temperatura: number, tipoInstalacionAire: boolean, tempSuelo?: number): number => {
   let aisKey = aislacion === 'Mineral' ? 'Mineral_70' : aislacion;
   const tempMap = tipoInstalacionAire ? FACTORES_TEMPERATURA_AIRE : FACTORES_TEMPERATURA_TIERRA;
   const tempFinal = (!tipoInstalacionAire && tempSuelo !== undefined) ? tempSuelo : temperatura;
-  return tempMap[aisKey]?.[tempFinal] || 1.0;
+  
+  if (tempMap[aisKey] && tempMap[aisKey][tempFinal] !== undefined) {
+    return tempMap[aisKey][tempFinal];
+  }
+
+  // Si no está, aplicar fórmula: Kt = sqrt((Tmax - Tinput) / (Tmax - Tref)) * FactorRef
+  const tMax = TMAX_MAP[aisKey] || 70;
+  const availableTemps = Object.keys(tempMap[aisKey] || {}).map(Number).sort((a,b) => a-b);
+  
+  if (availableTemps.length === 0) return 1.0;
+
+  // Encontrar Tref más cercano
+  const tRef = availableTemps.reduce((prev, curr) => Math.abs(curr - tempFinal) < Math.abs(prev - tempFinal) ? curr : prev);
+  const factorRef = tempMap[aisKey][tRef];
+  
+  return Math.sqrt(Math.max(0, (tMax - tempFinal) / (tMax - tRef))) * factorRef;
 };
 
 export const getFactorAgrupamiento = (
