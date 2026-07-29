@@ -2,7 +2,9 @@ CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  subscription_status TEXT DEFAULT 'pending',
+  subscription_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS projects (
