@@ -74,6 +74,10 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
       {/* HERO SECTION */}
       <section className="relative pt-20 pb-24 overflow-hidden">
+        {/* Efectos de luces */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-emerald-500/15 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/3 right-10 w-[400px] h-[300px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <h1 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tight">
             Calculadora Eléctrica <br />
@@ -82,16 +86,52 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
             La solución integral para instaladores e ingenieros. Dimensionamiento, protecciones y generación de informes normativos en segundos.
           </p>
+          <button
+            onClick={onLoginClick}
+            className="px-8 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-3 group mx-auto"
+          >
+            <span>Acceder a la Plataforma</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </section>
+
+      {/* SECCIÓN FUNCIONALIDADES */}
+      <section id="funcionalidades" className="py-20 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
+              <Cpu className="w-8 h-8 text-emerald-400 mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Cálculo de Conductores</h3>
+              <p className="text-sm text-slate-400">Dimensionamiento completo según normas.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
+              <ShieldCheck className="w-8 h-8 text-teal-400 mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Protecciones</h3>
+              <p className="text-sm text-slate-400">Verificación de reglas de seguridad.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
+              <FileText className="w-8 h-8 text-cyan-400 mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Informes PDF</h3>
+              <p className="text-sm text-slate-400">Carpeta técnica lista para presentar.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
+              <Layers className="w-8 h-8 text-indigo-400 mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Cómputo BOM</h3>
+              <p className="text-sm text-slate-400">Listado consolidado de materiales.</p>
+            </div>
         </div>
       </section>
 
       {/* TARJETA DE PAGO PREMIUM */}
-      <section className="py-10 px-4 bg-slate-900/30">
+      <section className="py-20 px-4 bg-slate-900/30">
+        <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white">Suscripción Premium</h2>
+        </div>
         <div className="max-w-md mx-auto bg-slate-900 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-500/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4">
             <Crown className="w-8 h-8 text-emerald-400" />
           </div>
-          <h3 className="text-2xl font-bold text-white mb-2">Plan Premium</h3>
+          <h3 className="text-2xl font-bold text-white mb-2">Acceso Total</h3>
           <div className="flex items-baseline gap-1 mb-6">
             <span className="text-4xl font-black text-white">$15.000</span>
             <span className="text-slate-400">/ mes</span>
@@ -120,34 +160,41 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* SECCIÓN FUNCIONALIDADES */}
-      <section id="funcionalidades" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <Cpu className="w-8 h-8 text-emerald-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Cálculo de Conductores</h3>
-              <p className="text-sm text-slate-400">Dimensionamiento completo según normas.</p>
+      {/* SECCIÓN BENEFICIOS */}
+      <section id="beneficios" className="py-20 relative">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800">
+              <Clock className="w-8 h-8 text-emerald-400 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Ahorro de Tiempo</h3>
+              <p className="text-sm text-slate-400">Genera memorias de cálculo en minutos.</p>
             </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <ShieldCheck className="w-8 h-8 text-teal-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Protecciones</h3>
-              <p className="text-sm text-slate-400">Verificación de reglas de seguridad.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <FileText className="w-8 h-8 text-cyan-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Informes PDF</h3>
-              <p className="text-sm text-slate-400">Carpeta técnica lista para presentar.</p>
-            </div>
-            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
-              <Layers className="w-8 h-8 text-indigo-400 mb-4" />
-              <h3 className="text-lg font-bold text-white mb-2">Cómputo BOM</h3>
-              <p className="text-sm text-slate-400">Listado consolidado de materiales.</p>
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800">
+              <Cloud className="w-8 h-8 text-indigo-400 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Acceso 100% Cloud</h3>
+              <p className="text-sm text-slate-400">Accede desde cualquier dispositivo.</p>
             </div>
         </div>
       </section>
 
+      {/* SECCIÓN DESTINATARIOS */}
+      <section id="destinatarios" className="py-20 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+                { icon: Wrench, title: "Electricistas" },
+                { icon: Users, title: "Ingenieros" },
+                { icon: Building2, title: "Arquitectos" },
+                { icon: GraduationCap, title: "Estudiantes" }
+            ].map((item, i) => (
+                <div key={i} className="p-6 rounded-2xl bg-slate-950 border border-slate-800">
+                    <item.icon className="w-8 h-8 text-emerald-400 mb-4" />
+                    <h3 className="text-lg font-bold text-white">{item.title}</h3>
+                </div>
+            ))}
+        </div>
+      </section>
+
       {/* FAQ */}
-      <section id="faq" className="py-20 bg-slate-900/30">
+      <section id="faq" className="py-20">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-extrabold text-white text-center mb-12">Preguntas Frecuentes</h2>
           <div className="space-y-4">
@@ -155,7 +202,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               { q: '¿Qué norma técnica utiliza?', a: 'AEA 90364-7-770.' },
               { q: '¿Los informes sirven?', a: 'Sí, formato profesional listo para firmar.' },
             ].map((faq, idx) => (
-              <div key={idx} className="rounded-xl bg-slate-950 border border-slate-800 p-5">
+              <div key={idx} className="rounded-xl bg-slate-900 border border-slate-800 p-5">
                 <p className="font-bold text-white">{faq.q}</p>
                 <p className="text-sm text-slate-400 mt-2">{faq.a}</p>
               </div>
