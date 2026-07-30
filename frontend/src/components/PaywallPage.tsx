@@ -1,48 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { startPayment } from '../utils/payment';
 
 export const PaywallPage = () => {
   const navigate = useNavigate();
 
-  const handlePay = async () => {
-    // Aquí llamarás al endpoint de backend para obtener la URL de pago
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json' 
-        },
-      });
-      const data = await response.json();
-      if (data.init_point) {
-        window.location.href = data.init_point;
-      }
-    } catch (e) {
-      console.error('Error al iniciar pago:', e);
-    }
-  };
+  useEffect(() => {
+    startPayment();
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="p-8 bg-gray-800 rounded-lg shadow-xl text-center">
-        <h2 className="text-3xl font-bold mb-4">Acceso Restringido</h2>
-        <p className="mb-6 text-gray-400">Debes tener una suscripción activa para usar esta aplicación.</p>
-        <div className="flex flex-col gap-4">
-          <button 
-            onClick={handlePay}
-            className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-bold"
-          >
-            Pagar Suscripción con Mercado Pago
-          </button>
-          <button 
-            onClick={() => navigate('/')}
-            className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 font-bold text-sm"
-          >
-            Volver a la Página de Inicio
-          </button>
-        </div>
+        <h2 className="text-3xl font-bold mb-4">Redirigiendo a Mercado Pago...</h2>
+        <p className="mb-6 text-gray-400">Por favor, espera un momento mientras preparamos tu pago.</p>
+        <button 
+          onClick={() => navigate('/')}
+          className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 font-bold text-sm"
+        >
+          Volver a la Página de Inicio
+        </button>
       </div>
     </div>
   );

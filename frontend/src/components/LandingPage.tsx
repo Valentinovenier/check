@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { startPayment } from '../utils/payment';
 import {
   Zap,
   ShieldCheck,
@@ -31,6 +34,16 @@ interface LandingPageProps {
 
 export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubscribeClick = () => {
+    if (isAuthenticated) {
+      startPayment();
+    } else {
+      navigate('/register');
+    }
+  };
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -319,7 +332,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             ))}
           </ul>
           <button
-            onClick={onLoginClick}
+            onClick={handleSubscribeClick}
             className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
           >
             Suscribirse Ahora
@@ -520,7 +533,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             Calculá, verificá y documentá tus instalaciones eléctricas de forma ágil, normativa y profesional.
           </p>
           <button
-            onClick={onLoginClick}
+            onClick={handleSubscribeClick}
             className="px-10 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 group mx-auto"
           >
             <span>Acceder a la Plataforma</span>
