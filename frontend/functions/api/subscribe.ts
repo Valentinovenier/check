@@ -35,38 +35,43 @@ export async function onRequestPost(context) {
 
     const planId = env.MP_PREAPPROVAL_PLAN_ID || "f60b996e809848a482e25b74b1c44128";
 
-    const response = await fetch('https://api.mercadopago.com/preapproval', {
-        method: 'POST',
+    // Para redirigir al checkout del plan de suscripción creado por el vendedor:
+    // Consultamos los datos del plan en Mercado Pago
+    const planRes = await fetch(`https://api.mercadopago.com/preapproval_plan/${planId}`, {
+        method: 'GET',
         headers: {
             'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            preapproval_plan_id: planId,
-            reason: "Suscripción Mensual Premium - ElectroSaaS",
-            external_reference: decoded.userId,
-            back_url: `${appBaseUrl}/app`,
-            auto_recurring: {
-                frequency: 1,
-                frequency_type: "months",
-                transaction_amount: 15000,
-                currency_id: "ARS"
-            }
-        }),
     });
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-        console.error('Mercado Pago API Error:', data);
-        return new Response(JSON.stringify({ error: 'Mercado Pago Error', details: data }), {
-            status: response.status,
-            headers: { 'Content-Type': 'application/json' }
+
+    const planData = await planRes.json();
+
+    if (!planRes.ok) {
+        console.error('Mercado Pago Plan Fetch Error:', planData);
+        // Si no se pudo obtener el plan, intentamos crear una preferencia de checkout estándar
+        const prefRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                items: [{ title: "Suscripción Premium ElectroSaaS", unit_price: 15000, quantity: 1, currency_id: "ARS" }],
+                external_reference: decoded.userId,
+                back_urls: { success: `${appBaseUrl}/app`, failure: `${appBaseUrl}/` },
+                auto_return: "approved"
+            }),
         });
+        const prefData = await prefRes.json();
+        if (!prefRes.ok) {
+            return new Response(JSON.stringify({ error: 'Mercado Pago Error', details: prefData }), { status: prefRes.status, headers: { 'Content-Type': 'application/json' } });
+        }
+        return new Response(JSON.stringify({ init_point: prefData.init_point }), { headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Retornamos el init_point devuelto por la API de Mercado Pago
-    return new Response(JSON.stringify({ init_point: data.init_point }), {
+    const initPoint = planData.init_point || planData.sandbox_init_point;
+    return new Response(JSON.stringify({ init_point: initPoint }), {
         headers: { 'Content-Type': 'application/json' }
     });
 }
