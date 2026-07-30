@@ -85,15 +85,9 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             <a href="#faq" className="hover:text-emerald-400 transition-colors">Preguntas Frecuentes</a>
           </nav>
 
-          {/* CTA único: Iniciar Sesión */}
+          {/* UserMenu integrado */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={onLoginClick}
-              className="px-6 py-2.5 text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-lg shadow-lg shadow-emerald-500/20 flex items-center gap-2"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Iniciar Sesión</span>
-            </button>
+            <UserMenu />
           </div>
         </div>
       </header>
