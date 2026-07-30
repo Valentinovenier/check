@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const PaywallPage = () => {
+  const navigate = useNavigate();
+
   const handlePay = async () => {
     // Aquí llamarás al endpoint de backend para obtener la URL de pago
     try {
@@ -26,12 +29,20 @@ export const PaywallPage = () => {
       <div className="p-8 bg-gray-800 rounded-lg shadow-xl text-center">
         <h2 className="text-3xl font-bold mb-4">Acceso Restringido</h2>
         <p className="mb-6 text-gray-400">Debes tener una suscripción activa para usar esta aplicación.</p>
-        <button 
-          onClick={handlePay}
-          className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-bold"
-        >
-          Pagar Suscripción con Mercado Pago
-        </button>
+        <div className="flex flex-col gap-4">
+          <button 
+            onClick={handlePay}
+            className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 font-bold"
+          >
+            Pagar Suscripción con Mercado Pago
+          </button>
+          <button 
+            onClick={() => navigate('/')}
+            className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 font-bold text-sm"
+          >
+            Volver a la Página de Inicio
+          </button>
+        </div>
       </div>
     </div>
   );
