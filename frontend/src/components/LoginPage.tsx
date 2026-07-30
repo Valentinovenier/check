@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 interface LoginPageProps {
@@ -11,6 +12,7 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +34,8 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
 
       const data = await response.json();
       login(data.token);
-      // Redirigir a la ruta de entrada para validación de suscripción
-      window.location.href = '/app-entry'; 
+      // Redirigir usando el router de la aplicación
+      navigate('/app-entry'); 
     } catch (err: any) {
       setError(err.message);
     }
