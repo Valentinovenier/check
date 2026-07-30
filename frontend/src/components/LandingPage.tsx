@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { startPayment } from '../utils/payment';
+import { UserMenu } from './UserMenu';
 import {
   Zap,
   ShieldCheck,
@@ -34,14 +35,26 @@ interface LandingPageProps {
 
 export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubscribeClick = () => {
     if (isAuthenticated) {
-      startPayment();
+      navigate('/paywall');
     } else {
-      navigate('/register');
+      navigate('/login');
+    }
+  };
+
+  const handleAccessPlatform = () => {
+    if (isAuthenticated) {
+      if (user?.subscriptionStatus === 'active') {
+        navigate('/app');
+      } else {
+        navigate('/paywall');
+      }
+    } else {
+      navigate('/login');
     }
   };
 
@@ -82,6 +95,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             <a href="#funcionalidades" className="hover:text-emerald-400 transition-colors">Funcionalidades</a>
             <a href="#beneficios" className="hover:text-emerald-400 transition-colors">Beneficios</a>
             <a href="#destinatarios" className="hover:text-emerald-400 transition-colors">¿Para quién es?</a>
+            <a href="#precio" className="hover:text-emerald-400 transition-colors font-semibold text-emerald-400">Precio</a>
             <a href="#faq" className="hover:text-emerald-400 transition-colors">Preguntas Frecuentes</a>
           </nav>
 
@@ -128,7 +142,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
-                onClick={onLoginClick}
+                onClick={handleAccessPlatform}
                 className="px-8 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/25 flex items-center gap-3 group"
               >
                 <span>Acceder a la Plataforma</span>
@@ -292,7 +306,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
       {/* ═══════════════════════════════════════════════
           TARJETA SUSCRIPCIÓN PREMIUM
       ═══════════════════════════════════════════════ */}
-      <section className="py-24 px-4 bg-slate-900/30">
+      <section id="precio" className="py-24 px-4 bg-slate-900/30">
         <div className="text-center mb-12">
           <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">Planes</span>
           <h2 className="text-3xl font-bold text-white">Suscripción Premium</h2>

@@ -31,7 +31,7 @@ const AuthRedirect = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/app');
+            navigate('/');
         }
     }, [isAuthenticated, navigate]);
 

@@ -8,6 +8,7 @@ interface RegisterPageProps {
 export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -15,6 +16,11 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden. Por favor, verifícalas.');
+      return;
+    }
 
     try {
       const response = await fetch('/api/register', {
@@ -33,6 +39,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
       setSuccess('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
       setUsername('');
       setPassword('');
+      setConfirmPassword('');
     } catch (err: any) {
       setError(err.message);
     }
@@ -72,6 +79,17 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="mt-4">
+              <label className="block text-white" htmlFor="confirmPassword">Confirmar Contraseña</label>
+              <input 
+                type="password" 
+                placeholder="Repite tu contraseña"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
