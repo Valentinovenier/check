@@ -9,10 +9,17 @@ import { useAuth } from './context/AuthContext';
 
 // Este componente servirá de guardia para proteger las rutas de la app
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   
   if (loading) return <div>Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
+  
+  // Verificamos si la suscripción está activa. 
+  // Nota: Si el usuario recién se registra y no tiene suscripción aún,
+  // el estado podría ser null, undefined o 'inactive'.
+  if (user?.subscriptionStatus !== 'active') {
+    return <Navigate to="/paywall" />;
+  }
   
   return children;
 };

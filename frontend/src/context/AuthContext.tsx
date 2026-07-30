@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { id: string; username: string } | null;
+  user: { id: string; username: string; subscriptionStatus: string } | null;
   login: (token: string) => void;
   logout: () => void;
   loading: boolean;
@@ -29,7 +29,7 @@ const decodeToken = (token: string) => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; username: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; username: string; subscriptionStatus: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = decodeToken(token);
       if (decoded && decoded.userId) {
         setIsAuthenticated(true);
-        setUser({ id: decoded.userId, username: decoded.username });
+        setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status });
       } else {
         localStorage.removeItem('token');
       }
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const decoded = decodeToken(token);
     if (decoded && decoded.userId) {
       setIsAuthenticated(true);
-      setUser({ id: decoded.userId, username: decoded.username });
+      setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status });
     }
   };
 

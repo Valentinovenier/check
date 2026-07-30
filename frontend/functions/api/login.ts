@@ -33,7 +33,11 @@ export async function onRequestPost(context) {
       });
     }
 
-    const token = jwt.sign({ userId: user.id, username: user.username }, env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ 
+      userId: user.id, 
+      username: user.username,
+      subscription_status: user.subscription_status 
+    }, env.SECRET_KEY, { expiresIn: '1h' });
 
     return new Response(JSON.stringify({ token }), {
       status: 200,

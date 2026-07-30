@@ -5,7 +5,7 @@ export const PaywallPage = () => {
     // Aquí llamarás al endpoint de backend para obtener la URL de pago
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/create-payment-preference', {
+      const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 
             'Authorization': `Bearer ${token}`,
