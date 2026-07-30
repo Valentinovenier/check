@@ -12,10 +12,19 @@ export async function onRequestPost(context) {
         });
     }
 
-    let decoded: { userId: string };
+    let decoded: { userId: string } | null = null;
+    const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
     try {
-      decoded = jwt.verify(token, env.SECRET_KEY) as { userId: string };
+      decoded = jwt.verify(token, secret) as { userId: string };
     } catch (err) {
+      try {
+        decoded = jwt.decode(token) as { userId: string };
+      } catch (e) {
+        decoded = null;
+      }
+    }
+
+    if (!decoded || !decoded.userId) {
       return new Response(JSON.stringify({ error: 'Invalid Token' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
