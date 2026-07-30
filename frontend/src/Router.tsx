@@ -14,12 +14,14 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   if (loading) return <div>Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
   
-  // Permitir acceso al usuario bypass o si la suscripción está activa
-  if (user?.username === 'vale07venier@gmail.com' || user?.subscriptionStatus === 'active') {
-    return children;
-  }
+  // 1. Permitir acceso al usuario bypass
+  if (user?.username === 'vale07venier@gmail.com') return children;
+
+  // 2. Si el estado es 'active', permitir acceso
+  if (user?.subscriptionStatus === 'active') return children;
   
-  return <Navigate to="/#precio" replace />;
+  // 3. Si el estado no es 'active', redirigir a AppEntry para forzar verificación real contra el servidor
+  return <Navigate to="/app-entry" replace />;
 };
 
 // Ya no necesitamos AuthRedirect aquí, la lógica pasa al flujo de login/entry
