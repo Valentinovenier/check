@@ -113,7 +113,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               en Segundos
             </h1>
             <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-              La plataforma web para instaladores e ingenieros que automatiza el dimensionamiento de
+              La plataforma web para proyrctistas electricos, ingenieros y estudiantes que automatiza el dimensionamiento de
               conductores, verificación de protecciones, tableros y genera informes técnicos
               profesionales en PDF.
             </p>
@@ -142,9 +142,9 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {[
               { icon: CheckCircle2, text: '100% en el Navegador' },
               { icon: CheckCircle2, text: 'Sin Instalaciones' },
-              { icon: CheckCircle2, text: 'Norma AEA 770' },
-              { icon: CheckCircle2, text: 'PDF Descargable' },
-              { icon: CheckCircle2, text: 'Viviendas e Industrias' },
+              { icon: CheckCircle2, text: 'Norma AEA' },
+              { icon: CheckCircle2, text: 'Informe PDF Descargable' },
+              { icon: CheckCircle2, text: 'Viviendas, comercios e Industrias' },
             ].map((badge, i) => (
               <div
                 key={i}
@@ -247,14 +247,14 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 color: 'text-emerald-400',
                 bg: 'bg-emerald-500/10 border-emerald-500/20',
                 title: 'Dimensionamiento de Conductores',
-                desc: 'Calcula la sección recomendada y la caída de tensión de cada circuito según AEA 770 y el tipo de instalación (vivienda, industria, etc.).',
+                desc: 'Calcula la sección recomendada de cada circuito según la norma AEA y el tipo de instalación (vivienda, comercio o industria).',
               },
               {
                 icon: ShieldCheck,
                 color: 'text-teal-400',
                 bg: 'bg-teal-500/10 border-teal-500/20',
                 title: 'Verificación de Protecciones',
-                desc: 'Validación automática de la regla IB ≤ In ≤ Iz e interruptores diferenciales. Detecta incompatibilidades antes de presentar el proyecto.',
+                desc: 'Validación automática de condiciones dadas por norma. Detecta incompatibilidades antes de presentar el proyecto.',
               },
               {
                 icon: FileText,
@@ -263,27 +263,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 title: 'Carpeta Técnica en 1 Clic',
                 desc: 'Genera informes PDF con memoria descriptiva, matriz de cálculo y carátula oficial, listos para presentar ante entes de fiscalización.',
               },
-              {
-                icon: Layers,
-                color: 'text-indigo-400',
-                bg: 'bg-indigo-500/10 border-indigo-500/20',
-                title: 'Diagramas Unifilares',
-                desc: 'Editor interactivo para estructurar la jerarquía de tableros y circuitos terminales con visualización en tiempo real.',
-              },
-              {
-                icon: BarChart3,
-                color: 'text-violet-400',
-                bg: 'bg-violet-500/10 border-violet-500/20',
-                title: 'Cómputo Métrico de Materiales',
-                desc: 'BOM automático: cuadro consolidado de protecciones, canalizaciones, caños, cajas y conductores por metraje.',
-              },
-              {
-                icon: Globe,
-                color: 'text-sky-400',
-                bg: 'bg-sky-500/10 border-sky-500/20',
-                title: 'Viviendas e Instalaciones Industriales',
-                desc: 'Motor de cálculo adaptado para distintos tipos de instalación: residencial, industrial, trifásico y más.',
-              },
+              
             ].map((feature, i) => (
               <div
                 key={i}
@@ -383,8 +363,8 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               {
                 icon: Cloud,
                 color: 'text-indigo-400',
-                title: '100% Cloud (Sin Descargas)',
-                desc: 'Accedé desde cualquier computadora, tablet o navegador sin instalaciones complicadas. Tus proyectos quedan guardados y accesibles siempre.',
+                title: '100% Online',
+                desc: 'Accedé desde cualquier computadora, tablet o navegador sin instalaciones complicadas en tu computadora. Tus proyectos quedan guardados y accesibles siempre.',
               },
             ].map((benefit, i) => (
               <div
