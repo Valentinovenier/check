@@ -25,14 +25,18 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 const AuthRedirect = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/');
+            if (user?.subscriptionStatus === 'active') {
+                navigate('/app');
+            } else {
+                navigate('/');
+            }
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, user, navigate]);
 
     return null;
 };
