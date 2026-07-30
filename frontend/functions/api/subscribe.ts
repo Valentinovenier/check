@@ -5,13 +5,21 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
-    if (!token) return new Response('Unauthorized', { status: 401 });
+    if (!token) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     let decoded: { userId: string };
     try {
       decoded = jwt.verify(token, env.SECRET_KEY) as { userId: string };
     } catch (err) {
-      return new Response('Invalid Token', { status: 401 });
+      return new Response(JSON.stringify({ error: 'Invalid Token' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
