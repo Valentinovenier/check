@@ -40,7 +40,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
   const handleSubscribeClick = () => {
     if (isAuthenticated) {
-      navigate('/paywall');
+      startPayment();
     } else {
       navigate('/login');
     }
@@ -51,10 +51,20 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
       if (user?.subscriptionStatus === 'active') {
         navigate('/app');
       } else {
-        navigate('/paywall');
+        const el = document.getElementById('precio');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          window.location.hash = 'precio';
+        }
       }
     } else {
-      navigate('/login');
+      const el = document.getElementById('precio');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.hash = 'precio';
+      }
     }
   };
 

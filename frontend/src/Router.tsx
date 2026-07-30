@@ -5,7 +5,6 @@ import { UserMenu } from './components/UserMenu';
 import { LandingPage } from './components/LandingPage';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
-import { PaywallPage } from './components/PaywallPage';
 import { useAuth } from './context/AuthContext';
 
 // Este componente servirá de guardia para proteger las rutas de la app
@@ -19,7 +18,7 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   // Nota: Si el usuario recién se registra y no tiene suscripción aún,
   // el estado podría ser null, undefined o 'inactive'.
   if (user?.subscriptionStatus !== 'active') {
-    return <Navigate to="/paywall" />;
+    return <Navigate to="/#precio" replace />;
   }
   
   return children;
@@ -71,7 +70,6 @@ export const AppRouter = () => {
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         <Route path="/register" element={<RegisterPageWrapper />} />
-        <Route path="/paywall" element={<PaywallPage />} />
         
         {/* Rutas Privadas (La App) */}
         <Route path="/app/*" element={

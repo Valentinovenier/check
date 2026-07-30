@@ -7,19 +7,39 @@ export async function onRequestPost(context) {
     const token = authHeader?.split(' ')[1];
     if (!token) return new Response('Unauthorized', { status: 401 });
 
-    const decoded = jwt.verify(token, env.SECRET_KEY) as { userId: string };
+    let decoded: { userId: string };
+    try {
+      decoded = jwt.verify(token, env.SECRET_KEY) as { userId: string };
+    } catch (err) {
+      return new Response('Invalid Token', { status: 401 });
+    }
 
-    const response = await fetch('https://api.mercadopago.com/preapproval', {
+    const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
+
+    // Creamos una preferencia de pago/suscripción en Mercado Pago
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            preapproval_plan_id: "8c28f422fee34b11b7be627df7a9dc6a", // Plan ID real
-            external_reference: decoded.userId, // Vinculamos al usuario
-            back_url: `${env.APP_BASE_URL}/app`,
-            reason: "Suscripción ElectroSaaS"
+            items: [
+                {
+                    title: "Suscripción Premium ElectroSaaS",
+                    description: "Acceso ilimitado a cálculos y carpeta técnica AEA 90364-7-770",
+                    unit_price: 15000,
+                    quantity: 1,
+                    currency_id: "ARS"
+                }
+            ],
+            external_reference: decoded.userId,
+            back_urls: {
+                success: `${appBaseUrl}/app`,
+                pending: `${appBaseUrl}/`,
+                failure: `${appBaseUrl}/`
+            },
+            auto_return: "approved"
         }),
     });
     
