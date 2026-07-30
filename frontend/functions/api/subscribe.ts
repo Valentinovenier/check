@@ -16,10 +16,9 @@ export async function onRequestPost(context) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            preapproval_plan_id: "8c28f422fee34b11b7be627df7a9dc6a", // Plan ID real de Mercado Pago
+            preapproval_plan_id: "8c28f422fee34b11b7be627df7a9dc6a", // Plan ID real
             external_reference: decoded.userId, // Vinculamos al usuario
-            back_url: `${env.APP_BASE_URL}/app`,
-            auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: 15000, currency_id: "ARS" }
+            back_url: `${env.APP_BASE_URL}/app`
         }),
     });
     

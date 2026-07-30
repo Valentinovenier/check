@@ -16,7 +16,7 @@ export const UserMenu = () => {
   }
 
   return (
-    <div className="absolute top-4 right-4 flex items-center gap-4 text-white">
+    <div className="absolute top-4 right-4 flex items-center gap-4 text-white z-50">
       <span>Hola, {user?.username}</span>
       <button 
         onClick={() => { logout(); navigate('/'); }} 
