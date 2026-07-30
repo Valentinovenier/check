@@ -305,7 +305,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
           </div>
           <ul className="space-y-4 mb-8 text-slate-300">
             {[
-              'Cálculos normativos AEA 90364-7-770',
+              'Cálculos normativos AEA',
               'Informes técnicos en PDF',
               'Cómputo métrico automático (BOM)',
               'Diagramas unifilares interactivos',
