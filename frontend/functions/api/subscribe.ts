@@ -18,7 +18,8 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
             preapproval_plan_id: "8c28f422fee34b11b7be627df7a9dc6a", // Plan ID real
             external_reference: decoded.userId, // Vinculamos al usuario
-            back_url: `${env.APP_BASE_URL}/app`
+            back_url: `${env.APP_BASE_URL}/app`,
+            reason: "Suscripción ElectroSaaS"
         }),
     });
     
