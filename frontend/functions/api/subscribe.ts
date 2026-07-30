@@ -33,27 +33,29 @@ export async function onRequestPost(context) {
 
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
 
-    // Si existe MP_PREAPPROVAL_PLAN_ID usamos suscripción recurrente automática.
-    // De lo contrario usamos Checkout con cobro mensual recurrente para Mercado Pago.
-    const planId = env.MP_PREAPPROVAL_PLAN_ID || "8c28f422fee34b11b7be627df7a9dc6a";
-
-    const response = await fetch('https://api.mercadopago.com/preapproval', {
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            preapproval_plan_id: planId,
-            reason: "Suscripción Mensual Premium - ElectroSaaS",
+            items: [
+                {
+                    title: "Suscripción Premium ElectroSaaS",
+                    description: "Acceso mensual ilimitado a cálculos y carpeta técnica AEA 90364-7-770",
+                    unit_price: 15000,
+                    quantity: 1,
+                    currency_id: "ARS"
+                }
+            ],
             external_reference: decoded.userId,
-            back_url: `${appBaseUrl}/app`,
-            auto_recurring: {
-                frequency: 1,
-                frequency_type: "months",
-                transaction_amount: 15000,
-                currency_id: "ARS"
-            }
+            back_urls: {
+                success: `${appBaseUrl}/app`,
+                pending: `${appBaseUrl}/`,
+                failure: `${appBaseUrl}/`
+            },
+            auto_return: "approved"
         }),
     });
     
