@@ -60,12 +60,7 @@ const RegisterPageWrapper = () => {
 
 const LandingPageWrapper = () => {
     const navigate = useNavigate();
-    return (
-        <>
-            <UserMenu />
-            <LandingPage onLoginClick={() => navigate('/login')} onRegisterClick={() => navigate('/register')} />
-        </>
-    );
+    return <LandingPage onLoginClick={() => navigate('/login')} onRegisterClick={() => navigate('/register')} />;
 };
 
 export const AppRouter = () => {
