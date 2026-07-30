@@ -33,9 +33,23 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
       }
 
       const data = await response.json();
-      login(data.token);
-      // Redirigir usando el router de la aplicación
-      navigate('/app-entry'); 
+      const token = data.token;
+      login(token);
+
+      // Verificación directa en el cliente tras recibir el token
+      const subResponse = await fetch('/api/check-subscription', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const subData = await subResponse.json();
+      
+      if (subData.status === 'active') {
+        navigate('/app');
+      } else {
+        navigate('/#precio');
+      }
     } catch (err: any) {
       setError(err.message);
     }
