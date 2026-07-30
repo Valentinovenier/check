@@ -23,13 +23,16 @@ export const AppEntry = () => {
         })
         .then(res => res.json())
         .then(data => {
+            console.log("Respuesta check-subscription:", data); // LOG
             if (data.status === 'active') {
                 navigate('/app');
             } else {
+                console.log("Suscripción inactiva o error, redirigiendo a landing"); // LOG
                 navigate('/#precio');
             }
         })
-        .catch(() => {
+        .catch(err => {
+            console.error("Error en check-subscription:", err); // LOG
             navigate('/#precio');
         });
     }, [isAuthenticated, loading, navigate]);
