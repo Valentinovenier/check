@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import App from './App';
-import { UserMenu } from './components/UserMenu';
 import { LandingPage } from './components/LandingPage';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
+import { AppEntry } from './components/AppEntry'; // Importamos el nuevo componente
 import { useAuth } from './context/AuthContext';
 
 // Este componente servirá de guardia para proteger las rutas de la app
@@ -14,9 +14,6 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   if (loading) return <div>Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
   
-  // Verificamos si la suscripción está activa. 
-  // Nota: Si el usuario recién se registra y no tiene suscripción aún,
-  // el estado podría ser null, undefined o 'inactive'.
   if (user?.subscriptionStatus !== 'active') {
     return <Navigate to="/#precio" replace />;
   }
@@ -24,41 +21,15 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-const AuthRedirect = () => {
-    const { isAuthenticated, user, loading } = useAuth();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (!loading && isAuthenticated) {
-            if (user?.subscriptionStatus === 'active') {
-                navigate('/app');
-            } else {
-                navigate('/');
-            }
-        }
-    }, [isAuthenticated, user, loading, navigate]);
-
-    return null;
-};
-
+// Ya no necesitamos AuthRedirect aquí, la lógica pasa al flujo de login/entry
 const LoginPageWrapper = () => {
     const navigate = useNavigate();
-    return (
-        <>
-            <AuthRedirect />
-            <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />
-        </>
-    );
+    return <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />;
 };
 
 const RegisterPageWrapper = () => {
     const navigate = useNavigate();
-    return (
-        <>
-            <AuthRedirect />
-            <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />
-        </>
-    );
+    return <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />;
 };
 
 const LandingPageWrapper = () => {
@@ -74,6 +45,9 @@ export const AppRouter = () => {
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         <Route path="/register" element={<RegisterPageWrapper />} />
+        
+        {/* Ruta intermedia de entrada segura */}
+        <Route path="/app-entry" element={<AppEntry />} />
         
         {/* Rutas Privadas (La App) */}
         <Route path="/app/*" element={

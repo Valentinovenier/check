@@ -32,6 +32,8 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
 
       const data = await response.json();
       login(data.token);
+      // Redirigir a la ruta de entrada para validación de suscripción
+      window.location.href = '/app-entry'; 
     } catch (err: any) {
       setError(err.message);
     }
