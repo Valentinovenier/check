@@ -48,16 +48,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
   const handleAccessPlatform = () => {
     if (isAuthenticated) {
-      if (user?.subscriptionStatus === 'active') {
         navigate('/app');
-      } else {
-        const el = document.getElementById('precio');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          window.location.hash = 'precio';
-        }
-      }
     } else {
       const el = document.getElementById('precio');
       if (el) {
@@ -155,7 +146,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 onClick={handleAccessPlatform}
                 className="px-8 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/25 flex items-center gap-3 group"
               >
-                <span>Acceder a la Plataforma</span>
+                <span>{isAuthenticated ? 'Ir a la Aplicación' : 'Acceder a la Plataforma'}</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <a
