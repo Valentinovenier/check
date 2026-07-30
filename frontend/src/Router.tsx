@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import App from './App';
+import { UserMenu } from './components/UserMenu';
 import { LandingPage } from './components/LandingPage';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
@@ -65,6 +66,7 @@ const LandingPageWrapper = () => {
 export const AppRouter = () => {
   return (
     <BrowserRouter>
+      <UserMenu />
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<LandingPageWrapper />} />

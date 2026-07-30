@@ -24,6 +24,15 @@ export async function onRequestPost(context) {
     });
     
     const data = await response.json();
+    
+    if (!response.ok) {
+        console.error('Mercado Pago API Error:', data);
+        return new Response(JSON.stringify({ error: 'Mercado Pago Error', details: data }), {
+            status: response.status,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     return new Response(JSON.stringify({ init_point: data.init_point }), {
         headers: { 'Content-Type': 'application/json' }
     });
