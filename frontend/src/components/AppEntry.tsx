@@ -21,7 +21,7 @@ export const AppEntry = () => {
             return;
         }
 
-        fetch('/api/check-subscription', {
+        fetch('/api/check-subscription' + window.location.search, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

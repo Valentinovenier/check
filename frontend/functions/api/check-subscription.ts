@@ -11,11 +11,28 @@ export async function onRequest(context) {
     const token = authHeader.split(' ')[1];
     
     try {
-        const decoded = jwt.verify(token, env.SECRET_KEY) as { userId: string, username: string };
+        const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
+        const decoded = jwt.verify(token, secret) as { userId: string, username: string };
         
         // Bypass para el administrador
         if (decoded.username === 'vale07venier@gmail.com') {
              return new Response(JSON.stringify({ status: 'active' }), {
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Inspeccionar si MercadoPago redirigió al usuario con parámetros de confirmación en la URL
+        const url = new URL(request.url);
+        const preapprovalId = url.searchParams.get('preapproval_id') || url.searchParams.get('payment_id') || url.searchParams.get('id') || url.searchParams.get('collection_id');
+        const statusParam = url.searchParams.get('status') || url.searchParams.get('collection_status') || url.searchParams.get('preapproval_status');
+
+        // Si retorna de MercadoPago con confirmación de pago/suscripción
+        if (preapprovalId || statusParam === 'authorized' || statusParam === 'approved') {
+            await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
+                .bind('active', preapprovalId || 'mp_confirmed', decoded.userId)
+                .run();
+
+            return new Response(JSON.stringify({ status: 'active' }), {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
@@ -28,10 +45,11 @@ export async function onRequest(context) {
             return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
         }
 
-        return new Response(JSON.stringify({ status: user.subscription_status }), {
+        return new Response(JSON.stringify({ status: user.subscription_status || 'pending' }), {
             headers: { 'Content-Type': 'application/json' },
         });
-    } catch (e) {
-        return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401 });
+    } catch (e: any) {
+        return new Response(JSON.stringify({ error: 'Token inválido: ' + e.message }), { status: 401 });
     }
 }
+
