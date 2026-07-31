@@ -5,7 +5,7 @@ interface AuthContextType {
   user: { id: string; username: string; subscriptionStatus: string } | null;
   login: (token: string) => void;
   logout: () => void;
-  updateUserSubscription: (newStatus: string) => void;
+  updateUserSubscription: (newStatus: string, newToken?: string) => void;
   loading: boolean;
 }
 
@@ -40,6 +40,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (decoded && decoded.userId) {
         setIsAuthenticated(true);
         setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status });
+
+        // Si el estado en el token no es 'active', verificar en segundo plano contra el backend D1 por si el Webhook ya lo activó
+        if (decoded.subscription_status !== 'active' && decoded.username !== 'vale07venier@gmail.com') {
+          fetch('/api/check-subscription', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && data.status === 'active') {
+              if (data.token) {
+                localStorage.setItem('token', data.token);
+              }
+              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active' });
+            }
+          })
+          .catch(err => console.error("Error validando suscripción inicial en AuthContext:", err));
+        }
       } else {
         localStorage.removeItem('token');
       }
@@ -56,7 +73,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateUserSubscription = (newStatus: string) => {
+  const updateUserSubscription = (newStatus: string, newToken?: string) => {
+    if (newToken) {
+      localStorage.setItem('token', newToken);
+    }
     setUser(prev => prev ? { ...prev, subscriptionStatus: newStatus } : null);
   };
 
