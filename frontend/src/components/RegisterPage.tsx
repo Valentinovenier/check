@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { startPayment } from '../utils/payment';
 
 interface RegisterPageProps {
   onLoginClick: () => void;
@@ -10,17 +12,19 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
 
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden. Por favor, verifícalas.');
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await fetch('/api/register', {
@@ -31,17 +35,21 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Error de registro');
+        throw new Error(data.error || 'Error de registro');
       }
 
-      setSuccess('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
-      setUsername('');
-      setPassword('');
-      setConfirmPassword('');
+      if (data.token) {
+        login(data.token);
+        // Redirigir directamente al checkout de suscripción de MercadoPago
+        await startPayment();
+      }
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,58 +64,64 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
             ← Volver a la Landing Page
           </button>
         )}
-        <h3 className="text-2xl font-bold text-white text-center mb-2">Registrarse</h3>
+        <h3 className="text-2xl font-bold text-white text-center mb-2">Crear tu Cuenta</h3>
+        <p className="text-xs text-slate-400 text-center mb-6">Regístrate para continuar con la suscripción a ElectroSaaS</p>
+        
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
             <div>
-              <label className="block text-white" htmlFor="username">Nombre de Usuario</label>
+              <label className="block text-white text-sm" htmlFor="username">Email / Nombre de Usuario</label>
               <input 
                 type="text" 
-                placeholder="Nombre de Usuario"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                placeholder="tu@email.com"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-gray-700 text-white"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
             </div>
             <div className="mt-4">
-              <label className="block text-white" htmlFor="password">Contraseña</label>
+              <label className="block text-white text-sm" htmlFor="password">Contraseña</label>
               <input 
                 type="password" 
                 placeholder="Contraseña"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-gray-700 text-white"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
             <div className="mt-4">
-              <label className="block text-white" htmlFor="confirmPassword">Confirmar Contraseña</label>
+              <label className="block text-white text-sm" htmlFor="confirmPassword">Confirmar Contraseña</label>
               <input 
                 type="password" 
                 placeholder="Repite tu contraseña"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-gray-700 text-white"
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                required
               />
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
-            <div className="flex items-baseline justify-between">
+            
+            <div className="flex items-center justify-between mt-6">
               <button 
                 type="submit" 
-                className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
+                disabled={loading}
+                className="px-6 py-2 text-slate-950 font-bold bg-emerald-400 rounded-lg hover:bg-emerald-300 disabled:opacity-50 transition-colors"
               >
-                Registrarse
+                {loading ? 'Procesando...' : 'Registrarse y Pagar'}
               </button>
-              <a 
-                href="#" 
-                className="text-sm text-blue-600 hover:underline"
+              <button 
+                type="button"
+                className="text-sm text-emerald-400 hover:underline"
                 onClick={onLoginClick}
               >
-                ¿Ya tienes una cuenta? Iniciar Sesión
-              </a>
+                ¿Ya tienes cuenta? Iniciar Sesión
+              </button>
             </div>
           </div>
         </form>
@@ -115,3 +129,4 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
     </div>
   );
 };
+
