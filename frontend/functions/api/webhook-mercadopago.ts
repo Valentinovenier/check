@@ -32,6 +32,7 @@ export async function onRequestPost(context) {
                 headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
             });
             const subData = await response.json();
+            console.log('LO QUE RESPONDIÓ MERCADOPAGO ES:', JSON.stringify(subData));
 
             const userId = subData.external_reference;
             const status = (subData.status === 'authorized' || subData.status === 'active') ? 'active' : (subData.status || 'inactive');
