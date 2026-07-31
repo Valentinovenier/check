@@ -28,7 +28,7 @@ export async function onRequest(context) {
 
         // Si retorna de MercadoPago con confirmación de pago/suscripción
         if (preapprovalId || statusParam === 'authorized' || statusParam === 'approved') {
-            await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
+            await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = CURRENT_TIMESTAMP WHERE id = ?')
                 .bind('active', preapprovalId || 'mp_confirmed', decoded.userId)
                 .run();
 
