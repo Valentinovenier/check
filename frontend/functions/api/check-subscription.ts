@@ -41,13 +41,20 @@ export async function onRequest(context) {
             });
         }
         
+        console.log('DEBUG check-subscription: Consultando base de datos para userId:', decoded.userId);
+        
         const user = await env.DB.prepare('SELECT subscription_status FROM users WHERE id = ?')
             .bind(decoded.userId)
             .first();
 
+        console.log('DEBUG check-subscription: Resultado de consulta:', JSON.stringify(user));
+
         if (!user) {
+            console.error('DEBUG check-subscription: Usuario no encontrado en DB');
             return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
         }
+
+        console.log('DEBUG check-subscription: Estado actual encontrado:', user.subscription_status);
 
         return new Response(JSON.stringify({ status: user.subscription_status || 'pending' }), {
             headers: { 'Content-Type': 'application/json' },
