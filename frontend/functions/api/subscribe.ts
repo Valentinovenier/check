@@ -34,43 +34,11 @@ export async function onRequestPost(context) {
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
     const planId = env.MP_PREAPPROVAL_PLAN_ID || "f60b996e809848a482e25b74b1c44128";
 
-    // Si contaremos con token de acceso a MP, generamos la suscripción personalizada pasando external_reference
-    if (env.MP_ACCESS_TOKEN) {
-        try {
-            const mpRes = await fetch('https://api.mercadopago.com/preapproval', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    preapproval_plan_id: planId,
-                    payer_email: decoded.username && decoded.username.includes('@') ? decoded.username : undefined,
-                    external_reference: decoded.userId,
-                    back_url: `${appBaseUrl}/app-entry`,
-                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
-                    reason: 'Suscripción ElectroSaaS Premium'
-                })
-            });
-
-            const mpData = await mpRes.json();
-            if (mpData.init_point) {
-                return new Response(JSON.stringify({ init_point: mpData.init_point }), {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            } else {
-                console.error("Respuesta MP sin init_point:", mpData);
-            }
-        } catch (e) {
-            console.error('Error llamando a la API de MercadoPago:', e);
-        }
-    }
-
-    // Retornamos el enlace oficial de checkout de suscripción para el plan del vendedor si no hay token o falló
-    const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${planId}`;
+    // Retornamos el enlace oficial de checkout de suscripción con el external_reference del usuario
+    const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${planId}&external_reference=${decoded.userId}`;
 
     return new Response(JSON.stringify({ init_point: subscriptionUrl }), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
     });
 }
 
