@@ -33,15 +33,14 @@ export async function onRequestPost(context: any) {
     }
 
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
-    const payerEmail = decoded.username && decoded.username.includes('@') ? decoded.username : 'comprador@ejemplo.com';
 
-    // 1. Si se cuenta con MP_ACCESS_TOKEN, creamos la suscripción sin depender de un plan pre-creado (Suscripción sin plan asociado)
+    // 1. Si se cuenta con MP_ACCESS_TOKEN, creamos la suscripción dinámicamente
+    // Omitimos payer_email para evitar el error "Both payer and collector must be real or test users"
     if (env.MP_ACCESS_TOKEN) {
         try {
             const bodyPayload: any = {
                 reason: 'Suscripción ElectroSaaS Premium',
                 external_reference: decoded.userId,
-                payer_email: payerEmail,
                 auto_recurring: {
                     frequency: 1,
                     frequency_type: 'months',
@@ -53,7 +52,7 @@ export async function onRequestPost(context: any) {
                 status: 'pending'
             };
 
-            // Solo si se especificó explícitamente un ID de plan válido en variables de entorno, lo adjuntamos
+            // Solo si se especificó explícitamente un ID de plan en variables de entorno, lo incluimos
             if (env.MP_PREAPPROVAL_PLAN_ID) {
                 bodyPayload.preapproval_plan_id = env.MP_PREAPPROVAL_PLAN_ID;
             }
@@ -71,7 +70,7 @@ export async function onRequestPost(context: any) {
 
             if (response.ok) {
                 const mpData: any = await response.json();
-                console.log('Suscripción sin plan creada exitosamente en MP:', JSON.stringify(mpData));
+                console.log('Suscripción creada exitosamente en MP:', JSON.stringify(mpData));
                 if (mpData.init_point) {
                     return new Response(JSON.stringify({ init_point: mpData.init_point }), {
                         headers: { 'Content-Type': 'application/json' }
@@ -86,7 +85,7 @@ export async function onRequestPost(context: any) {
         }
     }
 
-    // Fallback en caso de que no exista MP_ACCESS_TOKEN configurado
+    // Fallback en caso de que no exista MP_ACCESS_TOKEN configurado o falle la API
     const planId = env.MP_PREAPPROVAL_PLAN_ID || "f60b996e809848a482e25b74b1c44128";
     const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${planId}&external_reference=${decoded.userId}`;
 
