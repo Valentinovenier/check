@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { User, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { User, LogOut, LogIn, UserPlus, Zap } from 'lucide-react';
 
 export const UserMenu = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -9,20 +9,28 @@ export const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // ... (mismo useEffect que antes)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!isAuthenticated) {
     return (
       <div className="flex gap-3">
         <button 
           onClick={() => navigate('/login')} 
-          className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors text-sm"
+          className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-semibold border border-slate-700"
         >
           <LogIn className="w-4 h-4" /> Iniciar sesión
         </button>
         <button 
           onClick={() => navigate('/register')} 
-          className="flex items-center gap-2 text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg transition-colors text-sm"
+          className="flex items-center gap-2 text-slate-950 font-bold bg-emerald-400 hover:bg-emerald-300 px-4 py-2 rounded-lg transition-colors text-sm"
         >
           <UserPlus className="w-4 h-4" /> Registrarse
         </button>
@@ -36,15 +44,21 @@ export const UserMenu = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors text-sm border border-slate-700"
       >
-        <User className="w-4 h-4" />
+        <User className="w-4 h-4 text-emerald-400" />
         <span>{user?.username}</span>
       </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-lg shadow-xl py-1 z-50">
           <button 
+            onClick={() => { setIsOpen(false); navigate('/app'); }} 
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 transition-colors"
+          >
+            <Zap className="w-4 h-4 text-emerald-400" /> Ir a la Aplicación
+          </button>
+          <button 
             onClick={() => { logout(); setIsOpen(false); navigate('/'); }} 
-            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors"
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors border-t border-slate-800"
           >
             <LogOut className="w-4 h-4" /> Cerrar sesión
           </button>
@@ -53,3 +67,4 @@ export const UserMenu = () => {
     </div>
   );
 };
+
