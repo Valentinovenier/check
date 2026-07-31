@@ -52,7 +52,7 @@ export async function onRequestPost(context: any) {
                     auto_recurring: {
                         frequency: 1,
                         frequency_type: 'months',
-                        transaction_amount: 15000,
+                        transaction_amount: 150,
                         currency_id: 'ARS'
                     },
                     back_url: `${appBaseUrl}/app-entry`,

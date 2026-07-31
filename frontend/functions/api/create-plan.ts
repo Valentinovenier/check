@@ -16,7 +16,7 @@ export async function onRequestPost(context) {
             auto_recurring: { 
                 frequency: 1, 
                 frequency_type: "months", 
-                transaction_amount: 15000, 
+                transaction_amount: 150, 
                 currency_id: "ARS",
                 // AÑADIMOS LA URL DEL WEBHOOK PARA QUE MP SEPA DÓNDE NOTIFICAR
                 notification_url: webhookUrl 
