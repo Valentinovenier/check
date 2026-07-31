@@ -33,8 +33,11 @@ export async function onRequestPost(context) {
 
             // 2. Si hay un userId válido, actualizar el estado de la suscripción en la base de datos
             if (userId) {
-                await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
-                    .bind(status, preapprovalId, userId)
+                // Obtenemos la fecha de finalización si está disponible en la respuesta de MP
+                const endDate = subData.next_payment_date || null;
+                
+                await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ? WHERE id = ?')
+                    .bind(status, preapprovalId, endDate, userId)
                     .run();
                 
                 console.log(`Usuario ${userId} suscripción actualizada a ${status}.`);
