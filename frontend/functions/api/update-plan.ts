@@ -5,7 +5,7 @@ export async function onRequest(context) {
     const webhookUrl = `${env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev'}/api/webhooks/mercadopago`;
 
     try {
-        // 1. Obtenemos el plan actual
+        // Obtenemos el plan actual para asegurar que existe
         const getRes = await fetch(`https://api.mercadopago.com/preapproval_plan/${planId}`, {
             headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
         });
@@ -16,17 +16,24 @@ export async function onRequest(context) {
         
         const planData = await getRes.json();
 
-        // 2. Actualizamos la URL de notificación
-        planData.auto_recurring.notification_url = webhookUrl;
+        // Actualizamos la URL de notificación de forma segura
+        const updatePayload = {
+            reason: planData.reason,
+            auto_recurring: {
+                ...planData.auto_recurring,
+                notification_url: webhookUrl
+            },
+            back_url: planData.back_url
+        };
 
-        // 3. Enviamos la actualización
+        // Enviamos la actualización
         const response = await fetch(`https://api.mercadopago.com/preapproval_plan/${planId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(planData),
+            body: JSON.stringify(updatePayload),
         });
         
         const result = await response.json();
