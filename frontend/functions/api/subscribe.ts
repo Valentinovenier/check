@@ -39,7 +39,7 @@ export async function onRequestPost(context: any) {
         try {
             // Determinar el email a utilizar: MP_TEST_PAYER_EMAIL si existe, el email del usuario si tiene formato de email,
             // o el email de prueba fijo para cuentas de testeo de MercadoPago
-            const TEST_PAYER_EMAIL = 'test_user_1372944575@testuser.com';
+            const TEST_PAYER_EMAIL = 'test_user_3754759241978375765@testuser.com';
             const payerEmail = env.MP_TEST_PAYER_EMAIL
                 || (decoded.username && decoded.username.includes('@') ? decoded.username : null)
                 || TEST_PAYER_EMAIL;
