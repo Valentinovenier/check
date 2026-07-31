@@ -34,39 +34,57 @@ export async function onRequestPost(context: any) {
 
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
 
-    // 1. Si se cuenta con MP_ACCESS_TOKEN, creamos la suscripción dinámicamente
-    // Omitimos payer_email para evitar el error "Both payer and collector must be real or test users"
+    // 1. Si se cuenta con MP_ACCESS_TOKEN, creamos la suscripción vía API
     if (env.MP_ACCESS_TOKEN) {
         try {
-            const bodyPayload: any = {
-                reason: 'Suscripción ElectroSaaS Premium',
-                external_reference: decoded.userId,
-                auto_recurring: {
-                    frequency: 1,
-                    frequency_type: 'months',
-                    transaction_amount: 15000,
-                    currency_id: 'ARS'
-                },
-                back_url: `${appBaseUrl}/app-entry`,
-                notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
-                status: 'pending'
+            // Intentar primero con el email del usuario logueado o variable de entorno de prueba
+            let payerEmail = env.MP_TEST_PAYER_EMAIL || (decoded.username && decoded.username.includes('@') ? decoded.username : 'comprador@ejemplo.com');
+
+            const createSubscription = async (email: string) => {
+                const bodyPayload: any = {
+                    reason: 'Suscripción ElectroSaaS Premium',
+                    external_reference: decoded.userId,
+                    payer_email: email,
+                    auto_recurring: {
+                        frequency: 1,
+                        frequency_type: 'months',
+                        transaction_amount: 15000,
+                        currency_id: 'ARS'
+                    },
+                    back_url: `${appBaseUrl}/app-entry`,
+                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
+                    status: 'pending'
+                };
+
+                if (env.MP_PREAPPROVAL_PLAN_ID) {
+                    bodyPayload.preapproval_plan_id = env.MP_PREAPPROVAL_PLAN_ID;
+                }
+
+                console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
+
+                return await fetch('https://api.mercadopago.com/preapproval', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bodyPayload)
+                });
             };
 
-            // Solo si se especificó explícitamente un ID de plan en variables de entorno, lo incluimos
-            if (env.MP_PREAPPROVAL_PLAN_ID) {
-                bodyPayload.preapproval_plan_id = env.MP_PREAPPROVAL_PLAN_ID;
+            let response = await createSubscription(payerEmail);
+
+            // Si falla por requerir usuario de prueba en Sandbox (error real or test users), reintentar con email de test
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.warn('Primer intento falló:', errorText);
+
+                if (errorText.includes('real or test users') || errorText.includes('payer_email')) {
+                    const fallbackTestEmail = env.MP_TEST_PAYER_EMAIL || 'test_user_1427181657@testuser.com';
+                    console.log('Reintentando POST /preapproval con email de prueba:', fallbackTestEmail);
+                    response = await createSubscription(fallbackTestEmail);
+                }
             }
-
-            console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
-
-            const response = await fetch('https://api.mercadopago.com/preapproval', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(bodyPayload)
-            });
 
             if (response.ok) {
                 const mpData: any = await response.json();
@@ -77,8 +95,7 @@ export async function onRequestPost(context: any) {
                     });
                 }
             } else {
-                const errorText = await response.text();
-                console.warn('Error al llamar a POST /preapproval de MP:', errorText);
+                console.error('Error final al llamar a POST /preapproval de MP:', await response.text());
             }
         } catch (e) {
             console.error('Error creando la suscripción vía API:', e);
