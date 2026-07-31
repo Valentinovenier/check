@@ -1,10 +1,11 @@
 // frontend/functions/api/subscribe.ts
 import jwt from 'jsonwebtoken';
 
-export async function onRequestPost(context) {
+export async function onRequestPost(context: any) {
     const { request, env } = context;
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
+
     if (!token) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
             status: 401,
@@ -34,11 +35,48 @@ export async function onRequestPost(context) {
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
     const planId = env.MP_PREAPPROVAL_PLAN_ID || "f60b996e809848a482e25b74b1c44128";
 
-    // Retornamos el enlace oficial de checkout de suscripción con el external_reference del usuario
+    // Intentar crear la suscripción explícita vía API con back_url y notification_url
+    if (env.MP_ACCESS_TOKEN) {
+        try {
+            const payerEmail = decoded.username && decoded.username.includes('@') ? decoded.username : 'comprador@ejemplo.com';
+
+            const response = await fetch('https://api.mercadopago.com/preapproval', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    preapproval_plan_id: planId,
+                    reason: 'Suscripción ElectroSaaS Premium',
+                    external_reference: decoded.userId,
+                    payer_email: payerEmail,
+                    back_url: `${appBaseUrl}/app-entry`,
+                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
+                    status: 'pending'
+                })
+            });
+
+            if (response.ok) {
+                const mpData: any = await response.json();
+                console.log('Suscripción generada dinámicamente en MP:', JSON.stringify(mpData));
+                if (mpData.init_point) {
+                    return new Response(JSON.stringify({ init_point: mpData.init_point }), {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+            } else {
+                console.warn('Error al llamar a POST /preapproval de MP:', await response.text());
+            }
+        } catch (e) {
+            console.error('Error generando preapproval vía API:', e);
+        }
+    }
+
+    // Fallback URL de checkout directo con external_reference
     const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${planId}&external_reference=${decoded.userId}`;
 
     return new Response(JSON.stringify({ init_point: subscriptionUrl }), {
         headers: { 'Content-Type': 'application/json' },
     });
 }
-
