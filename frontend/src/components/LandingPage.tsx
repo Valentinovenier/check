@@ -42,7 +42,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
     if (isAuthenticated) {
       startPayment();
     } else {
-      navigate('/login');
+      navigate('/register');
     }
   };
 

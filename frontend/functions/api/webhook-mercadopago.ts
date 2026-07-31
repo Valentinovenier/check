@@ -1,67 +1,112 @@
 // frontend/functions/api/webhook-mercadopago.ts
-export async function onRequestPost(context) {
+
+async function handleWebhook(context: any) {
     const { request, env } = context;
     
-    console.log('--- NUEVO EVENTO WEBHOOK ---');
+    console.log('--- NUEVO EVENTO WEBHOOK MERCADO PAGO ---');
     
     try {
-        const rawBody = await request.text();
-        console.log('Cuerpo crudo:', rawBody);
-        
-        let data;
-        try {
-            data = JSON.parse(rawBody);
-            console.log('JSON parseado exitosamente:', JSON.stringify(data));
-        } catch (e) {
-            console.error('Error parseando JSON, pero retornamos 200 para evitar reintentos de MP.');
-            return new Response('OK - JSON inválido pero recibido', { status: 200 });
+        const url = new URL(request.url);
+        let preapprovalId = url.searchParams.get('id') || url.searchParams.get('data.id');
+        let topic = url.searchParams.get('topic') || url.searchParams.get('type');
+
+        let body: any = {};
+        if (request.method === 'POST') {
+            try {
+                const rawBody = await request.text();
+                if (rawBody) {
+                    body = JSON.parse(rawBody);
+                    console.log('Cuerpo del webhook:', JSON.stringify(body));
+                }
+            } catch (e) {
+                console.warn('Cuerpo no parseable como JSON:', e);
+            }
         }
 
-        // --- Extracción de ID (Multi-formato para cubrir todos los casos de MP) ---
-        const preapprovalId = data.data?.id || data.id || data.resource?.id;
-        console.log('ID extraído de la notificación:', preapprovalId);
+        if (!preapprovalId) {
+            preapprovalId = body.data?.id || body.id || body.resource?.id;
+        }
+        if (!topic) {
+            topic = body.type || body.topic || body.action;
+        }
+
+        console.log(`ID extraído: ${preapprovalId} | Tópico: ${topic}`);
 
         if (!preapprovalId) {
-            console.log('No se pudo extraer un ID de la notificación. Fin del proceso.');
+            console.log('No se obtuvo ID del webhook. Retornando HTTP 200.');
             return new Response('OK - Sin ID', { status: 200 });
         }
 
         if (!env.MP_ACCESS_TOKEN) {
-            console.error('Error: MP_ACCESS_TOKEN no configurado en env');
-            return new Response('OK - Error config', { status: 200 });
+            console.error('Error: MP_ACCESS_TOKEN no está configurado en las variables de entorno.');
+            return new Response('OK - Sin MP_ACCESS_TOKEN', { status: 200 });
         }
 
-        // --- Obtener detalles de la API de MP ---
-        console.log('Consultando API de Mercado Pago para ID:', preapprovalId);
-        const response = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
+        let targetPreapprovalId = preapprovalId;
+        let userId: string | null = null;
+        let status = 'inactive';
+
+        // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id o external_reference
+        if (topic === 'payment' || body.type === 'payment') {
+            console.log('Consultando API de pagos para ID:', preapprovalId);
+            const payRes = await fetch(`https://api.mercadopago.com/v1/payments/${preapprovalId}`, {
+                headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
+            });
+            if (payRes.ok) {
+                const payData: any = await payRes.json();
+                console.log('Datos de pago obtenidos:', JSON.stringify(payData));
+                if (payData.preapproval_id) {
+                    targetPreapprovalId = payData.preapproval_id;
+                }
+                if (payData.external_reference) {
+                    userId = payData.external_reference;
+                }
+            }
+        }
+
+        // Consultar API de suscripción (preapproval)
+        console.log('Consultando API de suscripciones para preapprovalId:', targetPreapprovalId);
+        const subRes = await fetch(`https://api.mercadopago.com/preapproval/${targetPreapprovalId}`, {
             headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
         });
-        
-        const subData = await response.json();
-        console.log('Respuesta API Mercado Pago:', JSON.stringify(subData));
 
-        const userId = subData.external_reference;
-        const status = (subData.status === 'authorized' || subData.status === 'active') ? 'active' : 'inactive';
-        
-        console.log('Datos procesados -> Usuario:', userId, '| Estado:', status);
+        if (subRes.ok) {
+            const subData: any = await subRes.json();
+            console.log('Respuesta de la API de suscripción:', JSON.stringify(subData));
 
-        // --- Actualización de DB ---
-        if (userId) {
-            console.log('Intentando actualizar base de datos...');
-            const result = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
-                .bind(status, preapprovalId, userId)
-                .run();
-            
-            console.log('Resultado DB:', JSON.stringify(result));
-            console.log(`Usuario ${userId} suscripción actualizada a ${status}.`);
+            if (!userId) {
+                userId = subData.external_reference;
+            }
+
+            const mpStatus = subData.status; // 'authorized', 'active', 'paused', 'cancelled', etc.
+            status = (mpStatus === 'authorized' || mpStatus === 'active') ? 'active' : 'inactive';
+            console.log(`Estado procesado -> Usuario: ${userId} | Estado MP: ${mpStatus} -> Estado Final: ${status}`);
         } else {
-            console.log('No se encontró external_reference (userId) en la suscripción.');
+            console.error(`Error al consultar suscripción (${subRes.status}):`, await subRes.text());
         }
 
-        return new Response('OK - Procesado', { status: 200 });
-    } catch (e) {
-        console.error('Error crítico en webhook:', e);
-        // Siempre devolvemos 200 para que MercadoPago deje de intentar
-        return new Response('OK - Error interno', { status: 200 });
+        // Actualizar la base de datos si tenemos el ID del usuario
+        if (userId && env.DB) {
+            console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}'...`);
+            const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
+                .bind(status, targetPreapprovalId, userId)
+                .run();
+            console.log('Resultado DB:', JSON.stringify(dbResult));
+        } else {
+            console.warn('No se pudo asociar la suscripción a un userId de la base de datos.');
+        }
+
+        return new Response('OK - Webhook procesado', { status: 200 });
+    } catch (e: any) {
+        console.error('Error crítico procesando el webhook:', e);
+        return new Response('OK - Error interno capturado', { status: 200 });
     }
+}
+
+export async function onRequestPost(context: any) {
+    return handleWebhook(context);
+}
+
+export async function onRequestGet(context: any) {
+    return handleWebhook(context);
 }
