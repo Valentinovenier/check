@@ -23,11 +23,15 @@ export async function onRequest(context) {
 
         // Inspeccionar si MercadoPago redirigió al usuario con parámetros de confirmación en la URL
         const url = new URL(request.url);
+        console.log('DEBUG check-subscription URL completa:', request.url);
+        console.log('DEBUG check-subscription searchParams:', Object.fromEntries(url.searchParams.entries()));
+        
         const preapprovalId = url.searchParams.get('preapproval_id') || url.searchParams.get('payment_id') || url.searchParams.get('id') || url.searchParams.get('collection_id');
         const statusParam = url.searchParams.get('status') || url.searchParams.get('collection_status') || url.searchParams.get('preapproval_status');
 
         // Si retorna de MercadoPago con confirmación de pago/suscripción
         if (preapprovalId || statusParam === 'authorized' || statusParam === 'approved') {
+            console.log('DEBUG check-subscription: Pago/Preaprobación detectado en URL');
             await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = CURRENT_TIMESTAMP WHERE id = ?')
                 .bind('active', preapprovalId || 'mp_confirmed', decoded.userId)
                 .run();

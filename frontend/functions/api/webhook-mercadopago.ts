@@ -2,9 +2,14 @@
 export async function onRequestPost(context) {
     const { request, env } = context;
     
+    // LOG DE DEBUG TEMPORAL
+    console.log('¡WEBHOOK RECIBIDO!');
+    const headers = Object.fromEntries(request.headers.entries());
+    console.log('Headers:', JSON.stringify(headers));
+    
     try {
         const data = await request.json();
-        console.log('Webhook MercadoPago recibido:', JSON.stringify(data));
+        console.log('Webhook MercadoPago recibido con datos:', JSON.stringify(data));
 
         let preapprovalId = null;
 
