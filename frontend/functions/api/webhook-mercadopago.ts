@@ -2,13 +2,17 @@
 export async function onRequestPost(context) {
     const { request, env } = context;
     
+    // LOG DE DEBUG TEMPORAL
+    console.log('¡WEBHOOK RECIBIDO!');
+    const headers = Object.fromEntries(request.headers.entries());
+    console.log('Headers:', JSON.stringify(headers));
+    
     try {
         const data = await request.json();
         console.log('Webhook MercadoPago recibido con datos:', JSON.stringify(data));
 
         let preapprovalId = null;
 
-        // --- EXTRACCIÓN DE ID ---
         if (data.type === 'subscription_preapproval' || data.type === 'preapproval' || data.topic === 'preapproval') {
             preapprovalId = data.data?.id || data.id;
         } else if (data.type === 'payment' || data.topic === 'payment') {
@@ -22,35 +26,27 @@ export async function onRequestPost(context) {
             }
         }
 
-        // --- VALIDACIÓN Y LLAMADA A API ---
-        // Ignorar IDs de prueba o placeholder
-        if (!preapprovalId || preapprovalId === '123456') {
-            console.log('Webhook ignorado (ID inválido o de prueba):', preapprovalId);
-            return new Response(JSON.stringify({ received: true, ignored: true }), { status: 200 });
-        }
-
-        if (env.MP_ACCESS_TOKEN) {
+        if (preapprovalId && env.MP_ACCESS_TOKEN) {
+            // 1. Obtener detalles de la suscripción desde la API de Mercado Pago
             const response = await fetch(`https://api.mercadopago.com/preapproval/${preapprovalId}`, {
                 headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
             });
-            
-            if (response.status === 404) {
-                console.log(`Preaprobación ${preapprovalId} no encontrada en MP.`);
-                return new Response(JSON.stringify({ received: true, error: 'Not found' }), { status: 200 });
-            }
-
             const subData = await response.json();
-            console.log('Datos de suscripción obtenidos:', JSON.stringify(subData));
+            console.log('LO QUE RESPONDIÓ MERCADOPAGO ES:', JSON.stringify(subData));
 
             const userId = subData.external_reference;
             const status = (subData.status === 'authorized' || subData.status === 'active') ? 'active' : (subData.status || 'inactive');
 
+            // 2. Si hay un userId válido, actualizar el estado de la suscripción en la base de datos
             if (userId) {
+                // Obtenemos la fecha de finalización si está disponible en la respuesta de MP
                 const endDate = subData.next_payment_date || null;
+                
                 await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ? WHERE id = ?')
                     .bind(status, preapprovalId, endDate, userId)
                     .run();
-                console.log(`Usuario ${userId} actualizado a ${status}.`);
+                
+                console.log(`Usuario ${userId} suscripción actualizada a ${status}.`);
             }
         }
 
