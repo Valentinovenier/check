@@ -37,8 +37,12 @@ export async function onRequestPost(context: any) {
     // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API
     if (env.MP_ACCESS_TOKEN) {
         try {
-            // Determinar el email a utilizar: MP_TEST_PAYER_EMAIL si existe, o el email de usuario
-            const payerEmail = env.MP_TEST_PAYER_EMAIL || (decoded.username && decoded.username.includes('@') ? decoded.username : null);
+            // Determinar el email a utilizar: MP_TEST_PAYER_EMAIL si existe, el email del usuario si tiene formato de email,
+            // o el email de prueba fijo para cuentas de testeo de MercadoPago
+            const TEST_PAYER_EMAIL = 'test_user_1372944575@testuser.com';
+            const payerEmail = env.MP_TEST_PAYER_EMAIL
+                || (decoded.username && decoded.username.includes('@') ? decoded.username : null)
+                || TEST_PAYER_EMAIL;
 
             if (payerEmail) {
                 const bodyPayload: any = {
@@ -81,10 +85,8 @@ export async function onRequestPost(context: any) {
                     }
                 } else {
                     const errorText = await response.text();
-                    console.warn('API /preapproval respondió con error:', errorText);
+                    console.warn('Error al llamar a POST /preapproval de MP:', errorText);
                 }
-            } else {
-                console.warn('No se envió payer_email ya que el usuario no usa formato email y no hay MP_TEST_PAYER_EMAIL configurado.');
             }
         } catch (e) {
             console.error('Error al invocar API de Mercado Pago:', e);
