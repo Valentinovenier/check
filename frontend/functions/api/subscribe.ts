@@ -48,6 +48,7 @@ export async function onRequestPost(context) {
                     payer_email: decoded.username && decoded.username.includes('@') ? decoded.username : undefined,
                     external_reference: decoded.userId,
                     back_url: `${appBaseUrl}/app-entry`,
+                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
                     reason: 'Suscripción ElectroSaaS Premium'
                 })
             });
