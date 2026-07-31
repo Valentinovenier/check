@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const AppEntry = () => {
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading, updateUserSubscription } = useAuth();
     const navigate = useNavigate();
     const [retryCount, setRetryCount] = useState(0);
 
@@ -30,6 +30,7 @@ export const AppEntry = () => {
         .then(data => {
             console.log("Respuesta check-subscription:", data);
             if (data.status === 'active') {
+                updateUserSubscription('active');
                 navigate('/app');
             } else if (retryCount < 3) {
                 // Reintentar cada 2.5 segundos hasta 3 veces para darle tiempo al webhook de MercadoPago
@@ -46,7 +47,7 @@ export const AppEntry = () => {
             console.error("Error en check-subscription:", err);
             navigate('/#precio');
         });
-    }, [isAuthenticated, loading, navigate, retryCount]);
+    }, [isAuthenticated, loading, navigate, retryCount, updateUserSubscription]);
 
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white px-4">

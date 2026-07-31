@@ -5,6 +5,7 @@ interface AuthContextType {
   user: { id: string; username: string; subscriptionStatus: string } | null;
   login: (token: string) => void;
   logout: () => void;
+  updateUserSubscription: (newStatus: string) => void;
   loading: boolean;
 }
 
@@ -55,6 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateUserSubscription = (newStatus: string) => {
+    setUser(prev => prev ? { ...prev, subscriptionStatus: newStatus } : null);
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
@@ -62,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, updateUserSubscription, loading }}>
       {children}
     </AuthContext.Provider>
   );
