@@ -44,9 +44,9 @@ async function handleWebhook(context: any) {
 
         let targetPreapprovalId = preapprovalId;
         let userId: string | null = null;
-        let status = 'inactive';
+        let status: string | null = null;
 
-        // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id o external_reference
+        // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id
         if (topic === 'payment' || body.type === 'payment') {
             console.log('Consultando API de pagos para ID:', preapprovalId);
             const payRes = await fetch(`https://api.mercadopago.com/v1/payments/${preapprovalId}`, {
@@ -55,11 +55,15 @@ async function handleWebhook(context: any) {
             if (payRes.ok) {
                 const payData: any = await payRes.json();
                 console.log('Datos de pago obtenidos:', JSON.stringify(payData));
-                if (payData.preapproval_id) {
-                    targetPreapprovalId = payData.preapproval_id;
-                }
+                
+                // Extraer userId del external_reference del pago
                 if (payData.external_reference) {
                     userId = payData.external_reference;
+                }
+                
+                // Intentar obtener el preapproval_id desde point_of_interaction
+                if (payData.point_of_interaction?.transaction_data?.subscription_id) {
+                    targetPreapprovalId = payData.point_of_interaction.transaction_data.subscription_id;
                 }
             }
         }
@@ -79,21 +83,35 @@ async function handleWebhook(context: any) {
             }
 
             const mpStatus = subData.status; // 'authorized', 'active', 'paused', 'cancelled', etc.
-            status = (mpStatus === 'authorized' || mpStatus === 'active') ? 'active' : 'inactive';
+            
+            // Lógica inteligente de estados:
+            // - Si es 'authorized' o 'active', marcar como 'active'.
+            // - Si es 'cancelled', 'paused', 'expired', marcar como 'inactive'.
+            // - Si es 'pending', no hacer nada (preservar estado actual).
+            if (mpStatus === 'authorized' || mpStatus === 'active') {
+                status = 'active';
+            } else if (['cancelled', 'paused', 'expired', 'refunded'].includes(mpStatus)) {
+                status = 'inactive';
+            } else {
+                console.log(`Estado 'pending' u otro detectado (${mpStatus}). Omitiendo actualización para evitar errores.`);
+                return new Response('OK - Estado ignorado', { status: 200 });
+            }
+            
             console.log(`Estado procesado -> Usuario: ${userId} | Estado MP: ${mpStatus} -> Estado Final: ${status}`);
         } else {
             console.error(`Error al consultar suscripción (${subRes.status}):`, await subRes.text());
+            return new Response('OK - Error consultando suscripción', { status: 200 });
         }
 
-        // Actualizar la base de datos si tenemos el ID del usuario
-        if (userId && env.DB) {
+        // Actualizar la base de datos si tenemos el ID del usuario y un nuevo estado
+        if (userId && status && env.DB) {
             console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}'...`);
             const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
                 .bind(status, targetPreapprovalId, userId)
                 .run();
             console.log('Resultado DB:', JSON.stringify(dbResult));
         } else {
-            console.warn('No se pudo asociar la suscripción a un userId de la base de datos.');
+            console.warn('No se pudo asociar la suscripción a un userId o estado inválido.');
         }
 
         return new Response('OK - Webhook procesado', { status: 200 });
