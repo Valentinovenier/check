@@ -27,33 +27,16 @@ export async function onRequest(context: any) {
             });
         }
 
-        const url = new URL(request.url);
-        console.log('DEBUG check-subscription URL:', request.url);
-        
-        const preapprovalId = url.searchParams.get('preapproval_id') || url.searchParams.get('payment_id') || url.searchParams.get('id') || url.searchParams.get('collection_id');
-        const statusParam = url.searchParams.get('status') || url.searchParams.get('collection_status') || url.searchParams.get('preapproval_status');
+        // Consultar el estado actual registrado en la base de datos (actualizado únicamente por el Webhook)
+        const user = await env.DB.prepare('SELECT subscription_status FROM users WHERE id = ?')
+            .bind(decoded.userId)
+            .first();
 
-        let userStatus = 'pending';
-
-        // 1. Si el usuario vuelve desde Mercado Pago con parámetros en la URL indicando pago/preaprobación
-        if (preapprovalId || statusParam === 'authorized' || statusParam === 'approved') {
-            console.log('DEBUG check-subscription: Retorno con parámetros de MP detectados. Activando suscripción.');
-            await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = CURRENT_TIMESTAMP WHERE id = ?')
-                .bind('active', preapprovalId || 'mp_confirmed', decoded.userId)
-                .run();
-            userStatus = 'active';
-        } else {
-            // 2. Consultar el estado actual registrado en la base de datos (actualizado por el Webhook)
-            const user = await env.DB.prepare('SELECT subscription_status FROM users WHERE id = ?')
-                .bind(decoded.userId)
-                .first();
-
-            if (!user) {
-                return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
-            }
-
-            userStatus = user.subscription_status || 'pending';
+        if (!user) {
+            return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
         }
+
+        const userStatus = user.subscription_status || 'pending';
 
         // Generar un nuevo token JWT actualizado con el estado actual
         const updatedToken = jwt.sign({ 
