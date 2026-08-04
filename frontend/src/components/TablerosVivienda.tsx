@@ -15,7 +15,7 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   // Asegurar tablero principal por defecto
   useEffect(() => {
     if (datos.circuitosCalculados.length > 0 && !tableros.find(t => t.tipo === 'Principal')) {
-        const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [] };
+        const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [], proteccionesSalida: [] };
         onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp] } });
     }
   }, [datos.circuitosCalculados, tableros, project, onChange, datos]);
@@ -58,7 +58,8 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
         nombre: `${tipo} ${nuevosTableros.length + 1}`,
         tipo,
         tableroPadreId: padreId,
-        circuitosIds: []
+        circuitosIds: [],
+        proteccionesSalida: []
     };
     onChange({ ...project, datosVivienda: { ...datos, tableros: [...nuevosTableros, nuevoTablero] } });
   };
