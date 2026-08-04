@@ -159,7 +159,7 @@ export const ProteccionesPage = () => {
                   )}
 
                   {/* Nuevas protecciones de salida */}
-                  {tablero.proteccionesSalida?.map((ps, index) => {
+                  {tablero.proteccionesSalida?.map((ps: any, index: number) => {
                       const tableroDestino = tablerosVivienda.find(t => t.id === ps.tableroDestinoId);
                       return (
                         <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
