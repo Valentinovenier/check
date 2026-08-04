@@ -21,17 +21,28 @@ export const obtenerProteccionAsignada = (
   // 1. Proyectos Residenciales (Vivienda)
   if (project.datosVivienda) {
     const tablerosVivienda = project.datosVivienda.tableros || [];
-    console.log('Tableros disponibles:', tablerosVivienda.map(t => t.id));
     const circuitosVivienda = project.datosVivienda.circuitosCalculados || [];
+
+    // Búsqueda del tablero destino (si aplica) para buscar protecciones de salida en el padre
+    let tableroDestino: any = undefined;
+    if (targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
+        tableroDestino = tablerosVivienda.find(t => t.id === targetId);
+    }
+    
+    // SI estamos calculando un tramo HACIA este tablero (es un destino),
+    // buscamos en el tablero padre (el origen) la protección de salida hacia este destino.
+    if (tableroDestino && tableroDestino.tableroPadreId) {
+        const padre = tablerosVivienda.find(t => t.id === tableroDestino.tableroPadreId);
+        if (padre && padre.proteccionesSalida) {
+            const protSalida = padre.proteccionesSalida.find(ps => ps.tableroDestinoId === tableroDestino.id);
+            if (protSalida && protSalida.proteccion && protSalida.proteccion.in_amp !== undefined) {
+                return protSalida.proteccion;
+            }
+        }
+    }
 
     // Si es un circuito terminal
     if (!isPanelTramo && targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
-      // PRIMERO verificamos si es un tablero (caso reportado donde el tramo no marca tipoPanel correctamente)
-      const tableroDestino = tablerosVivienda.find(t => t.id === targetId);
-      if (tableroDestino && (tableroDestino.proteccionCabecera || tableroDestino.proteccionDiferencial)) {
-        return tableroDestino.proteccionCabecera || tableroDestino.proteccionDiferencial;
-      }
-
       const circ = circuitosVivienda.find(c => c.id === targetId);
       if (circ && circ.proteccion && circ.proteccion.in_amp) {
         return circ.proteccion;
@@ -40,29 +51,16 @@ export const obtenerProteccionAsignada = (
     }
 
     // Si es un tablero o tramo general
-    let tablero: any = undefined;
-
-    if (targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
-      tablero = tablerosVivienda.find(t => t.id === targetId);
-      
-      // SI estamos calculando un tramo HACIA este tablero (es un destino),
-      // buscamos en el tablero padre (el origen) la protección de salida hacia este destino.
-      if (tablero && tablero.tableroPadreId) {
-          const padre = tablerosVivienda.find(t => t.id === tablero.tableroPadreId);
-          if (padre && padre.proteccionesSalida) {
-              const protSalida = padre.proteccionesSalida.find(ps => ps.tableroDestinoId === tablero.id);
-              if (protSalida && protSalida.proteccion && protSalida.proteccion.in_amp !== undefined) {
-                  return protSalida.proteccion;
-              }
-          }
-      }
-    } else if (targetId === 'int-general-salida' || targetId === 'tp') {
-      tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
-    }
+    let tablero: any = tableroDestino; // Ya lo encontramos arriba
 
     if (!tablero) {
-      if (tableroOrigenId) tablero = tablerosVivienda.find(t => t.id === tableroOrigenId);
-      if (!tablero) tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
+        if (targetId === 'int-general-salida' || targetId === 'tp') {
+          tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
+        } else if (tableroOrigenId) {
+          tablero = tablerosVivienda.find(t => t.id === tableroOrigenId);
+        } else {
+          tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
+        }
     }
 
     if (tablero) {
