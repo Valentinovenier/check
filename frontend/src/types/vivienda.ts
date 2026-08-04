@@ -39,6 +39,12 @@ export interface CircuitoCalculado {
   proteccion?: Proteccion;
 }
 
+export interface ProteccionSalida {
+  id: string; // ID único para esta protección de salida
+  tableroDestinoId: string; // ID del tablero seccional al que alimenta
+  proteccion: Proteccion; // La protección elegida del catálogo
+}
+
 export interface TableroVivienda {
   id: string;
   nombre: string;
@@ -47,6 +53,7 @@ export interface TableroVivienda {
   circuitosIds: string[];
   proteccionCabecera?: Proteccion;
   proteccionDiferencial?: Proteccion;
+  proteccionesSalida?: ProteccionSalida[];
 }
 
 export interface TomasCircuito {

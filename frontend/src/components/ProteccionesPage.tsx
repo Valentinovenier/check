@@ -157,6 +157,26 @@ export const ProteccionesPage = () => {
                           Asignado: {tablero.proteccionDiferencial.modelo}
                       </div>
                   )}
+
+                  {/* Nuevas protecciones de salida */}
+                  {tablero.proteccionesSalida?.map((ps, index) => {
+                      const tableroDestino = tablerosVivienda.find(t => t.id === ps.tableroDestinoId);
+                      return (
+                        <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                           <p className="text-xs text-slate-400 mb-2">Salida hacia: {tableroDestino?.nombre || 'Desconocido'}</p>
+                           <AsignacionProteccion 
+                                label="Asignar Protección de Salida"
+                                proteccion={ps.proteccion}
+                                disponibles={protecciones}
+                                onChange={(p) => {
+                                    const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
+                                    nuevasSalidas[index] = { ...ps, proteccion: p! };
+                                    handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                                }}
+                            />
+                        </div>
+                      );
+                  })}
                 </div>
 
                 <div className="space-y-3">
