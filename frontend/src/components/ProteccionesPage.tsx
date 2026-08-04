@@ -158,26 +158,42 @@ export const ProteccionesPage = () => {
                       </div>
                   )}
 
-                  {/* Nuevas protecciones de salida */}
-                  {console.log(`Depuración proteccionesSalida para ${tablero.nombre}:`, tablero.proteccionesSalida)}
-                  {tablero.proteccionesSalida?.map((ps: any, index: number) => {
-                      const tableroDestino = tablerosVivienda.find(t => t.id === ps.tableroDestinoId);
-                      return (
-                        <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                           <p className="text-xs text-slate-400 mb-2">Salida hacia: {tableroDestino?.nombre || 'Desconocido'}</p>
-                           <AsignacionProteccion 
-                                label="Asignar Protección de Salida"
-                                proteccion={ps.proteccion}
-                                disponibles={protecciones}
-                                onChange={(p) => {
-                                    const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
-                                    nuevasSalidas[index] = { ...ps, proteccion: p! };
-                                    handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
-                                }}
-                            />
-                        </div>
-                      );
-                  })}
+                  {/* Nuevas protecciones de salida - Lógica de Sincronización */}
+                  {(() => {
+                      const hijos = tablerosVivienda.filter(t => t.tableroPadreId === tablero.id);
+                      
+                      // Sincronizar: Asegurar que existan entradas en proteccionesSalida para cada hijo
+                      const salidasActuales = tablero.proteccionesSalida || [];
+                      const nuevasSalidas = hijos.map(hijo => {
+                          const existente = salidasActuales.find(s => s.tableroDestinoId === hijo.id);
+                          return existente || { id: Date.now().toString() + hijo.id, tableroDestinoId: hijo.id, proteccion: undefined as any };
+                      });
+
+                      // Actualizar estado si cambió
+                      if (JSON.stringify(salidasActuales) !== JSON.stringify(nuevasSalidas)) {
+                          handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                          return null; // Forzar re-render en siguiente ciclo
+                      }
+
+                      return nuevasSalidas.map((ps: any, index: number) => {
+                          const hijo = hijos.find(h => h.id === ps.tableroDestinoId);
+                          return (
+                            <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                               <p className="text-xs text-slate-400 mb-2">Salida hacia: {hijo?.nombre || 'Desconocido'}</p>
+                               <AsignacionProteccion 
+                                    label="Asignar Protección de Salida"
+                                    proteccion={ps.proteccion}
+                                    disponibles={protecciones}
+                                    onChange={(p) => {
+                                        const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
+                                        nuevasSalidas[index] = { ...ps, proteccion: p! };
+                                        handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                                    }}
+                                />
+                            </div>
+                          );
+                      });
+                  })()}
                 </div>
 
                 <div className="space-y-3">
