@@ -26,6 +26,12 @@ export const obtenerProteccionAsignada = (
 
     // Si es un circuito terminal
     if (!isPanelTramo && targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
+      // PRIMERO verificamos si es un tablero (caso reportado donde el tramo no marca tipoPanel correctamente)
+      const tableroDestino = tablerosVivienda.find(t => t.id === targetId);
+      if (tableroDestino && (tableroDestino.proteccionCabecera || tableroDestino.proteccionDiferencial)) {
+        return tableroDestino.proteccionCabecera || tableroDestino.proteccionDiferencial;
+      }
+
       const circ = circuitosVivienda.find(c => c.id === targetId);
       if (circ && circ.proteccion && circ.proteccion.in_amp) {
         return circ.proteccion;
