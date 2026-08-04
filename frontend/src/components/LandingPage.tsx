@@ -179,59 +179,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
           </div>
 
           {/* Mockup / Vista previa de la interfaz */}
-          <div className="mt-16 max-w-5xl mx-auto">
-            <div className="relative rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl shadow-emerald-500/10 bg-slate-900">
-              {/* Barra del navegador falsa */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-slate-800 border-b border-slate-700">
-                <div className="w-3 h-3 rounded-full bg-red-500/70" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/70" />
-                <div className="flex-1 mx-4 bg-slate-700 rounded-md h-6 flex items-center px-3">
-                  <span className="text-xs text-slate-400">https://saasingenieriaelectrica200417.pages.dev</span>
-                </div>
-              </div>
-              {/* Contenido del mockup */}
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Panel izquierdo */}
-                <div className="space-y-3">
-                  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                    <div className="text-xs text-cyan-400 font-bold mb-2 uppercase tracking-wider">Tipo Instalación</div>
-                    <div className="text-sm text-white font-semibold">Vivienda Individual</div>
-                    <div className="text-xs text-slate-400 mt-1">AEA 90364-7-770</div>
-                  </div>
-                </div>
-                {/* Panel central (tabla de cálculos) */}
-                <div className="md:col-span-2 bg-slate-800 rounded-xl p-4 border border-slate-700 overflow-hidden">
-                  <div className="text-xs text-teal-400 font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
-                    Resultados de Cálculo
-                  </div>
-                  <div className="space-y-2">
-                    {[
-                      { circuito: 'Cocina', ib: '14.5 A', seccion: '2.5 mm²', estado: 'OK' },
-                      { circuito: 'Iluminación', ib: '3.2 A', seccion: '1.5 mm²', estado: 'OK' },
-                      { circuito: 'Toma Corriente', ib: '8.7 A', seccion: '2.5 mm²', estado: 'OK' },
-                      { circuito: 'Aire Acond.', ib: '18.0 A', seccion: '4 mm²', estado: 'OK' },
-                    ].map((row, i) => (
-                      <div key={i} className="grid grid-cols-4 gap-2 text-xs py-1.5 border-b border-slate-700/50">
-                        <span className="text-slate-300">{row.circuito}</span>
-                        <span className="text-slate-400">{row.ib}</span>
-                        <span className="text-emerald-400 font-semibold">{row.seccion}</span>
-                        <span className="text-emerald-400 font-bold">{row.estado}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full w-4/5 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" />
-                    </div>
-                    <span className="text-xs text-emerald-400 font-semibold whitespace-nowrap">Cálculo completo</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          
       </section>
 
       {/* ═══════════════════════════════════════════════

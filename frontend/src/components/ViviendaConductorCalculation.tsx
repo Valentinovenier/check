@@ -84,7 +84,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
     return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores (Vivienda)</h2>
+        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores</h2>
       </div>
 
       {/* Flujo paso a paso */}
