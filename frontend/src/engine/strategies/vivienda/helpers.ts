@@ -16,9 +16,12 @@ export const obtenerProteccionAsignada = (
   const tipoTramo = conductor?.tipoTramo;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(tipoTramo || '');
 
+  console.log('Depuración obtenerProteccionAsignada:', { targetId, tipoTramo, isPanelTramo });
+
   // 1. Proyectos Residenciales (Vivienda)
   if (project.datosVivienda) {
     const tablerosVivienda = project.datosVivienda.tableros || [];
+    console.log('Tableros disponibles:', tablerosVivienda.map(t => t.id));
     const circuitosVivienda = project.datosVivienda.circuitosCalculados || [];
 
     // Si es un circuito terminal
