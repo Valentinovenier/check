@@ -85,9 +85,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
                 Electro<span className="text-emerald-400">SaaS</span>
               </span>
-              <span className="text-[10px] font-semibold text-slate-400 block -mt-1 tracking-wider uppercase">
-                Norma AEA 90364-7-770
-              </span>
+              
             </div>
           </div>
 
