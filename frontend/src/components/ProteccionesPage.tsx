@@ -159,6 +159,7 @@ export const ProteccionesPage = () => {
                   )}
 
                   {/* Nuevas protecciones de salida */}
+                  {console.log(`Depuración proteccionesSalida para ${tablero.nombre}:`, tablero.proteccionesSalida)}
                   {tablero.proteccionesSalida?.map((ps: any, index: number) => {
                       const tableroDestino = tablerosVivienda.find(t => t.id === ps.tableroDestinoId);
                       return (
