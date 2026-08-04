@@ -14,6 +14,7 @@ import { UnifilarPage } from './components/UnifilarPage';
 import { ProteccionesPage } from './components/ProteccionesPage';
 import { CanalizacionesPage } from './components/CanalizacionesPage';
 
+// Componente principal de la aplicación
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
   const { state: selectedProject, setState: setSelectedProject, setLastSaved, lastSavedProject } = useProject();
