@@ -178,8 +178,8 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             ))}
           </div>
 
-          {/* Mockup / Vista previa de la interfaz */}
-          
+          {/* Fin del Hero */}
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════
