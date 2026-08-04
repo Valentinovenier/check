@@ -25,10 +25,13 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   const necesitaCanalizacion = esCircuitoTerminal && !isPanelTramo && !esTramoProtegido && tramoId !== 'tp';
   
   const proteccionAsignada = useMemo(() => {
-    return obtenerProteccionAsignada(project, conductor, tramoId);
+    const proteccion = obtenerProteccionAsignada(project, conductor, tramoId);
+    console.log('DEBUG ViviendaConductorForm - proteccionAsignada encontrada:', proteccion);
+    return proteccion;
   }, [project, conductor, tramoId]);
 
   const tieneProteccionAsignada = Boolean(proteccionAsignada);
+  console.log('DEBUG ViviendaConductorForm - tieneProteccionAsignada:', tieneProteccionAsignada);
 
   useEffect(() => {
     // Calculamos siempre si tenemos datos mínimos
