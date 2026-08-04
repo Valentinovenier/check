@@ -105,9 +105,13 @@ async function handleWebhook(context: any) {
 
         // Actualizar la base de datos si tenemos el ID del usuario y un nuevo estado
         if (userId && status && env.DB) {
-            console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}'...`);
-            const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ? WHERE id = ?')
-                .bind(status, targetPreapprovalId, userId)
+            // Extraer la fecha de vencimiento de la respuesta de suscripción
+            // subData ya fue obtenido anteriormente en el código
+            const nextPaymentDate = subData.next_payment_date || null;
+            
+            console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}' y fecha ${nextPaymentDate}...`);
+            const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ? WHERE id = ?')
+                .bind(status, targetPreapprovalId, nextPaymentDate, userId)
                 .run();
             console.log('Resultado DB:', JSON.stringify(dbResult));
         } else {
