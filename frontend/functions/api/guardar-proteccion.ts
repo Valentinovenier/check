@@ -29,7 +29,7 @@ export async function onRequestOptions() {
 export async function onRequestDelete(context) {
   const { request, env } = context;
   try {
-    await verifyAuth(request, env);
+    const user = await verifyAuth(request, env);
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
 
@@ -40,10 +40,13 @@ export async function onRequestDelete(context) {
         });
     }
 
-    // 1. Eliminar capacidades asociadas primero
-    await env.DB.prepare('DELETE FROM capacidades_corte WHERE proteccion_id = ?').bind(id).run();
+    // 1. Verificar propiedad y eliminar capacidades asociadas
+    const proteccion = await env.DB.prepare('SELECT * FROM protecciones WHERE id = ? AND user_id = ?').bind(id, user.userId).first();
+    if (!proteccion) {
+        return new Response(JSON.stringify({ error: 'No autorizado o no encontrado' }), { status: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+    }
 
-    // 2. Eliminar la protección
+    await env.DB.prepare('DELETE FROM capacidades_corte WHERE proteccion_id = ?').bind(id).run();
     await env.DB.prepare('DELETE FROM protecciones WHERE id = ?').bind(id).run();
 
     return new Response(JSON.stringify({ success: true }), { 
@@ -62,8 +65,8 @@ export async function onRequestDelete(context) {
 export async function onRequestGet(context) {
   const { request, env } = context;
   try {
-    await verifyAuth(request, env);
-    const { results } = await env.DB.prepare('SELECT * FROM protecciones').all();
+    const user = await verifyAuth(request, env);
+    const { results } = await env.DB.prepare('SELECT * FROM protecciones WHERE user_id = ?').bind(user.userId).all();
     return new Response(JSON.stringify(results), { 
       status: 200, 
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
@@ -79,33 +82,20 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    await verifyAuth(request, env);
+    const user = await verifyAuth(request, env);
     const body = await request.json() as any;
     const { marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas, capacidades } = body;
 
-    // Preparamos las sentencias para batch
-    const statements = [];
-
-    // 1. Insertar la protección
-    statements.push(
-      env.DB.prepare(
-        'INSERT INTO protecciones (marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas) VALUES (?, ?, ?, ?, ?, ?, ?)'
-      )
-      .bind(marca_id || 1, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}))
-    );
-
-    // 2. Insertar capacidades (necesitamos el ID generado)
-    // D1 batch no permite usar last_insert_rowid() directamente en el mismo batch secuencialmente, 
-    // pero podemos hacer la inserción de la protección primero para obtener el ID.
+    // 1. Insertar la protección incluyendo user_id
     const proteccionResult = await env.DB.prepare(
-      'INSERT INTO protecciones (marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO protecciones (marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     )
-    .bind(marca_id || 1, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}))
+    .bind(marca_id || 1, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}), user.userId)
     .run();
 
     const proteccion_id = proteccionResult.meta.last_row_id;
 
-    // 3. Insertar capacidades en batch
+    // 2. Insertar capacidades en batch
     if (capacidades && Array.isArray(capacidades) && capacidades.length > 0) {
       const capStatements = capacidades.map(cap => 
         env.DB.prepare(
@@ -131,15 +121,21 @@ export async function onRequestPost(context) {
 export async function onRequestPut(context) {
   const { request, env } = context;
   try {
-    await verifyAuth(request, env);
+    const user = await verifyAuth(request, env);
     const body = await request.json() as any;
     const { id, marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, specs_tecnicas, capacidades } = body;
 
+    // Verificar propiedad
+    const existing = await env.DB.prepare('SELECT * FROM protecciones WHERE id = ? AND user_id = ?').bind(id, user.userId).first();
+    if (!existing) {
+        return new Response(JSON.stringify({ error: 'No autorizado o no encontrado' }), { status: 403, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+    }
+
     // 1. Actualizar la protección
     await env.DB.prepare(
-      'UPDATE protecciones SET marca_id = ?, modelo = ?, tipo_proteccion = ?, in_amp = ?, curva_disparo = ?, polos = ?, specs_tecnicas = ? WHERE id = ?'
+      'UPDATE protecciones SET marca_id = ?, modelo = ?, tipo_proteccion = ?, in_amp = ?, curva_disparo = ?, polos = ?, specs_tecnicas = ? WHERE id = ? AND user_id = ?'
     )
-    .bind(marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}), id)
+    .bind(marca_id, modelo, tipo_proteccion, in_amp, curva_disparo, polos, JSON.stringify(specs_tecnicas || {}), id, user.userId)
     .run();
 
     // 2. Eliminar capacidades antiguas y insertar las nuevas (Batch)
@@ -171,3 +167,4 @@ export async function onRequestPut(context) {
     });
   }
 }
+

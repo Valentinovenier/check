@@ -5,12 +5,14 @@ import { obtenerEnergiaPasanteInterruptor } from '../engine/strategies/proteccio
 export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { onClose: () => void, onSave: (data: any) => void, onDelete?: (id: string) => void, initialData?: any }) => {
   const [formData, setFormData] = useState(initialData ? {
     ...initialData,
+    marca: initialData.specs_tecnicas?.marca || '',
     capacidades: initialData.capacidades || [],
     tipo_interruptor: initialData.tipo_interruptor || 'compacto',
     energia_pasante: initialData.energia_pasante || null,
     sensibilidad: initialData.sensibilidad || 30,
   } : {
     marca_id: 1,
+    marca: '',
     modelo: '',
     tipo_proteccion: 'Interruptor Automatico',
     in_amp: 25,
@@ -67,7 +69,8 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
       const payload = { 
         ...formData, 
         energia_pasante: energia,
-        tipo_interruptor: isCompacto ? 'compacto' : 'abierto'
+        tipo_interruptor: isCompacto ? 'compacto' : 'abierto',
+        specs_tecnicas: { ...formData.specs_tecnicas, marca: formData.marca }
       };
       await onSave(payload);
     } catch (error) {
@@ -103,6 +106,10 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
         </div>
 
         <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--text-secondary)]">Marca</label>
+            <input className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.marca} placeholder="Ej: Schneider" onChange={e => setFormData({ ...formData, marca: e.target.value })} />
+          </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-[var(--text-secondary)]">Modelo</label>
             <input className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.modelo} placeholder="Ej: iC60N" onChange={e => setFormData({ ...formData, modelo: e.target.value })} />

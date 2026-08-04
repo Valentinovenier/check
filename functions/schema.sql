@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS protecciones (
   curva_disparo TEXT,
   polos INTEGER,
   specs_tecnicas JSONB,
+  user_id TEXT,
   FOREIGN KEY (marca_id) REFERENCES marcas(id)
 );
 
