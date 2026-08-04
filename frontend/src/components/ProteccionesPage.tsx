@@ -165,7 +165,7 @@ export const ProteccionesPage = () => {
                       // Sincronizar: Asegurar que existan entradas en proteccionesSalida para cada hijo
                       const salidasActuales = tablero.proteccionesSalida || [];
                       const nuevasSalidas = hijos.map(hijo => {
-                          const existente = salidasActuales.find(s => s.tableroDestinoId === hijo.id);
+                          const existente = salidasActuales.find((s: any) => s.tableroDestinoId === hijo.id);
                           return existente || { id: Date.now().toString() + hijo.id, tableroDestinoId: hijo.id, proteccion: undefined as any };
                       });
 
