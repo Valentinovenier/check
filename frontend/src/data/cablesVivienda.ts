@@ -1,11 +1,11 @@
-export interface ParametrosCableSimple {
+export interface ParametrosCableVivienda {
   seccion: number;
   resistenciaCC20: number;
   resistenciaCA70: number;
   reactancia: number;
 }
 
-export const catalogoCablesUnipolares: ParametrosCableSimple[] = [
+export const cablesUnipolaresVivienda: ParametrosCableVivienda[] = [
   { seccion: 1.0, resistenciaCC20: 19.50, resistenciaCA70: 23.32, reactancia: 0.090 },
   { seccion: 1.5, resistenciaCC20: 13.30, resistenciaCA70: 15.90, reactancia: 0.090 },
   { seccion: 2.5, resistenciaCC20: 7.98, resistenciaCA70: 9.54, reactancia: 0.080 },

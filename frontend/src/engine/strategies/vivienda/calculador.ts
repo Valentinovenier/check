@@ -1,7 +1,14 @@
 import { CondicionesTramoResidencial, ResultadoCalculoResidencial } from '../../../types/vivienda';
 import { Project, Conductor, Proteccion } from '../../../types/project';
 import { getAdmisible } from '../industrial/corrienteProvider';
-import { IMPEDANCIAS_CABLES_VIVIENDA } from '../../../data/vivienda/impedancias';
+import { 
+    IMPEDANCIAS_AEA_770,
+    IMPEDANCIAS_IRAM_NM_247_3_62267,
+    IMPEDANCIAS_IRAM_2178_1_UNIPOLAR,
+    IMPEDANCIAS_IRAM_2178_1_MULTIPOLAR,
+    IMPEDANCIAS_IRAM_62266_UNIPOLAR,
+    IMPEDANCIAS_IRAM_62266_MULTIPOLAR
+} from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura } from '../industrial/helpers/normativeFactors';
 import { getFactorAgrupamientoVivienda } from './agrupamientoProvider';
@@ -193,7 +200,18 @@ export const calcularTramoResidencial = (
     });
 
     // Cálculos de impedancia del tramo para pasos 6 y 7
-    const impedancia = IMPEDANCIAS_CABLES_VIVIENDA[s.toFixed(1)] || IMPEDANCIAS_CABLES_VIVIENDA[s.toString()];
+    let tablaImpedancias = IMPEDANCIAS_AEA_770;
+    
+    if (condiciones.normaCable === 'IRAM-NM 247-3' || condiciones.normaCable === 'IRAM 62267') {
+      tablaImpedancias = IMPEDANCIAS_IRAM_NM_247_3_62267;
+    } else if (condiciones.normaCable === 'IRAM 2178') {
+      tablaImpedancias = (conductor.tipoCable === 'Multipolar') ? IMPEDANCIAS_IRAM_2178_1_MULTIPOLAR : IMPEDANCIAS_IRAM_2178_1_UNIPOLAR;
+    } else if (condiciones.normaCable === 'IRAM 62266') {
+      tablaImpedancias = (conductor.tipoCable === 'Multipolar') ? IMPEDANCIAS_IRAM_62266_MULTIPOLAR : IMPEDANCIAS_IRAM_62266_UNIPOLAR;
+    }
+    
+    const impedancia = tablaImpedancias[s.toFixed(1)] || tablaImpedancias[s.toString()];
+    
     if (!impedancia) {
       caidaTensionPorcentaje = (I_B * condiciones.longitudMetros * 0.02) / 220 * 100;
       pasosActuales.push({ numero: 6, nombre: "Exigencia Térmica", valor: "Faltan datos", condicion: "-", cumple: true });
