@@ -166,7 +166,6 @@ export default function App() {
           <>
             <header className="mb-10">
               <h2 className="text-3xl font-bold text-white mb-2">Mis Proyectos</h2>
-              <p className="text-[var(--text-secondary)]">Gestioná tus diseños eléctricos y cálculos de ingeniería.</p>
             </header>
             <ProjectList
               projects={projects}

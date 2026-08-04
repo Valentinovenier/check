@@ -318,8 +318,6 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {[
               'Cálculos normativos AEA',
               'Informes técnicos en PDF',
-              'Cómputo métrico automático (BOM)',
-              'Diagramas unifilares interactivos',
               'Proyectos ilimitados',
               'Soporte prioritario',
             ].map((feature, i) => (
