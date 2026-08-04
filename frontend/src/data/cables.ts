@@ -1,17 +1,42 @@
-export interface ParametrosCableSimple {
-  seccion: number;
-  resistenciaCC20: number;
-  resistenciaCA70: number;
-  reactancia: number;
+import { ParametrosCable } from '../types/cables';
+
+// Definimos una interfaz extendida que sí tiene 'corrientes'
+export interface ParametrosCableCompleto extends ParametrosCable {
 }
 
-export const catalogoCablesUnipolares: ParametrosCableSimple[] = [
-  { seccion: 1.0, resistenciaCC20: 19.50, resistenciaCA70: 23.32, reactancia: 0.090 },
-  { seccion: 1.5, resistenciaCC20: 13.30, resistenciaCA70: 15.90, reactancia: 0.090 },
-  { seccion: 2.5, resistenciaCC20: 7.98, resistenciaCA70: 9.54, reactancia: 0.080 },
-  { seccion: 4.0, resistenciaCC20: 4.95, resistenciaCA70: 5.92, reactancia: 0.080 },
-  { seccion: 6.0, resistenciaCC20: 3.30, resistenciaCA70: 3.95, reactancia: 0.080 },
-  { seccion: 10.0, resistenciaCC20: 1.91, resistenciaCA70: 2.28, reactancia: 0.080 },
-  { seccion: 16.0, resistenciaCC20: 1.21, resistenciaCA70: 1.45, reactancia: 0.080 },
-  { seccion: 25.0, resistenciaCC20: 0.78, resistenciaCA70: 0.93, reactancia: 0.080 },
+// Estos datos deberían ser cargados de forma real, esto es un MOCK para corregir el error de ejecución
+export const catalogoCablesPVC: ParametrosCableCompleto[] = [
+  { seccion: 1.5, resistencia: 14.48, reactancia: { unipolar_trebol: 0.154, unipolar_contacto: 0.140, monofasico: 0.101, trifasico: 0.101, trifasico_neutro: 0.101 }, corrientes: { 'A1': 15, 'A2': 14, 'B1': 16, 'B2': 15, 'C': 18, 'D1': 20, 'D2': 22, 'E': 20, 'F': 22, 'G': 24 } },
+  { seccion: 2.5, resistencia: 8.87, reactancia: { unipolar_trebol: 0.145, unipolar_contacto: 0.130, monofasico: 0.095, trifasico: 0.095, trifasico_neutro: 0.095 }, corrientes: { 'A1': 20, 'A2': 18, 'B1': 22, 'B2': 20, 'C': 25, 'D1': 27, 'D2': 30, 'E': 28, 'F': 30, 'G': 32 } },
+  { seccion: 4, resistencia: 5.52, reactancia: { unipolar_trebol: 0.142, unipolar_contacto: 0.127, monofasico: 0.097, trifasico: 0.097, trifasico_neutro: 0.097 }, corrientes: { 'A1': 25, 'A2': 23, 'B1': 30, 'B2': 28, 'C': 34, 'D1': 36, 'D2': 40, 'E': 38, 'F': 40, 'G': 42 } },
+  { seccion: 6, resistencia: 3.69, reactancia: { unipolar_trebol: 0.134, unipolar_contacto: 0.120, monofasico: 0.092, trifasico: 0.092, trifasico_neutro: 0.092 }, corrientes: { 'A1': 32, 'A2': 30, 'B1': 38, 'B2': 36, 'C': 44, 'D1': 46, 'D2': 50, 'E': 49, 'F': 52, 'G': 55 } },
+  { seccion: 10, resistencia: 2.19, reactancia: { unipolar_trebol: 0.125, unipolar_contacto: 0.111, monofasico: 0.086, trifasico: 0.086, trifasico_neutro: 0.086 }, corrientes: { 'A1': 44, 'A2': 40, 'B1': 52, 'B2': 48, 'C': 60, 'D1': 63, 'D2': 68, 'E': 67, 'F': 70, 'G': 75 } },
+  { seccion: 16, resistencia: 1.38, reactancia: { unipolar_trebol: 0.118, unipolar_contacto: 0.103, monofasico: 0.082, trifasico: 0.082, trifasico_neutro: 0.082 }, corrientes: { 'A1': 60, 'A2': 55, 'B1': 70, 'B2': 65, 'C': 80, 'D1': 85, 'D2': 90, 'E': 90, 'F': 95, 'G': 100 } },
+  { seccion: 25, resistencia: 0.870, reactancia: { unipolar_trebol: 0.113, unipolar_contacto: 0.099, monofasico: 0.081, trifasico: 0.081, trifasico_neutro: 0.086 }, corrientes: { 'A1': 80, 'A2': 75, 'B1': 95, 'B2': 88, 'C': 105, 'D1': 110, 'D2': 115, 'E': 115, 'F': 120, 'G': 130 } },
+  { seccion: 35, resistencia: 0.627, reactancia: { unipolar_trebol: 0.109, unipolar_contacto: 0.094, monofasico: 0.078, trifasico: 0.078, trifasico_neutro: 0.086 }, corrientes: { 'A1': 100, 'A2': 92, 'B1': 115, 'B2': 108, 'C': 130, 'D1': 135, 'D2': 140, 'E': 140, 'F': 145, 'G': 155 } },
+  { seccion: 50, resistencia: 0.464, reactancia: { unipolar_trebol: 0.106, unipolar_contacto: 0.091, monofasico: 0.077, trifasico: 0.077, trifasico_neutro: 0.082 }, corrientes: { 'A1': 120, 'A2': 110, 'B1': 140, 'B2': 130, 'C': 155, 'D1': 160, 'D2': 165, 'E': 170, 'F': 175, 'G': 185 } },        
+  { seccion: 70, resistencia: 0.321, reactancia: { unipolar_trebol: 0.103, unipolar_contacto: 0.088, monofasico: 0.075, trifasico: 0.075, trifasico_neutro: 0.080 }, corrientes: { 'A1': 150, 'A2': 140, 'B1': 175, 'B2': 160, 'C': 195, 'D1': 200, 'D2': 210, 'E': 210, 'F': 220, 'G': 230 } },        
+  { seccion: 95, resistencia: 0.232, reactancia: { unipolar_trebol: 0.101, unipolar_contacto: 0.086, monofasico: 0.075, trifasico: 0.075, trifasico_neutro: 0.080 }, corrientes: { 'A1': 180, 'A2': 170, 'B1': 210, 'B2': 195, 'C': 230, 'D1': 240, 'D2': 250, 'E': 250, 'F': 260, 'G': 275 } },        
+  { seccion: 120, resistencia: 0.184, reactancia: { unipolar_trebol: 0.099, unipolar_contacto: 0.084, monofasico: 0.073, trifasico: 0.073, trifasico_neutro: 0.078 }, corrientes: { 'A1': 210, 'A2': 200, 'B1': 245, 'B2': 230, 'C': 270, 'D1': 280, 'D2': 290, 'E': 290, 'F': 300, 'G': 320 } },       
+  { seccion: 150, resistencia: 0.145, reactancia: { unipolar_trebol: 0.098, unipolar_contacto: 0.083, monofasico: 0.073, trifasico: 0.073, trifasico_neutro: 0.078 }, corrientes: { 'A1': 240, 'A2': 230, 'B1': 280, 'B2': 260, 'C': 310, 'D1': 320, 'D2': 335, 'E': 335, 'F': 350, 'G': 370 } },       
+  { seccion: 185, resistencia: 0.1207, reactancia: { unipolar_trebol: 0.098, unipolar_contacto: 0.083, monofasico: 0.073, trifasico: 0.073, trifasico_neutro: 0.078 }, corrientes: { 'A1': 275, 'A2': 260, 'B1': 320, 'B2': 300, 'C': 355, 'D1': 370, 'D2': 385, 'E': 380, 'F': 400, 'G': 420 } },      
+  { seccion: 240, resistencia: 0.0930, reactancia: { unipolar_trebol: 0.096, unipolar_contacto: 0.082, monofasico: 0.073, trifasico: 0.073, trifasico_neutro: 0.077 }, corrientes: { 'A1': 320, 'A2': 305, 'B1': 370, 'B2': 350, 'C': 410, 'D1': 430, 'D2': 450, 'E': 450, 'F': 470, 'G': 490 } },      
+];
+
+export const catalogoCablesXLPE: ParametrosCableCompleto[] = [
+  { seccion: 1.5, resistencia: 15.429, reactancia: { unipolar_trebol: 0.201, unipolar_contacto: 0.143, monofasico: 0.143, trifasico: 0.143, trifasico_neutro: 0.143 }, corrientes: { 'A1': 18, 'A2': 16, 'B1': 20, 'B2': 18, 'C': 22, 'D1': 24, 'D2': 26, 'E': 25, 'F': 26, 'G': 28 } },
+  { seccion: 2.5, resistencia: 9.448, reactancia: { unipolar_trebol: 0.188, unipolar_contacto: 0.130, monofasico: 0.130, trifasico: 0.130, trifasico_neutro: 0.130 }, corrientes: { 'A1': 25, 'A2': 22, 'B1': 28, 'B2': 25, 'C': 30, 'D1': 33, 'D2': 35, 'E': 35, 'F': 36, 'G': 38 } },
+  { seccion: 4, resistencia: 5.878, reactancia: { unipolar_trebol: 0.178, unipolar_contacto: 0.120, monofasico: 0.120, trifasico: 0.120, trifasico_neutro: 0.120 }, corrientes: { 'A1': 34, 'A2': 30, 'B1': 38, 'B2': 35, 'C': 40, 'D1': 44, 'D2': 47, 'E': 45, 'F': 48, 'G': 50 } },
+  { seccion: 6, resistencia: 3.927, reactancia: { unipolar_trebol: 0.172, unipolar_contacto: 0.114, monofasico: 0.114, trifasico: 0.114, trifasico_neutro: 0.114 }, corrientes: { 'A1': 43, 'A2': 38, 'B1': 48, 'B2': 45, 'C': 50, 'D1': 55, 'D2': 60, 'E': 60, 'F': 62, 'G': 65 } },
+  { seccion: 10, resistencia: 2.333, reactancia: { unipolar_trebol: 0.164, unipolar_contacto: 0.106, monofasico: 0.106, trifasico: 0.106, trifasico_neutro: 0.106 }, corrientes: { 'A1': 60, 'A2': 55, 'B1': 68, 'B2': 62, 'C': 70, 'D1': 75, 'D2': 82, 'E': 80, 'F': 85, 'G': 90 } },
+  { seccion: 16, resistencia: 1.466, reactancia: { unipolar_trebol: 0.158, unipolar_contacto: 0.100, monofasico: 0.100, trifasico: 0.100, trifasico_neutro: 0.100 }, corrientes: { 'A1': 80, 'A2': 75, 'B1': 90, 'B2': 85, 'C': 95, 'D1': 100, 'D2': 110, 'E': 105, 'F': 110, 'G': 115 } },
+  { seccion: 25, resistencia: 0.927, reactancia: { unipolar_trebol: 0.154, unipolar_contacto: 0.096, monofasico: 0.096, trifasico: 0.096, trifasico_neutro: 0.096 }, corrientes: { 'A1': 105, 'A2': 98, 'B1': 120, 'B2': 110, 'C': 125, 'D1': 130, 'D2': 140, 'E': 140, 'F': 145, 'G': 155 } },
+  { seccion: 35, resistencia: 0.668, reactancia: { unipolar_trebol: 0.149, unipolar_contacto: 0.091, monofasico: 0.091, trifasico: 0.091, trifasico_neutro: 0.091 }, corrientes: { 'A1': 130, 'A2': 120, 'B1': 145, 'B2': 135, 'C': 155, 'D1': 160, 'D2': 175, 'E': 170, 'F': 175, 'G': 185 } },        
+  { seccion: 50, resistencia: 0.494, reactancia: { unipolar_trebol: 0.147, unipolar_contacto: 0.089, monofasico: 0.089, trifasico: 0.089, trifasico_neutro: 0.089 }, corrientes: { 'A1': 160, 'A2': 145, 'B1': 180, 'B2': 165, 'C': 190, 'D1': 195, 'D2': 210, 'E': 205, 'F': 210, 'G': 225 } },        
+  { seccion: 70, resistencia: 0.342, reactancia: { unipolar_trebol: 0.143, unipolar_contacto: 0.085, monofasico: 0.085, trifasico: 0.085, trifasico_neutro: 0.085 }, corrientes: { 'A1': 200, 'A2': 180, 'B1': 220, 'B2': 200, 'C': 240, 'D1': 245, 'D2': 265, 'E': 260, 'F': 270, 'G': 290 } },        
+  { seccion: 95, resistencia: 0.246, reactancia: { unipolar_trebol: 0.141, unipolar_contacto: 0.083, monofasico: 0.083, trifasico: 0.083, trifasico_neutro: 0.083 }, corrientes: { 'A1': 240, 'A2': 220, 'B1': 270, 'B2': 245, 'C': 290, 'D1': 300, 'D2': 320, 'E': 315, 'F': 330, 'G': 350 } },        
+  { seccion: 120, resistencia: 0.196, reactancia: { unipolar_trebol: 0.139, unipolar_contacto: 0.081, monofasico: 0.081, trifasico: 0.081, trifasico_neutro: 0.081 }, corrientes: { 'A1': 280, 'A2': 260, 'B1': 310, 'B2': 285, 'C': 340, 'D1': 350, 'D2': 370, 'E': 365, 'F': 380, 'G': 400 } },       
+  { seccion: 150, resistencia: 0.159, reactancia: { unipolar_trebol: 0.139, unipolar_contacto: 0.081, monofasico: 0.081, trifasico: 0.081, trifasico_neutro: 0.081 }, corrientes: { 'A1': 320, 'A2': 295, 'B1': 355, 'B2': 325, 'C': 390, 'D1': 400, 'D2': 425, 'E': 420, 'F': 440, 'G': 460 } },       
+  { seccion: 185, resistencia: 0.127, reactancia: { unipolar_trebol: 0.138, unipolar_contacto: 0.080, monofasico: 0.080, trifasico: 0.080, trifasico_neutro: 0.080 }, corrientes: { 'A1': 365, 'A2': 340, 'B1': 410, 'B2': 375, 'C': 445, 'D1': 460, 'D2': 490, 'E': 480, 'F': 500, 'G': 520 } },       
+  { seccion: 240, resistencia: 0.097, reactancia: { unipolar_trebol: 0.137, unipolar_contacto: 0.079, monofasico: 0.079, trifasico: 0.079, trifasico_neutro: 0.079 }, corrientes: { 'A1': 430, 'A2': 400, 'B1': 480, 'B2': 440, 'C': 520, 'D1': 540, 'D2': 570, 'E': 565, 'F': 590, 'G': 610 } },       
 ];

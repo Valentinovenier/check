@@ -1,5 +1,5 @@
 import { ParametrosCable } from '../../../types/cables';
-import { catalogoCablesPVC, catalogoCablesXLPE } from '../../../data/cables';
+import { catalogoCablesPVC, catalogoCablesXLPE, ParametrosCableCompleto } from '../../../data/cables';
 
 export const calcularImpedanciaCable = (
   seccion: number,
@@ -8,7 +8,7 @@ export const calcularImpedanciaCable = (
   tipoConfiguracion: 'unipolar_trebol' | 'unipolar_contacto' | 'monofasico' | 'trifasico' | 'trifasico_neutro'
 ): { r: number; x: number } => {
   const catalogo = aislacion === 'PVC' ? catalogoCablesPVC : catalogoCablesXLPE;
-  const cable = catalogo.find(c => c.seccion === seccion);
+  const cable = catalogo.find((c: ParametrosCableCompleto) => c.seccion === seccion);
 
   if (!cable) {
     throw new Error(`No se encontraron parámetros para cable ${aislacion} de ${seccion} mm²`);

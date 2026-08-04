@@ -7,7 +7,8 @@ import {
     IMPEDANCIAS_IRAM_2178_1_UNIPOLAR,
     IMPEDANCIAS_IRAM_2178_1_MULTIPOLAR,
     IMPEDANCIAS_IRAM_62266_UNIPOLAR,
-    IMPEDANCIAS_IRAM_62266_MULTIPOLAR
+    IMPEDANCIAS_IRAM_62266_MULTIPOLAR,
+    IMPEDANCIAS_CABLES_VIVIENDA
 } from '../../../data/vivienda/impedancias';
 import { SECCIONES_MINIMAS_VIVIENDA } from '../../../data/vivienda/seccionesMinimas';
 import { getFactorTemperatura } from '../industrial/helpers/normativeFactors';
