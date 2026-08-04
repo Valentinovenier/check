@@ -135,7 +135,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               en Segundos
             </h1>
             <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-              La plataforma web para proyrctistas electricos, ingenieros y estudiantes que automatiza el dimensionamiento de
+              La plataforma web para proyectistas electricos, ingenieros y estudiantes que automatiza el dimensionamiento de
               conductores, verificación de protecciones, tableros y genera informes técnicos
               profesionales en PDF.
             </p>
@@ -166,7 +166,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               { icon: CheckCircle2, text: 'Sin Instalaciones' },
               { icon: CheckCircle2, text: 'Norma AEA' },
               { icon: CheckCircle2, text: 'Informe PDF Descargable' },
-              { icon: CheckCircle2, text: 'Viviendas, comercios e Industrias' },
+              { icon: CheckCircle2, text: 'Viviendas (Comercios e industrias próximamente)' },
             ].map((badge, i) => (
               <div
                 key={i}
@@ -194,17 +194,6 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Panel izquierdo */}
                 <div className="space-y-3">
-                  <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                    <div className="text-xs text-emerald-400 font-bold mb-2 uppercase tracking-wider">Proyecto</div>
-                    <div className="space-y-2">
-                      {['Tablero Principal', 'Cocina', 'Dormitorios', 'Baños'].map((t, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-slate-300">
-                          <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                          {t}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                   <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
                     <div className="text-xs text-cyan-400 font-bold mb-2 uppercase tracking-wider">Tipo Instalación</div>
                     <div className="text-sm text-white font-semibold">Vivienda Individual</div>

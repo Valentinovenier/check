@@ -24,7 +24,6 @@ export const DashboardLayout = ({
   // Menú global lateral
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
-    { icon: Settings, label: 'Configuración', id: 'settings' },
   ];
 
   // Menú contextual superior (solo si hay proyecto)
