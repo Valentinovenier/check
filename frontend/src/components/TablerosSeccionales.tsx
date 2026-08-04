@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Project, TableroSeccionalSimple } from '../types/project';
-import { Plus, Trash2, Server, Save, Shield } from 'lucide-react';
+import { Plus, Trash2, Server, Shield } from 'lucide-react';
 import { ConfiguracionProteccion } from './ConfiguracionProteccion';
 
 interface Props {
@@ -9,7 +9,6 @@ interface Props {
 }
 
 export const TablerosSeccionales = ({ project, onChange }: Props) => {
-  const [saving, setSaving] = useState(false);
   const tableros: TableroSeccionalSimple[] = project.tablerosSeccionales || [];
   
   const agregar = () => {
@@ -49,27 +48,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
     });
   };
 
-  const handleGuardar = async () => {
-    setSaving(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/projects', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ id: project.id, name: project.name, data: project }),
-      });
-      if (response.ok) {
-        alert('Tableros guardados exitosamente');
-      } else {
-        throw new Error('Error al guardar');
-      }
-    } catch (error: any) {
-      alert(`Error: ${error.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
       <div className="flex justify-between items-center">
@@ -106,14 +84,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
             >
                 <Plus size={15} />
                 Nuevo Tablero
-            </button>
-            <button
-                onClick={handleGuardar}
-                disabled={saving}
-                className="flex items-center gap-2 bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50"
-            >
-                <Save size={15} />
-                {saving ? 'Guardando...' : 'Guardar'}
             </button>
         </div>
       </div>
