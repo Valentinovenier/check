@@ -45,6 +45,7 @@ async function handleWebhook(context: any) {
         let targetPreapprovalId = preapprovalId;
         let userId: string | null = null;
         let status: string | null = null;
+        let payData: any = null; // Definir aquí
 
         // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id
         if (topic === 'payment' || body.type === 'payment') {
@@ -53,7 +54,7 @@ async function handleWebhook(context: any) {
                 headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
             });
             if (payRes.ok) {
-                const payData: any = await payRes.json();
+                payData = await payRes.json(); // Asignar aquí
                 console.log('Datos de pago obtenidos:', JSON.stringify(payData));
                 
                 // Extraer userId del external_reference del pago
@@ -85,10 +86,13 @@ async function handleWebhook(context: any) {
             const mpStatus = subData.status; // 'authorized', 'active', 'paused', 'cancelled', etc.
             
             // Lógica inteligente de estados:
-            // - Si es 'authorized' o 'active', marcar como 'active'.
-            // - Si es 'cancelled', 'paused', 'expired', marcar como 'inactive'.
-            // - Si es 'pending', no hacer nada (preservar estado actual).
-            if (mpStatus === 'authorized' || mpStatus === 'active') {
+            // 1. Si es un pago aprobado, activamos directamente (resiliente a que la API de suscripción tarde en actualizarse)
+            // 2. Si es 'authorized' o 'active', marcar como 'active'.
+            // 3. Si es 'cancelled', 'paused', 'expired', marcar como 'inactive'.
+            
+            const isPaymentApproved = (topic === 'payment' || body.type === 'payment') && payData?.status === 'approved';
+            
+            if (isPaymentApproved || mpStatus === 'authorized' || mpStatus === 'active') {
                 status = 'active';
             } else if (['cancelled', 'paused', 'expired', 'refunded'].includes(mpStatus)) {
                 status = 'inactive';
