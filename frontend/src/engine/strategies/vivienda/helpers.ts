@@ -44,6 +44,18 @@ export const obtenerProteccionAsignada = (
 
     if (targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
       tablero = tablerosVivienda.find(t => t.id === targetId);
+      
+      // SI estamos calculando un tramo HACIA este tablero (es un destino),
+      // buscamos en el tablero padre (el origen) la protección de salida hacia este destino.
+      if (tablero && tablero.tableroPadreId) {
+          const padre = tablerosVivienda.find(t => t.id === tablero.tableroPadreId);
+          if (padre && padre.proteccionesSalida) {
+              const protSalida = padre.proteccionesSalida.find(ps => ps.tableroDestinoId === tablero.id);
+              if (protSalida && protSalida.proteccion && protSalida.proteccion.in_amp !== undefined) {
+                  return protSalida.proteccion;
+              }
+          }
+      }
     } else if (targetId === 'int-general-salida' || targetId === 'tp') {
       tablero = tablerosVivienda.find(t => t.tipo === 'Principal');
     }
