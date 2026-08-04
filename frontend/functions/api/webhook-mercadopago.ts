@@ -98,24 +98,23 @@ async function handleWebhook(context: any) {
             }
             
             console.log(`Estado procesado -> Usuario: ${userId} | Estado MP: ${mpStatus} -> Estado Final: ${status}`);
+
+            // Actualizar la base de datos si tenemos el ID del usuario y un nuevo estado
+            if (userId && status && env.DB) {
+                // Extraer la fecha de vencimiento de la respuesta de suscripción
+                const nextPaymentDate = subData.next_payment_date || null;
+                
+                console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}' y fecha ${nextPaymentDate}...`);
+                const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ? WHERE id = ?')
+                    .bind(status, targetPreapprovalId, nextPaymentDate, userId)
+                    .run();
+                console.log('Resultado DB:', JSON.stringify(dbResult));
+            } else {
+                console.warn('No se pudo asociar la suscripción a un userId o estado inválido.');
+            }
         } else {
             console.error(`Error al consultar suscripción (${subRes.status}):`, await subRes.text());
             return new Response('OK - Error consultando suscripción', { status: 200 });
-        }
-
-        // Actualizar la base de datos si tenemos el ID del usuario y un nuevo estado
-        if (userId && status && env.DB) {
-            // Extraer la fecha de vencimiento de la respuesta de suscripción
-            // subData ya fue obtenido anteriormente en el código
-            const nextPaymentDate = subData.next_payment_date || null;
-            
-            console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}' y fecha ${nextPaymentDate}...`);
-            const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ? WHERE id = ?')
-                .bind(status, targetPreapprovalId, nextPaymentDate, userId)
-                .run();
-            console.log('Resultado DB:', JSON.stringify(dbResult));
-        } else {
-            console.warn('No se pudo asociar la suscripción a un userId o estado inválido.');
         }
 
         return new Response('OK - Webhook procesado', { status: 200 });
