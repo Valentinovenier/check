@@ -180,9 +180,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                 </div>
 
                 {datosFaltantes && (
-                    <div className="p-3 bg-blue-900/20 border border-blue-700 rounded-lg text-blue-300 text-xs">
-                        ℹ️ Complete el Método de Instalación y la Longitud para calcular la sección.
-                    </div>
+
                 )}
 
                 <div>
