@@ -44,7 +44,7 @@ export interface CircuitoCalculado {
   maximoBocas?: number | 'Sin límite' | 'N/A' | '12 por fase';
   condicionProteccion?: string;
   potencia?: number;
-  unidadPotencia?: 'kW' | 'kVA';
+  unidadPotencia?: 'W' | 'VA';
   coefUtilizacion?: number;
   coefSimultaneidad?: number;
 }
