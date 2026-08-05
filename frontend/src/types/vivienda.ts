@@ -41,7 +41,7 @@ export interface CircuitoCalculado {
   // Propiedades para usos específicos
   esEspecifico?: boolean;
   siglaEspecifica?: string;
-  maximoBocas?: number | 'Sin límite' | 'N/A';
+  maximoBocas?: number | 'Sin límite' | 'N/A' | '12 por fase';
   condicionProteccion?: string;
   potencia?: number;
   unidadPotencia?: 'kW' | 'kVA';
