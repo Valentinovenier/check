@@ -33,16 +33,17 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={{ addToast, removeToast, toasts }}>
       {children}
       {/* Toast Container */}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2">
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`px-4 py-3 rounded-lg shadow-lg text-white font-bold text-sm ${
-              toast.type === 'success' ? 'bg-emerald-600' : 
-              toast.type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            className={`flex items-center gap-2 px-4 py-2 rounded shadow-md text-sm font-medium bg-white border ${
+              toast.type === 'success' ? 'border-l-4 border-l-emerald-500 text-emerald-800' : 
+              toast.type === 'error' ? 'border-l-4 border-l-red-500 text-red-800' : 
+              'border-l-4 border-l-blue-500 text-blue-800'
             }`}
           >
-            {toast.message}
+            <span>{toast.message}</span>
           </div>
         ))}
       </div>
