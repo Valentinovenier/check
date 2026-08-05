@@ -4,6 +4,7 @@ import { Zap, Trash2, PlusCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { CircuitoCalculado } from '../../types/vivienda';
 import { DISTRIBUCION_CIRCUITOS } from '../../data/vivienda/circuitosDistribucion';
+import { CIRCUITOS_ESPECIFICOS } from '../../data/vivienda/circuitosEspecificos';
 
 interface Props {
   project: Project;
@@ -25,6 +26,9 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   // Estados para formulario
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoTipo, setNuevoTipo] = useState<CircuitoCalculado['tipo']>('iluminacion_usos_generales');
+  const [circuitoEspecificoSeleccionado, setCircuitoEspecificoSeleccionado] = useState(CIRCUITOS_ESPECIFICOS[0]);
+  const [potencia, setPotencia] = useState(0);
+  const [unidadPotencia, setUnidadPotencia] = useState<'kW' | 'kVA'>('kW');
 
   // Lógica de circuitos automáticos vs manuales
   useEffect(() => {
@@ -47,6 +51,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
 
   const addCircuito = () => {
     if (!nuevoNombre) return;
+    
     const nuevoCircuito: CircuitoCalculado = {
         id: `custom-${Date.now()}`,
         nombre: nuevoNombre,
@@ -54,10 +59,20 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
         puntosIUG: 0,
         puntosTUG: 0,
         puntosTUE: 0,
-        ambientesIds: []
+        ambientesIds: [],
+        ...(nuevoTipo === 'usos_especificos' && {
+            esEspecifico: true,
+            siglaEspecifica: circuitoEspecificoSeleccionado.sigla,
+            maximoBocas: circuitoEspecificoSeleccionado.maximoBocas,
+            condicionProteccion: circuitoEspecificoSeleccionado.proteccionCondicion,
+            potencia: potencia,
+            unidadPotencia: unidadPotencia
+        })
     };
+    
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: [...datos.circuitosCalculados, nuevoCircuito] } });
     setNuevoNombre('');
+    setPotencia(0);
   };
 
   const removeCircuito = (id: string) => {
@@ -109,7 +124,9 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
             <div className="flex flex-col gap-2">
               <div>
                 <p className="font-bold text-white">{c.nombre} {c.id.startsWith('auto-') && <span className="text-[10px] text-emerald-500">(Normativo)</span>}</p>
-                {c.id === 'auto-cle' ? (
+                {c.esEspecifico ? (
+                    <p className="text-xs text-indigo-400 font-bold">{c.siglaEspecifica} - {c.potencia} {c.unidadPotencia}</p>
+                ) : c.id === 'auto-cle' ? (
                     <select 
                         value={c.tipo}
                         onChange={(e) => {
@@ -132,10 +149,6 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 ) : (
                     <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
                 )}
-              </div>
-
-              <div className="flex items-center gap-2 mt-2">
-                {/* La norma se define en canalizaciones */}
               </div>
 
               {c.tipo === 'iluminacion_usos_generales' && (
@@ -183,11 +196,44 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 <option value="iluminacion_usos_generales">Circuito IUG</option>
                 <option value="tomacorrientes_usos_generales">Circuito TUG</option>
                 <option value="usos_especiales">Circuito Especial</option>
+                <option value="usos_especificos">Circuito Específico</option>
             </select>
-            <button onClick={addCircuito} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500">
-                <PlusCircle size={16} /> Agregar
-            </button>
         </div>
+
+        {nuevoTipo === 'usos_especificos' && (
+            <div className="grid grid-cols-2 gap-2 mt-2">
+                <select 
+                    value={circuitoEspecificoSeleccionado.descripcion}
+                    onChange={(e) => setCircuitoEspecificoSeleccionado(CIRCUITOS_ESPECIFICOS.find(c => c.descripcion === e.target.value)!)}
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                >
+                    {CIRCUITOS_ESPECIFICOS.map(c => (
+                        <option key={c.descripcion} value={c.descripcion}>{c.descripcion}</option>
+                    ))}
+                </select>
+                <div className="flex gap-2">
+                    <input 
+                        type="number" 
+                        placeholder="Potencia"
+                        value={potencia}
+                        onChange={(e) => setPotencia(Number(e.target.value))}
+                        className="w-full bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                    />
+                    <select 
+                        value={unidadPotencia}
+                        onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
+                        className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                    >
+                        <option value="kW">kW</option>
+                        <option value="kVA">kVA</option>
+                    </select>
+                </div>
+            </div>
+        )}
+
+        <button onClick={addCircuito} className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500 w-full mt-2">
+            <PlusCircle size={16} /> Agregar
+        </button>
       </div>
     </div>
   );

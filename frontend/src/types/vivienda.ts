@@ -7,7 +7,7 @@ export type TipoCircuito =
   | 'iluminacion_usos_generales'
   | 'tomacorrientes_usos_generales'
   | 'usos_especiales'
-  | 'usos_especificos_mbtf';
+  | 'usos_especificos';
 
 export interface Ambiente {
   id: string;
@@ -37,6 +37,14 @@ export interface CircuitoCalculado {
   ambientesIds: string[];
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
   proteccion?: Proteccion;
+
+  // Propiedades para usos específicos
+  esEspecifico?: boolean;
+  siglaEspecifica?: string;
+  maximoBocas?: number | 'Sin límite' | 'N/A';
+  condicionProteccion?: string;
+  potencia?: number;
+  unidadPotencia?: 'kW' | 'kVA';
 }
 
 export interface ProteccionSalida {
