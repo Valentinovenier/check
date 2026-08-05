@@ -70,7 +70,7 @@ export const calcularTramoResidencial = (
             case 'iluminacion_usos_generales': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion; break;
             case 'tomacorrientes_usos_generales':
             case 'usos_especiales': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes; break;
-            case 'usos_especificos_mbtf': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF; break;
+            case 'usos_especificos': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF; break;
         }
         break;
   }

@@ -1,7 +1,7 @@
 export interface DefinicionCircuitoEspecifico {
   descripcion: string;
   sigla: string;
-  maximoBocas: number | 'Sin límite' | 'N/A';
+  maximoBocas: number | 'Sin límite' | 'N/A' | '12 por fase';
   proteccionCondicion: string;
 }
 
