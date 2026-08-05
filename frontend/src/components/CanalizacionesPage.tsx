@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project, Canalizacion } from '../types/project';
-import { Plus, Trash2, Cable, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Cable, AlertTriangle, Zap } from 'lucide-react';
 import { validarAgrupamiento } from '../engine/strategies/vivienda/validacionesAgrupamiento';
 import { useToast } from '../context/ToastContext';
 
@@ -13,6 +13,11 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
   const [nombre, setNombre] = useState('');
   const { addToast } = useToast();
   const canalizaciones = project.canalizaciones || [];
+  const tableros = project.datosVivienda?.tableros || [];
+  const tramosAlimentacion = tableros.filter(t => t.tipo !== 'Principal').map(t => ({
+      id: `tramo_${t.id}`,
+      nombre: `Tramo al ${t.nombre}`
+  }));
 
   const addCanalizacion = () => {
     if (!nombre) return;
@@ -20,6 +25,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       id: Date.now().toString(),
       nombre,
       circuitosIds: [],
+      tramosIds: []
     };
     onChange({ ...project, canalizaciones: [...canalizaciones, nueva] });
     setNombre('');
@@ -41,39 +47,40 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     });
   };
 
-  const updateCanalizacion = (id: string, updates: Partial<Canalizacion>) => {
-    onChange({
-      ...project,
-      canalizaciones: canalizaciones.map(c => c.id === id ? { ...c, ...updates } : c)
-    });
-  };
-
   const deleteCanalizacion = (id: string) => {
     onChange({ ...project, canalizaciones: canalizaciones.filter(c => c.id !== id) });
   };
 
-  const toggleCircuito = (canalizacionId: string, circuitoId: string) => {
-    // 1. Eliminar el circuito de todas las otras canalizaciones
+  const toggleElemento = (canalizacionId: string, elementoId: string, esTramo: boolean) => {
     const canalizacionesActualizadas = canalizaciones.map(c => {
         if (c.id === canalizacionId) return c; // Saltamos la actual para procesarla luego
-        if (c.circuitosIds.includes(circuitoId)) {
-            return { ...c, circuitosIds: c.circuitosIds.filter(id => id !== circuitoId) };
+        if (esTramo) {
+            return { ...c, tramosIds: c.tramosIds?.filter(id => id !== elementoId) || [] };
+        } else {
+            return { ...c, circuitosIds: c.circuitosIds.filter(id => id !== elementoId) };
         }
-        return c;
     });
 
-    // 2. Procesar la canalizacion actual
     const canalizacionActual = canalizacionesActualizadas.find(c => c.id === canalizacionId);
     if (!canalizacionActual) return;
 
-    const estaAsignado = canalizacionActual.circuitosIds.includes(circuitoId);
-    
-    const newIds = estaAsignado
-      ? canalizacionActual.circuitosIds.filter(id => id !== circuitoId)
-      : [...canalizacionActual.circuitosIds, circuitoId];
+    let newCircuitosIds = canalizacionActual.circuitosIds;
+    let newTramosIds = canalizacionActual.tramosIds || [];
+
+    if (esTramo) {
+        const estaAsignado = newTramosIds.includes(elementoId);
+        newTramosIds = estaAsignado
+            ? newTramosIds.filter(id => id !== elementoId)
+            : [...newTramosIds, elementoId];
+    } else {
+        const estaAsignado = newCircuitosIds.includes(elementoId);
+        newCircuitosIds = estaAsignado
+            ? newCircuitosIds.filter(id => id !== elementoId)
+            : [...newCircuitosIds, elementoId];
+    }
 
     // Validar antes de aplicar cambios
-    const hypotheticalCanalizacion = { ...canalizacionActual, circuitosIds: newIds };
+    const hypotheticalCanalizacion = { ...canalizacionActual, circuitosIds: newCircuitosIds, tramosIds: newTramosIds };
     const resultado = validarAgrupamiento(project, hypotheticalCanalizacion);
 
     if (!resultado.esValido) {
@@ -81,33 +88,14 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       return;
     }
 
-    // 3. Función para actualizar el circuito dentro de la estructura de la vivienda
-    const actualizarCircuitosVivienda = (datosVivienda: any): any => {
-        return {
-            ...datosVivienda,
-            circuitosCalculados: datosVivienda.circuitosCalculados.map((c: any) => 
-                c.id === circuitoId ? {
-                    ...c,
-                    canalizacionId: estaAsignado ? undefined : canalizacionId
-                } : c
-            )
-        };
-    };
-
-    // 4. Aplicar cambios a todo el proyecto
+    // Aplicar cambios a todo el proyecto
     onChange({
         ...project,
-        datosVivienda: project.datosVivienda ? actualizarCircuitosVivienda(project.datosVivienda) : undefined,
         canalizaciones: canalizacionesActualizadas.map(c => 
-            c.id === canalizacionId ? { ...c, circuitosIds: newIds } : c
+            c.id === canalizacionId ? { ...c, circuitosIds: newCircuitosIds, tramosIds: newTramosIds } : c
         )
     });
-    
-    if (!estaAsignado) {
-        addToast('Circuito asignado (y eliminado de otras canalizaciones)', 'success');
-    } else {
-        addToast('Circuito desasignado', 'info');
-    }
+    addToast('Asignación actualizada', 'success');
   };
 
   return (
@@ -172,18 +160,32 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                     </div>
                 )}
 
-                <h4 className="text-slate-400 text-sm font-semibold uppercase mb-3">Circuitos Asignados</h4>
-                {circuitosDisponibles.length === 0 ? (
-                  <p className="text-slate-500 text-sm italic">No hay circuitos definidos en la vivienda.</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <h4 className="text-slate-400 text-sm font-semibold uppercase mb-3">Elementos Asignados</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {/* Tramos */}
+                    {tramosAlimentacion.map(tramo => (
+                        <label key={tramo.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.tramosIds?.includes(tramo.id) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={c.tramosIds?.includes(tramo.id)}
+                            onChange={() => toggleElemento(c.id, tramo.id, true)}
+                            className="accent-[var(--accent)] w-4 h-4"
+                          />
+                          <div className='flex flex-col'>
+                            <span className="text-white text-sm font-medium flex items-center gap-1.5"><Zap size={14} className="text-amber-500"/> {tramo.nombre}</span>
+                          </div>
+                        </label>
+                    ))}
+
+                    {/* Circuitos */}
                     {circuitosDisponibles.map((circ: any) => {
                       return (
                         <label key={circ.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${c.circuitosIds.includes(circ.id) ? 'bg-slate-800 border-[var(--accent)]' : 'bg-slate-950 border-slate-700 hover:border-slate-500'}`}>
                           <input 
                             type="checkbox" 
                             checked={c.circuitosIds.includes(circ.id)}
-                            onChange={() => toggleCircuito(c.id, circ.id)}
+                            onChange={() => toggleElemento(c.id, circ.id, false)}
                             className="accent-[var(--accent)] w-4 h-4"
                           />
                           <div className='flex flex-col'>
@@ -194,7 +196,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                       );
                     })}
                   </div>
-                )}
               </div>
             );
         })}

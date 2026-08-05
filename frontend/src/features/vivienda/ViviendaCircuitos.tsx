@@ -29,6 +29,8 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   const [circuitoEspecificoSeleccionado, setCircuitoEspecificoSeleccionado] = useState(CIRCUITOS_ESPECIFICOS[0]);
   const [potencia, setPotencia] = useState(0);
   const [unidadPotencia, setUnidadPotencia] = useState<'kW' | 'kVA'>('kW');
+  const [coefUtilizacion, setCoefUtilizacion] = useState(1);
+  const [coefSimultaneidad, setCoefSimultaneidad] = useState(1);
 
   // Lógica de circuitos automáticos vs manuales
   useEffect(() => {
@@ -66,13 +68,17 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
             maximoBocas: circuitoEspecificoSeleccionado.maximoBocas,
             condicionProteccion: circuitoEspecificoSeleccionado.proteccionCondicion,
             potencia: potencia,
-            unidadPotencia: unidadPotencia
+            unidadPotencia: unidadPotencia,
+            coefUtilizacion: coefUtilizacion,
+            coefSimultaneidad: coefSimultaneidad
         })
     };
     
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: [...datos.circuitosCalculados, nuevoCircuito] } });
     setNuevoNombre('');
     setPotencia(0);
+    setCoefUtilizacion(1);
+    setCoefSimultaneidad(1);
   };
 
   const removeCircuito = (id: string) => {
@@ -205,29 +211,43 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                 <select 
                     value={circuitoEspecificoSeleccionado.descripcion}
                     onChange={(e) => setCircuitoEspecificoSeleccionado(CIRCUITOS_ESPECIFICOS.find(c => c.descripcion === e.target.value)!)}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700 col-span-2"
                 >
                     {CIRCUITOS_ESPECIFICOS.map(c => (
                         <option key={c.descripcion} value={c.descripcion}>{c.descripcion}</option>
                     ))}
                 </select>
-                <div className="flex gap-2">
-                    <input 
-                        type="number" 
-                        placeholder="Potencia"
-                        value={potencia}
-                        onChange={(e) => setPotencia(Number(e.target.value))}
-                        className="w-full bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                    />
-                    <select 
-                        value={unidadPotencia}
-                        onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
-                        className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                    >
-                        <option value="kW">kW</option>
-                        <option value="kVA">kVA</option>
-                    </select>
-                </div>
+                <input 
+                    type="number" 
+                    placeholder="Potencia"
+                    value={potencia}
+                    onChange={(e) => setPotencia(Number(e.target.value))}
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                />
+                <select 
+                    value={unidadPotencia}
+                    onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                >
+                    <option value="kW">kW</option>
+                    <option value="kVA">kVA</option>
+                </select>
+                <input 
+                    type="number" 
+                    placeholder="Coef. Utilización"
+                    value={coefUtilizacion}
+                    onChange={(e) => setCoefUtilizacion(Number(e.target.value))}
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                    step="0.1"
+                />
+                <input 
+                    type="number" 
+                    placeholder="Coef. Simultaneidad"
+                    value={coefSimultaneidad}
+                    onChange={(e) => setCoefSimultaneidad(Number(e.target.value))}
+                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                    step="0.1"
+                />
             </div>
         )}
 

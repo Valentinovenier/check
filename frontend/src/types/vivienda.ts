@@ -45,6 +45,8 @@ export interface CircuitoCalculado {
   condicionProteccion?: string;
   potencia?: number;
   unidadPotencia?: 'kW' | 'kVA';
+  coefUtilizacion?: number;
+  coefSimultaneidad?: number;
 }
 
 export interface ProteccionSalida {
