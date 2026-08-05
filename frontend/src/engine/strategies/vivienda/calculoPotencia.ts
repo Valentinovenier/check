@@ -26,7 +26,7 @@ export const calcularDPMS = (datos: DatosVivienda) => {
     }
     
     circuitosEspecificos.forEach(c => {
-        const potenciaNominal = (c.potencia || 0) * (c.unidadPotencia === 'kW' ? 1000 : 1);
+        const potenciaNominal = c.potencia || 0;
         const corrienteNominal = potenciaNominal / 220;
         if (corrienteNominal > 8) {
             advertencias.push(`El circuito específico "${c.nombre}" consume más de 8A. Requiere canalización independiente.`);
