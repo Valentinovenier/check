@@ -179,9 +179,9 @@ export const ProteccionesPage = () => {
                           const hijo = hijos.find(h => h.id === ps.tableroDestinoId);
                           return (
                             <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                               <p className="text-xs text-slate-400 mb-2">Salida hacia: {hijo?.nombre || 'Desconocido'}</p>
+                               <p className="text-sm text-white">Salida hacia: {hijo?.nombre || 'Desconocido'}</p>
                                <AsignacionProteccion 
-                                    label="Asignar Protección de Salida"
+                                    label="Asignar Protección"
                                     proteccion={ps.proteccion}
                                     disponibles={protecciones}
                                     onChange={(p) => {

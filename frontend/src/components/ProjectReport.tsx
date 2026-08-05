@@ -35,7 +35,7 @@ export const ProjectReport = ({ project }: { project: Project }) => {
       <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 print:hidden flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Informe Técnico: {project.name}</h2>
-          <p className="text-xs text-slate-400 mt-1">Reglamentación AEA 90364-7-770 / Carpeta Técnica Apta</p>
+          
         </div>
         <div className="flex gap-3 flex-wrap">
           <button
@@ -50,12 +50,7 @@ export const ProjectReport = ({ project }: { project: Project }) => {
           >
             <span>Descargar Carpeta Técnica (PDF)</span>
           </button>
-          <button
-            onClick={handlePrint}
-            className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors"
-          >
-            Imprimir Pantalla
-          </button>
+          
         </div>
       </div>
 
