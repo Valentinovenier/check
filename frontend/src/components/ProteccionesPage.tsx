@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Zap, Pencil, Layout } from 'lucide-react';
+import { Plus, Zap, Pencil, Layout, ChevronDown, ChevronRight } from 'lucide-react';
 import { ProteccionesForm } from './ProteccionesForm';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectDataContext';
@@ -13,6 +13,11 @@ export const ProteccionesPage = () => {
   const [protecciones, setProtecciones] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProteccion, setEditingProteccion] = useState<any>(null);
+  const [expandedTableros, setExpandedTableros] = useState<Record<string, boolean>>({});
+
+  const toggleTablero = (id: string) => {
+    setExpandedTableros(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const datosVivienda = project?.datosVivienda;
   const tablerosVivienda = datosVivienda?.tableros || [];
@@ -125,8 +130,9 @@ export const ProteccionesPage = () => {
             
             return (
               <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => toggleTablero(tablero.id)}>
                   <h4 className="text-white font-medium flex items-center gap-2">
+                    {expandedTableros[tablero.id] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     <Layout size={16} /> {tablero.nombre}
                   </h4>
                   <span className="text-sm font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-900">
@@ -134,94 +140,98 @@ export const ProteccionesPage = () => {
                   </span>
                 </div>
                 
-                <div className="grid grid-cols-1 gap-4 mb-4">
-                  <AsignacionProteccion 
-                    label="Protección General (Cabecera)"
-                    proteccion={tablero.proteccionCabecera}
-                    disponibles={protecciones}
-                    onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
-                  />
-                  {tablero.proteccionCabecera && (
-                      <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                          Asignado: {tablero.proteccionCabecera.modelo}
-                      </div>
-                  )}
-                  <AsignacionProteccion 
-                    label="Protección Diferencial"
-                    proteccion={tablero.proteccionDiferencial}
-                    disponibles={protecciones}
-                    onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
-                  />
-                  {tablero.proteccionDiferencial && (
-                      <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                          Asignado: {tablero.proteccionDiferencial.modelo}
-                      </div>
-                  )}
+                {expandedTableros[tablero.id] && (
+                  <>
+                    <div className="grid grid-cols-1 gap-4 mb-4">
+                      <AsignacionProteccion 
+                        label="Protección General (Cabecera)"
+                        proteccion={tablero.proteccionCabecera}
+                        disponibles={protecciones}
+                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                      />
+                      {tablero.proteccionCabecera && (
+                          <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                              Asignado: {tablero.proteccionCabecera.modelo}
+                          </div>
+                      )}
+                      <AsignacionProteccion 
+                        label="Protección Diferencial"
+                        proteccion={tablero.proteccionDiferencial}
+                        disponibles={protecciones}
+                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                      />
+                      {tablero.proteccionDiferencial && (
+                          <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                              Asignado: {tablero.proteccionDiferencial.modelo}
+                          </div>
+                      )}
 
-                  {/* Nuevas protecciones de salida - Lógica de Sincronización */}
-                  {(() => {
-                      const hijos = tablerosVivienda.filter(t => t.tableroPadreId === tablero.id);
-                      
-                      // Sincronizar: Asegurar que existan entradas en proteccionesSalida para cada hijo
-                      const salidasActuales = tablero.proteccionesSalida || [];
-                      const nuevasSalidas = hijos.map(hijo => {
-                          const existente = salidasActuales.find((s: any) => s.tableroDestinoId === hijo.id);
-                          return existente || { id: Date.now().toString() + hijo.id, tableroDestinoId: hijo.id, proteccion: undefined as any };
-                      });
+                      {/* Nuevas protecciones de salida - Lógica de Sincronización */}
+                      {(() => {
+                          const hijos = tablerosVivienda.filter(t => t.tableroPadreId === tablero.id);
+                          
+                          // Sincronizar: Asegurar que existan entradas en proteccionesSalida para cada hijo
+                          const salidasActuales = tablero.proteccionesSalida || [];
+                          const nuevasSalidas = hijos.map(hijo => {
+                              const existente = salidasActuales.find((s: any) => s.tableroDestinoId === hijo.id);
+                              return existente || { id: Date.now().toString() + hijo.id, tableroDestinoId: hijo.id, proteccion: undefined as any };
+                          });
 
-                      // Actualizar estado si cambió
-                      if (JSON.stringify(salidasActuales) !== JSON.stringify(nuevasSalidas)) {
-                          handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
-                          return null; // Forzar re-render en siguiente ciclo
-                      }
+                          // Actualizar estado si cambió
+                          if (JSON.stringify(salidasActuales) !== JSON.stringify(nuevasSalidas)) {
+                              handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                              return null; // Forzar re-render en siguiente ciclo
+                          }
 
-                      return nuevasSalidas.map((ps: any, index: number) => {
-                          const hijo = hijos.find(h => h.id === ps.tableroDestinoId);
-                          return (
-                            <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                               <p className="text-sm text-white">Tramo al: {hijo?.nombre || 'Desconocido'}</p>
-                               <AsignacionProteccion 
-                                    label="Asignar Protección"
-                                    proteccion={ps.proteccion}
-                                    disponibles={protecciones}
-                                    onChange={(p) => {
-                                        const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
-                                        nuevasSalidas[index] = { ...ps, proteccion: p! };
-                                        handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
-                                    }}
-                                />
+                          return nuevasSalidas.map((ps: any, index: number) => {
+                              const hijo = hijos.find(h => h.id === ps.tableroDestinoId);
+                              return (
+                                <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                                   <p className="text-sm text-white">Tramo al: {hijo?.nombre || 'Desconocido'}</p>
+                                   <AsignacionProteccion 
+                                        label="Asignar Protección"
+                                        proteccion={ps.proteccion}
+                                        disponibles={protecciones}
+                                        onChange={(p) => {
+                                            const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
+                                            nuevasSalidas[index] = { ...ps, proteccion: p! };
+                                            handleUpdateTablero(tablero.id, { proteccionesSalida: nuevasSalidas });
+                                        }}
+                                    />
+                                </div>
+                              );
+                          });
+                      })()}
+                    </div>
+
+                    <div className="space-y-3">
+                      {baseTablero.circuitosTerminales.map((circuito: any) => {
+                        const iNominal = getCircuitoNominalCurrent(circuito, project);
+                        return (
+                          <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                            <div className="flex justify-between items-center mb-2">
+                                <p className="text-sm text-white">{circuito.nombre}</p>
+                                <span className="text-xs font-mono text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-700">
+                                    {iNominal.toFixed(2)} A
+                                </span>
                             </div>
-                          );
-                      });
-                  })()}
-                </div>
-
-                <div className="space-y-3">
-                  {baseTablero.circuitosTerminales.map((circuito: any) => {
-                    const iNominal = getCircuitoNominalCurrent(circuito, project);
-                    return (
-                      <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                        <div className="flex justify-between items-center mb-2">
-                            <p className="text-sm text-white">{circuito.nombre}</p>
-                            <span className="text-xs font-mono text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-700">
-                                {iNominal.toFixed(2)} A
-                            </span>
-                        </div>
-                        <AsignacionProteccion 
-                          label="Asignar Protección"
-                          proteccion={circuito.proteccion}
-                          disponibles={protecciones}
-                          onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
-                        />
-                        {circuito.proteccion && (
-                            <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                                Asignado: {circuito.proteccion.modelo} - {circuito.proteccion.in_amp}A
-                            </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                            <AsignacionProteccion 
+                              label="Asignar Protección"
+                              proteccion={circuito.proteccion}
+                              disponibles={protecciones}
+                              onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
+                            />
+                            {circuito.proteccion && (
+                                <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                                    Asignado: {circuito.proteccion.modelo} - {circuito.proteccion.in_amp}A
+                                </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}

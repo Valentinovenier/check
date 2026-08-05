@@ -16,7 +16,7 @@ export const SubscribeButton = () => {
 
   return (
     <button onClick={handleSubscribe} className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 font-bold">
-      Suscribirse por $15.000 ARS/mes
+      Suscribirse por $9.000 ARS/mes
     </button>
   );
 };

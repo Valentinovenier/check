@@ -257,7 +257,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
           <h3 className="text-2xl font-bold text-white mb-1">Acceso Total</h3>
           <p className="text-slate-400 text-sm mb-5">Todo incluido, sin límites.</p>
           <div className="flex items-baseline gap-1 mb-7">
-            <span className="text-4xl font-black text-white">$15.000</span>
+            <span className="text-4xl font-black text-white">$9.000</span>
             <span className="text-slate-400">/ mes</span>
           </div>
           <ul className="space-y-4 mb-8 text-slate-300">
