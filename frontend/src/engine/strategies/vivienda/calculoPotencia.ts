@@ -10,7 +10,7 @@ export const calcularDPMS = (datos: DatosVivienda) => {
     // 2. DPMS_Específicas
     const circuitosEspecificos = datos.circuitosCalculados.filter(c => c.esEspecifico);
     const DPMS_Específicas = circuitosEspecificos.reduce((sum, c) => {
-        const potenciaNominal = (c.potencia || 0) * (c.unidadPotencia === 'kW' ? 1000 : 1);
+        const potenciaNominal = c.potencia || 0; // Ya es W o VA
         const coefUtilizacion = c.coefUtilizacion || 1;
         const coefSimultaneidad = c.coefSimultaneidad || 1;
         return sum + (potenciaNominal * coefUtilizacion * coefSimultaneidad);

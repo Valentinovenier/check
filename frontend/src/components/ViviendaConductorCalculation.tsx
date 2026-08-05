@@ -52,7 +52,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
     let tipoViviendaTramo: any = 'LineaSeccional';
 
     if (tipoTramo === 'general_salida') {
-        destinoNombre = 'Interruptor Salida ' + tableroOrigen.nombre;
+        destinoNombre = 'Tramo al ' + tableroOrigen.nombre;
         tipoViviendaTramo = 'LineaPrincipal'; // o dependiente
     } else if (tipoTramo === 'salida_circuito') {
         destinoNombre = circuitosDelTablero.find(c => c.id === destinoId)?.nombre || '';
@@ -120,10 +120,10 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                             setDestinoId('');
                         }}
                     >
-                        <option value="general_salida">Int. General - Int. de Salida</option>
-                        <option value="salida_circuito">Int. de Salida - Circuito Terminal</option>
+                        <option value="general_salida">Int. General - Tramo al Tablero</option>
+                        <option value="salida_circuito">Tramo al Circuito Terminal</option>
                         {tablerosHijos.length > 0 && (
-                            <option value="salida_tablero">Int. de Salida - Tablero Seccional/Sub-seccional</option>
+                            <option value="salida_tablero">Tramo al Tablero Seccional/Sub-seccional</option>
                         )}
                     </select>
                 </div>

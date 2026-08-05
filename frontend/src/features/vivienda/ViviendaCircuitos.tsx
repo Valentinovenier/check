@@ -28,7 +28,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   const [nuevoTipo, setNuevoTipo] = useState<CircuitoCalculado['tipo']>('iluminacion_usos_generales');
   const [circuitoEspecificoSeleccionado, setCircuitoEspecificoSeleccionado] = useState(CIRCUITOS_ESPECIFICOS[0]);
   const [potencia, setPotencia] = useState(0);
-  const [unidadPotencia, setUnidadPotencia] = useState<'kW' | 'kVA'>('kW');
+  const [unidadPotencia, setUnidadPotencia] = useState<'W' | 'VA'>('W');
   const [coefUtilizacion, setCoefUtilizacion] = useState(1);
   const [coefSimultaneidad, setCoefSimultaneidad] = useState(1);
 
@@ -233,11 +233,11 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Unidad</label>
                     <select 
                         value={unidadPotencia}
-                        onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
+                        onChange={(e) => setUnidadPotencia(e.target.value as 'W' | 'VA')}
                         className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
                     >
-                        <option value="kW">kW</option>
-                        <option value="kVA">kVA</option>
+                        <option value="W">W</option>
+                        <option value="VA">VA</option>
                     </select>
                 </div>
                 <div>
