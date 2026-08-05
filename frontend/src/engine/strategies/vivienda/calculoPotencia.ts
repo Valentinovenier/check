@@ -1,51 +1,11 @@
-import { DatosVivienda, CircuitoCalculado } from '../../../types/vivienda';
+import { DatosVivienda } from '../../../types/vivienda';
+import { calcularPotencias } from './normas770';
 
 // Cláusulas 770.8.2 y 770.8.3
 
 export const calcularDPMS = (datos: DatosVivienda) => {
-    // 1. DPMS_Grado
-    // Grado Electrificación y coeficientes
-    const factoresSimultaneidad: Record<string, number> = {
-        'Minimo': 1.0,
-        'Medio': 0.8,
-        'Elevado': 0.7,
-        'Superior': 0.6
-    };
-    const factorSimultaneidad = factoresSimultaneidad[datos.gradoElectrificacion || 'Minimo'] || 1.0;
-    
-    // Potencia circuitos generales (estimación simple según puntos)
-    const circuitos = datos.circuitosCalculados || [];
-    let potenciaTotal = 0;
-
-    circuitos.forEach(circ => {
-        if (circ.esEspecifico) return; // Saltamos específicos
-
-        let potenciaCircuito = 0;
-        
-        switch (circ.tipo) {
-            case 'iluminacion_usos_generales':
-                let puntosIUG = 0;
-                Object.values(datos.tomasPorAmbiente || {}).forEach((amb: any) => {
-                    puntosIUG += (amb[circ.id]?.IUG || 0);
-                });
-
-                if (circ.tieneTomacorrientesDerivados) {
-                    potenciaCircuito = 2200;
-                } else {
-                    potenciaCircuito = (2 / 3) * puntosIUG * 60;
-                }
-                break;
-            case 'tomacorrientes_usos_generales':
-                potenciaCircuito = 2200;
-                break;
-            case 'usos_especiales':
-                potenciaCircuito = 3300;
-                break;
-        }
-        potenciaTotal += potenciaCircuito;
-    });
-
-    const DPMS_Grado = potenciaTotal * factorSimultaneidad;
+    // 1. DPMS_Grado (Reutilizamos la lógica original existente)
+    const { potenciaMaximaSimultanea: DPMS_Grado } = calcularPotencias(datos);
 
     // 2. DPMS_Específicas
     const circuitosEspecificos = datos.circuitosCalculados.filter(c => c.esEspecifico);
