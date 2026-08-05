@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Project } from '../types/project';
 import { TableroVivienda, CircuitoCalculado } from '../types/vivienda';
-import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, FolderTree, Trash2, Zap } from 'lucide-react';
 
 interface Props {
   project: Project;
@@ -127,6 +127,19 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
         
         {expanded && (
             <div className="space-y-2">
+                {/* Visualización fija de tramos si es principal */}
+                {tablero.tipo === 'Principal' && tableros.filter(t => t.tipo !== 'Principal').length > 0 && (
+                  <div className="mt-4 mb-2">
+                      <div className="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-2">Tramos de Alimentación</div>
+                      {tableros.filter(t => t.tipo !== 'Principal').map(t => (
+                        <div key={t.id} className="flex items-center gap-3 p-3 bg-slate-950 border border-amber-900/30 rounded-lg ml-2">
+                            <Zap size={16} className="text-amber-500"/>
+                            <span className="text-sm text-amber-200">Tramo hacia {t.nombre}</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+
                 <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
                 {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
                     // Lógica actualizada: 

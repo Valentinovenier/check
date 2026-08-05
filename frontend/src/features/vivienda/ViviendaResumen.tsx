@@ -1,6 +1,7 @@
 import { Project } from '../../types/project';
-import { CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { calcularPotencias } from '../../engine/strategies/vivienda/normas770';
+import { calcularDPMS } from '../../engine/strategies/vivienda/calculoPotencia';
 
 interface Props {
   project: Project;
@@ -11,11 +12,11 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [] };
   const grado = datos.gradoElectrificacion || 'Minimo';
   
-  // Usar la función centralizada de normas770.ts
-  const { potenciaInstalada, potenciaMaximaSimultanea } = calcularPotencias(datos);
+  // Usar funciones de cálculo
+  const { potenciaInstalada } = calcularPotencias(datos);
+  const { DPMS_Grado, DPMS_Específicas, cargaTotal, advertencias } = calcularDPMS(datos);
   
-  // Actualizamos el proyecto con los valores calculados
-  // Esto asegura que al hacer click en guardar, el proyecto ya contenga estos valores
+  // Actualizamos el proyecto
   const actualizarPotencias = () => {
     if (project.datosVivienda) {
         onChange({
@@ -23,15 +24,14 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
             datosVivienda: {
                 ...project.datosVivienda,
                 potenciaInstalada,
-                potenciaMaximaSimultanea
+                potenciaMaximaSimultanea: cargaTotal
             }
         });
     }
   };
 
-  // Llamamos a la actualización al renderizar el resumen
-  // (Esto es temporal para asegurar que los datos estén en el proyecto al momento de guardar)
-  if (project.datosVivienda && (project.datosVivienda.potenciaInstalada !== potenciaInstalada)) {
+  // Efecto para actualizar (simulado en render para brevedad)
+  if (project.datosVivienda && (project.datosVivienda.potenciaMaximaSimultanea !== cargaTotal)) {
       actualizarPotencias();
   }
 
@@ -42,7 +42,6 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <h2 className="text-xl font-bold text-white">Resumen Final</h2>
-        
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -54,52 +53,43 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                 <div>
                   <p className="font-bold text-white">{c.nombre}</p>
                   <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
+                  {c.esEspecifico && (
+                    <p className="text-[10px] text-indigo-400">{c.siglaEspecifica} - {c.potencia} {c.unidadPotencia}</p>
+                  )}
                 </div>
               </div>
             ))}
-            {datos.circuitosCalculados.length === 0 && (
-                <div className="text-center py-8 text-slate-500 italic text-sm">No hay circuitos definidos.</div>
-            )}
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase">Estado del Proyecto</h3>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase">Demanda Potencia (DPMS)</h3>
             
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Circuitos:</span>
-                <span className={`font-bold ${datos.circuitosCalculados.length >= minCircuitos ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {datos.circuitosCalculados.length} / {minCircuitos}
-                </span>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between items-center text-slate-400">
+                <span>DPMS Grado:</span>
+                <span className="text-white font-bold">{DPMS_Grado.toFixed(0)} VA</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Potencia Instalada:</span>
-                <span className="text-white font-bold">{potenciaInstalada.toFixed(0)} VA</span>
+              <div className="flex justify-between items-center text-slate-400">
+                <span>DPMS Específicas:</span>
+                <span className="text-white font-bold">{DPMS_Específicas.toFixed(0)} VA</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Potencia Máxima (DPMS):</span>
-                <span className="text-emerald-400 font-bold">{potenciaMaximaSimultanea.toFixed(0)} VA</span>
-              </div>
-              <div className="flex justify-between items-center text-sm pt-2 border-t border-slate-800">
-                <span className="text-slate-400">Tipo de Instalación Sugerido:</span>
-                <span className="text-white font-bold">
-                    {potenciaMaximaSimultanea > 7000 ? 'Trifásica' : 'Monofásica'}
-                </span>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-800 text-white font-bold">
+                <span>Carga Total:</span>
+                <span className="text-emerald-400 text-lg">{cargaTotal.toFixed(0)} VA</span>
               </div>
             </div>
           </div>
 
-          {datos.circuitosCalculados.length < minCircuitos && (
-            <div className="bg-red-900/20 border border-red-800 p-4 rounded-xl flex items-start gap-3">
-              <AlertTriangle className="text-red-400 shrink-0" size={20} />
-              <div>
-                <p className="text-sm font-bold text-red-400">Cumplimiento insuficiente</p>
-                <p className="text-[10px] text-red-400/80 mt-1">
-                  Faltan {minCircuitos - datos.circuitosCalculados.length} circuitos para cumplir con el grado de electrificación {grado}.
-                </p>
-              </div>
+          {advertencias.length > 0 && (
+            <div className="bg-amber-900/20 border border-amber-800 p-4 rounded-xl flex flex-col gap-2">
+              {advertencias.map((adv, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <AlertTriangle className="text-amber-400 shrink-0" size={16} />
+                    <p className="text-[11px] text-amber-400">{adv}</p>
+                  </div>
+              ))}
             </div>
           )}
         </div>
