@@ -207,47 +207,59 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
         </div>
 
         {nuevoTipo === 'usos_especificos' && (
-            <div className="grid grid-cols-2 gap-2 mt-2">
-                <select 
-                    value={circuitoEspecificoSeleccionado.descripcion}
-                    onChange={(e) => setCircuitoEspecificoSeleccionado(CIRCUITOS_ESPECIFICOS.find(c => c.descripcion === e.target.value)!)}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700 col-span-2"
-                >
-                    {CIRCUITOS_ESPECIFICOS.map(c => (
-                        <option key={c.descripcion} value={c.descripcion}>{c.descripcion}</option>
-                    ))}
-                </select>
-                <input 
-                    type="number" 
-                    placeholder="Potencia"
-                    value={potencia}
-                    onChange={(e) => setPotencia(Number(e.target.value))}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                />
-                <select 
-                    value={unidadPotencia}
-                    onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                >
-                    <option value="kW">kW</option>
-                    <option value="kVA">kVA</option>
-                </select>
-                <input 
-                    type="number" 
-                    placeholder="Coef. Utilización"
-                    value={coefUtilizacion}
-                    onChange={(e) => setCoefUtilizacion(Number(e.target.value))}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                    step="0.1"
-                />
-                <input 
-                    type="number" 
-                    placeholder="Coef. Simultaneidad"
-                    value={coefSimultaneidad}
-                    onChange={(e) => setCoefSimultaneidad(Number(e.target.value))}
-                    className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
-                    step="0.1"
-                />
+            <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-800 p-4 rounded-lg">
+                <div className="col-span-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Tipo de Circuito Específico</label>
+                    <select 
+                        value={circuitoEspecificoSeleccionado.descripcion}
+                        onChange={(e) => setCircuitoEspecificoSeleccionado(CIRCUITOS_ESPECIFICOS.find(c => c.descripcion === e.target.value)!)}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                    >
+                        {CIRCUITOS_ESPECIFICOS.map(c => (
+                            <option key={c.descripcion} value={c.descripcion}>{c.descripcion}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Potencia</label>
+                    <input 
+                        type="number" 
+                        value={potencia}
+                        onChange={(e) => setPotencia(Number(e.target.value))}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                    />
+                </div>
+                <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Unidad</label>
+                    <select 
+                        value={unidadPotencia}
+                        onChange={(e) => setUnidadPotencia(e.target.value as 'kW' | 'kVA')}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                    >
+                        <option value="kW">kW</option>
+                        <option value="kVA">kVA</option>
+                    </select>
+                </div>
+                <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Coef. Utilización</label>
+                    <input 
+                        type="number" 
+                        value={coefUtilizacion}
+                        onChange={(e) => setCoefUtilizacion(Number(e.target.value))}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                        step="0.1"
+                    />
+                </div>
+                <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Coef. Simultaneidad</label>
+                    <input 
+                        type="number" 
+                        value={coefSimultaneidad}
+                        onChange={(e) => setCoefSimultaneidad(Number(e.target.value))}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                        step="0.1"
+                    />
+                </div>
             </div>
         )}
 
