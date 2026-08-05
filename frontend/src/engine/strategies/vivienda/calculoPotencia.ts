@@ -10,10 +10,10 @@ export const calcularDPMS = (datos: DatosVivienda) => {
     // 2. DPMS_Específicas
     const circuitosEspecificos = datos.circuitosCalculados.filter(c => c.esEspecifico);
     const DPMS_Específicas = circuitosEspecificos.reduce((sum, c) => {
-        const potenciaNominal = c.potencia || 0; // Ya es W o VA
+        const potenciaNominalW = c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.8 : (c.potencia || 0); // Convert W to VA
         const coefUtilizacion = c.coefUtilizacion || 1;
         const coefSimultaneidad = c.coefSimultaneidad || 1;
-        return sum + (potenciaNominal * coefUtilizacion * coefSimultaneidad);
+        return sum + (potenciaNominalW * coefUtilizacion * coefSimultaneidad);
     }, 0);
 
     // 3. Carga Total
@@ -26,8 +26,8 @@ export const calcularDPMS = (datos: DatosVivienda) => {
     }
     
     circuitosEspecificos.forEach(c => {
-        const potenciaNominal = c.potencia || 0;
-        const corrienteNominal = potenciaNominal / 220;
+        const potenciaNominalVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.8 : (c.potencia || 0); // Convert W to VA
+        const corrienteNominal = potenciaNominalVA / 220;
         if (corrienteNominal > 8) {
             advertencias.push(`El circuito específico "${c.nombre}" consume más de 8A. Requiere canalización independiente.`);
         }
