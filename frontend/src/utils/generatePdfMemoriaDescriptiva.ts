@@ -210,43 +210,43 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   cursorY += 7;
 
   const filasProtecciones: string[][] = [];
-  const protTPCab = project.tableroPrincipal?.proteccionCabecera;
-  const protTPDif = project.tableroPrincipal?.proteccionDiferencial;
+  const tableros = project.datosVivienda?.tableros || [];
 
-  if (protTPCab) {
-    filasProtecciones.push([
-      'Tablero Principal (Cabecera)',
-      protTPCab.tipo_proteccion || 'PIA Termomagnética',
-      `${protTPCab.in_amp} A`,
-      protTPCab.curva_disparo || 'C',
-      `${protTPCab.capacidades?.[0]?.icn_ka || 3} kA`,
-      '-',
-      protTPCab.marca || 'Normalizada',
-    ]);
-  }
-  if (protTPDif) {
-    filasProtecciones.push([
-      'Tablero Principal (Diferencial)',
-      protTPDif.tipo_proteccion || 'ID Diferencial',
-      `${protTPDif.in_amp} A`,
-      '-',
-      '6 kA',
-      '30 mA',
-      protTPDif.marca || 'Normalizada',
-    ]);
-  }
+  tableros.forEach(tablero => {
+    if (tablero.proteccionCabecera) {
+      filasProtecciones.push([
+        `Tablero: ${tablero.nombre} (Cabecera)`,
+        tablero.proteccionCabecera.tipo_proteccion || 'PIA',
+        `${tablero.proteccionCabecera.in_amp} A`,
+        tablero.proteccionCabecera.curva_disparo || 'C',
+        `${tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA`,
+        '-',
+        tablero.proteccionCabecera.marca || 'Normalizada',
+      ]);
+    }
+    if (tablero.proteccionDiferencial) {
+      filasProtecciones.push([
+        `Tablero: ${tablero.nombre} (Diferencial)`,
+        tablero.proteccionDiferencial.tipo_proteccion || 'ID',
+        `${tablero.proteccionDiferencial.in_amp} A`,
+        '-',
+        '6 kA',
+        `${tablero.proteccionDiferencial.sensibilidad || 30} mA`,
+        tablero.proteccionDiferencial.marca || 'Normalizada',
+      ]);
+    }
 
-  circuitos.forEach((c, idx) => {
-    const p = c.proteccion;
-    filasProtecciones.push([
-      `Cto ${idx + 1}: ${c.nombre}`,
-      p?.tipo_proteccion || 'PIA',
-      p ? `${p.in_amp} A` : '-',
-      p?.curva_disparo || 'C',
-      p?.capacidades?.[0]?.icn_ka ? `${p.capacidades[0].icn_ka} kA` : '3 kA',
-      '-',
-      p?.marca || 'IEC 60898',
-    ]);
+    (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        filasProtecciones.push([
+            `Tablero: ${tablero.nombre} (Salida ${i + 1})`,
+            ps.proteccion.tipo_proteccion || 'PIA',
+            `${ps.proteccion.in_amp} A`,
+            ps.proteccion.curva_disparo || 'C',
+            `${ps.proteccion.capacidades?.[0]?.icn_ka || 3} kA`,
+            '-',
+            ps.proteccion.marca || 'Normalizada',
+        ]);
+    });
   });
 
   autoTable(doc, {
@@ -395,31 +395,31 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   cursorY += 7;
 
   const filasVerificacion: string[][] = [];
-  const protCab = project.tableroPrincipal?.proteccionCabecera;
-  const protDif = project.tableroPrincipal?.proteccionDiferencial;
+  const tableros = project.datosVivienda?.tableros || [];
 
-  if (protCab) {
-    filasVerificacion.push([
-      'Termomagnética (Cabecera)',
-      `In = ${protCab.in_amp} A | ${protCab.modelo}`,
-      'CUMPLE SATISFACTORIAMENTE'
-    ]);
-  }
-  
-  if (protDif) {
-    filasVerificacion.push([
-      'Interruptor Diferencial',
-      `In = ${protDif.in_amp} A | I_dn = ${protDif.sensibilidad || 30} mA`,
-      'CUMPLE SATISFACTORIAMENTE'
-    ]);
-  }
+  tableros.forEach(tablero => {
+    if (tablero.proteccionCabecera) {
+      filasVerificacion.push([
+        `Termomagnética (${tablero.nombre})`,
+        `In = ${tablero.proteccionCabecera.in_amp} A | ${tablero.proteccionCabecera.modelo}`,
+        'CUMPLE SATISFACTORIAMENTE'
+      ]);
+    }
+    if (tablero.proteccionDiferencial) {
+      filasVerificacion.push([
+        `Interruptor Diferencial (${tablero.nombre})`,
+        `In = ${tablero.proteccionDiferencial.in_amp} A | I_dn = ${tablero.proteccionDiferencial.sensibilidad || 30} mA`,
+        'CUMPLE SATISFACTORIAMENTE'
+      ]);
+    }
 
-  (project.tableroPrincipal?.proteccionesSalida || []).forEach((p, i) => {
-    filasVerificacion.push([
-      `Protección Salida ${i + 1}`,
-      `${p.tipo_proteccion} | In = ${p.in_amp} A`,
-      'CUMPLE SATISFACTORIAMENTE'
-    ]);
+    (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        filasVerificacion.push([
+            `Protección Salida ${i + 1} (${tablero.nombre})`,
+            `${ps.proteccion.tipo_proteccion} | In = ${ps.proteccion.in_amp} A`,
+            'CUMPLE SATISFACTORIAMENTE'
+        ]);
+    });
   });
 
   if (filasVerificacion.length === 0) {

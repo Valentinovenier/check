@@ -338,34 +338,35 @@ export const generatePdfMemoriaCalculo = (project: Project, overrideCaratula?: D
   cursorY += 6;
 
   const filasVerificacion: string[][] = [];
-  const protCab = project.tableroPrincipal?.proteccionCabecera;
-  const protDif = project.tableroPrincipal?.proteccionDiferencial;
+  const tableros = project.datosVivienda?.tableros || [];
 
-  if (protCab) {
-    filasVerificacion.push([
-      'Termomagnética (Cabecera)',
-      `In = ${protCab.in_amp} A | ${protCab.modelo}`,
-      'IB <= In <= Iz',
-      'CUMPLE'
-    ]);
-  }
-  
-  if (protDif) {
-    filasVerificacion.push([
-      'Interruptor Diferencial',
-      `In = ${protDif.in_amp} A | I_dn = ${protDif.sensibilidad || 30} mA`,
-      'In_ID >= In_Cabecera | I_dn <= 30 mA',
-      'CUMPLE'
-    ]);
-  }
+  tableros.forEach(tablero => {
+    if (tablero.proteccionCabecera) {
+      filasVerificacion.push([
+        `Termomagnética (Cabecera - ${tablero.nombre})`,
+        `In = ${tablero.proteccionCabecera.in_amp} A | ${tablero.proteccionCabecera.modelo}`,
+        'IB <= In <= Iz',
+        'CUMPLE'
+      ]);
+    }
+    
+    if (tablero.proteccionDiferencial) {
+      filasVerificacion.push([
+        `Diferencial (${tablero.nombre})`,
+        `In = ${tablero.proteccionDiferencial.in_amp} A | I_dn = ${tablero.proteccionDiferencial.sensibilidad || 30} mA`,
+        'In_ID >= In_Cabecera | I_dn <= 30 mA',
+        'CUMPLE'
+      ]);
+    }
 
-  (project.tableroPrincipal?.proteccionesSalida || []).forEach((p, i) => {
-    filasVerificacion.push([
-      `Protección Salida ${i + 1}`,
-      `${p.tipo_proteccion} | In = ${p.in_amp} A`,
-      'Coordinación de Sobrecarga',
-      'CUMPLE'
-    ]);
+    (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        filasVerificacion.push([
+            `Protección Salida ${i + 1} (${tablero.nombre})`,
+            `${ps.proteccion.tipo_proteccion} | In = ${ps.proteccion.in_amp} A`,
+            'Coordinación de Sobrecarga',
+            'CUMPLE'
+        ]);
+    });
   });
 
   if (filasVerificacion.length === 0) {
