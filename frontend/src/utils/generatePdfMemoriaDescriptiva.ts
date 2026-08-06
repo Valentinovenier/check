@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Project, Conductor, DatosCaratula } from '../types/project';
 import { DatosVivienda, CircuitoCalculado, Ambiente } from '../types/vivienda';
+import { PDF_COLORS, PDF_FONTS, cleanMathFormula, drawHeaderFooter } from './pdfStyleTheme';
 
 export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula?: DatosCaratula): void => {
   const doc = new jsPDF({
@@ -28,16 +29,12 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   const marginRight = 15;
   const contentWidth = pageWidth - marginLeft - marginRight;
 
-  const colorPrimary = '#800000'; // Burgundy / Vino tinto técnico
-  const colorDark = '#1E293B';    // Slate 800
-  const colorText = '#334155';    // Slate 700
-
-  // Datos de Vivienda
+  // Extracción de datos de proyecto
   const datosV: DatosVivienda | undefined = project.datosVivienda;
   const supCubierta = datosV?.superficieCubierta || 0;
   const supSemicubierta = datosV?.superficieSemicubierta || 0;
   const superficieTotal = supCubierta + supSemicubierta * 0.5;
-  const gradoElectrif = datosV?.gradoElectrificacion || (superficieTotal > 0 ? (superficieTotal <= 60 ? 'Minimo' : superficieTotal <= 130 ? 'Medio' : superficieTotal <= 200 ? 'Elevado' : 'Superior') : 'No definido');
+  const gradoElectrif = datosV?.gradoElectrificacion || (superficieTotal > 0 ? (superficieTotal <= 60 ? 'Mínimo' : superficieTotal <= 130 ? 'Medio' : superficieTotal <= 200 ? 'Elevado' : 'Superior') : 'No definido');
 
   const circuitos: CircuitoCalculado[] = datosV?.circuitosCalculados || [];
   const ambientes: Ambiente[] = datosV?.ambientes || [];
@@ -46,149 +43,172 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   const dpmsKW = (dpmsVA * (project.cosPhi || 0.85)) / 1000;
   const corrienteTotalA = dpmsVA > 0 ? (dpmsVA / (project.tipoInstalacion === 'Trifásica' ? 380 * Math.sqrt(3) : 220)).toFixed(2) : '-';
 
-  // Header & Footer
-  const addHeaderFooter = (currentPage: number, totalPages: number) => {
-    if (currentPage === 1) return;
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(100);
-
-    doc.text(`MEMORIA DESCRIPTIVA - ${project.name.toUpperCase()}`, marginLeft, 10);
-    doc.setDrawColor(180, 180, 180);
-    doc.setLineWidth(0.3);
-    doc.line(marginLeft, 12, pageWidth - marginRight, 12);
-
-    doc.line(marginLeft, pageHeight - 12, pageWidth - marginRight, pageHeight - 12);
-    doc.text(`Obra: ${project.name}`, marginLeft, pageHeight - 7);
-    doc.text(`Página ${currentPage} de ${totalPages}`, pageWidth - marginRight, pageHeight - 7, { align: 'right' });
-  };
-
   // ====================================================
-  // PÁGINA 1: CARÁTULA
+  // PÁGINA 1: PORTADA INSTITUCIONAL / MEMORIA DESCRIPTIVA
   // ====================================================
-  let cursorY = 25;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.setTextColor(colorPrimary);
+  let cursorY = 22;
+
+  // Título Principal
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.titleSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
   doc.text('MEMORIA DESCRIPTIVA', pageWidth / 2, cursorY, { align: 'center' });
-  cursorY += 15;
+  cursorY += 6;
 
-  doc.setLineWidth(0.8);
-  doc.setDrawColor(0);
-  doc.rect(marginLeft + 10, cursorY, contentWidth - 20, 40);
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.subtitleSize);
+  doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+  doc.text('CARPETA TÉCNICA DE INSTALACIÓN ELÉCTRICA', pageWidth / 2, cursorY, { align: 'center' });
+  cursorY += 12;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(colorDark);
-  doc.text('OBRA:', pageWidth / 2, cursorY + 12, { align: 'center' });
+  // Cuadro de Obra Formal
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.setFillColor(PDF_COLORS.lightBg[0], PDF_COLORS.lightBg[1], PDF_COLORS.lightBg[2]);
+  doc.roundedRect(marginLeft + 5, cursorY, contentWidth - 10, 42, 2, 2, 'FD');
+
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+  doc.text('DENOMINACIÓN DE LA OBRA:', pageWidth / 2, cursorY + 11, { align: 'center' });
+
   doc.setFontSize(13);
-  doc.text(project.name.toUpperCase(), pageWidth / 2, cursorY + 22, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(11);
-  doc.text(`Propietario: ${caratula.propietario}`, pageWidth / 2, cursorY + 32, { align: 'center' });
-  cursorY += 55;
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text(project.name.toUpperCase(), pageWidth / 2, cursorY + 21, { align: 'center' });
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(colorDark);
-  doc.text('Ubicación de la Obra:', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.subHeadingSize);
+  doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+  doc.text(`Propietario: ${caratula.propietario}`, pageWidth / 2, cursorY + 32, { align: 'center' });
+
+  cursorY += 54;
+
+  // Bloque Ubicación
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.subHeadingSize);
+  doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+  doc.text('1. UBICACIÓN Y EMPLAZAMIENTO DE LA OBRA', marginLeft, cursorY);
   cursorY += 6;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(colorText);
-  doc.text(`${caratula.direccion}`, marginLeft, cursorY); cursorY += 5;
-  doc.text(`${caratula.ciudad}${caratula.provincia !== '-' ? ', ' + caratula.provincia : ''}`, marginLeft, cursorY);
+
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.bodySize);
+  doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+  doc.text(`• Dirección: ${caratula.direccion}`, marginLeft + 3, cursorY); cursorY += 5;
+  doc.text(`• Localidad: ${caratula.ciudad}${caratula.provincia !== '-' ? ', ' + caratula.provincia : ''}`, marginLeft + 3, cursorY);
+  cursorY += 12;
+
+  // Bloque Instalador / Proyectista
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.subHeadingSize);
+  doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+  doc.text('2. PROFESIONAL PROYECTISTA / INSTALADOR RESPONSABLE', marginLeft, cursorY);
+  cursorY += 6;
+
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.bodySize);
+  doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+  doc.text(`• Nombre y Apellido: ${caratula.instaladorNombre}`, marginLeft + 3, cursorY); cursorY += 5;
+  doc.text(`• Categoría Profesional: ${caratula.instaladorCategoria !== '-' ? caratula.instaladorCategoria : 'Instalador Electricista Habilitado'}`, marginLeft + 3, cursorY); cursorY += 5;
+  doc.text(`• N° de Matrícula / Registro: ${caratula.instaladorMatricula}`, marginLeft + 3, cursorY); cursorY += 5;
+  doc.text(`• Datos de Contacto: Tel: ${caratula.instaladorTelefono} | Email: ${caratula.instaladorEmail}`, marginLeft + 3, cursorY);
   cursorY += 15;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(colorDark);
-  doc.text(`Instalador Electricista ${caratula.instaladorCategoria !== '-' ? caratula.instaladorCategoria : ''}:`, marginLeft, cursorY);
-  cursorY += 6;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(colorText);
-  doc.text(`${caratula.instaladorNombre}`, marginLeft, cursorY); cursorY += 5;
-  doc.text(`N° Habilitación: ${caratula.instaladorMatricula}`, marginLeft, cursorY); cursorY += 5;
-  doc.text(`Tel.: ${caratula.instaladorTelefono} | Email: ${caratula.instaladorEmail}`, marginLeft, cursorY);
+  // Cuadro Síntesis de Parámetros
+  doc.setLineWidth(0.4);
+  doc.setDrawColor(PDF_COLORS.border[0], PDF_COLORS.border[1], PDF_COLORS.border[2]);
+  doc.setFillColor(255, 255, 255);
+  doc.rect(marginLeft, cursorY, contentWidth, 32);
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(colorPrimary);
-  doc.text('DOCUMENTO TÉCNICO - CARPETA DE INSTALACIÓN ELÉCTRICA', pageWidth / 2, pageHeight - 25, { align: 'center' });
-  doc.setFontSize(8);
-  doc.setTextColor(100);
-  doc.text('Conforme Reglamentación AEA 90364-7-770 / 771', pageWidth / 2, pageHeight - 20, { align: 'center' });
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.subHeadingSize);
+  doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
+  doc.text('RESUMEN DE PARÁMETROS TÉCNICOS PRINCIPALES', marginLeft + 5, cursorY + 7);
+
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.bodySize);
+  doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+  doc.text(`• Superficie Computable Total: ${superficieTotal.toFixed(2)} m² (Cub: ${supCubierta}m² | Semicub: ${supSemicubierta}m²)`, marginLeft + 5, cursorY + 14);
+  doc.text(`• Grado de Electrificación Determinado: ${gradoElectrif.toUpperCase()}`, marginLeft + 5, cursorY + 20);
+  doc.text(`• Demanda de Potencia Máxima Simultánea (DPMS): ${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)`, marginLeft + 5, cursorY + 26);
+
+  // Pie de Portada
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.smallSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('DOCUMENTACIÓN TÉCNICA OFICIAL PARA PRESENTACIÓN REGLAMENTARIA', pageWidth / 2, pageHeight - 25, { align: 'center' });
+  doc.setFont(PDF_FONTS.family, 'normal');
+  doc.setFontSize(PDF_FONTS.footerSize);
+  doc.setTextColor(PDF_COLORS.subtext[0], PDF_COLORS.subtext[1], PDF_COLORS.subtext[2]);
+  doc.text('Conforme Criterios AEA 90364-7-770 (Viviendas Unifamiliares) / AEA 90364-7-771 (Comerciales)', pageWidth / 2, pageHeight - 20, { align: 'center' });
 
   // ====================================================
-  // PÁGINA 2: METODOLOGÍA Y CRITERIOS NORMATIVOS
+  // PÁGINA 2: ESPECIFICACIONES Y METODOLOGÍA
   // ====================================================
   doc.addPage();
   cursorY = 20;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(colorDark);
-  doc.text('1. DESCRIPCIÓN DE LA METODOLOGÍA Y CRITERIOS DE CÁLCULO', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+  doc.text('3. ESPECIFICACIÓN DE LA METODOLOGÍA Y CRITERIOS NORMATIVOS', marginLeft, cursorY);
   cursorY += 8;
 
   const seccionesText = [
     {
-      t: '1.1 Marco Reglamentario de Aplicación',
-      d: 'La presente Memoria Descriptiva especifica los criterios adoptados para la ejecución de las instalaciones eléctricas. Los dimensionamientos y selecciones de equipamiento se realizan de acuerdo riguroso con la Reglamentación AEA 90364-7-770 (Viviendas Unifamiliares) y AEA 90364-7-771 (Comerciales / Oficinas), observando los requisitos esenciales de seguridad eléctrica para personas y bienes.'
+      t: '3.1 Marco Reglamentario de Aplicación',
+      d: 'La presente Memoria Descriptiva establece los criterios técnicos y normativos adoptados para el proyecto. Los cálculos, dimensionamientos y selecciones de materiales responden rigurosamente a las Reglamentaciones AEA 90364-7-770 (Instalaciones en Viviendas Unifamiliares) y AEA 90364-7-771 (Instalaciones en Locales Comerciales y Oficinas), preservando la seguridad de las personas, animales domésticos y bienes.'
     },
     {
-      t: '1.2 Grado de Electrificación y Número de Circuitos',
-      d: `En función de la superficie computable (${superficieTotal.toFixed(2)} m²), se determina el Grado de Electrificación (${gradoElectrif.toUpperCase()}). Con base en este grado, la norma establece la cantidad mínima requerida de circuitos (IUG, TUG, TUE) y puntos mínimos de utilización en cada ambiente.`
+      t: '3.2 Determinación del Grado de Electrificación',
+      d: `En función de la superficie computable (${superficieTotal.toFixed(2)} m²), según la Tabla 770.7.I se determina el Grado de Electrificación (${gradoElectrif.toUpperCase()}). Este valor fija la cantidad mínima de circuitos requeridos (IUG, TUG, TUE) y la cantidad mínima de puntos de utilización (bocas) por cada ambiente.`
     },
     {
-      t: '1.3 Criterios de Demanda Máxima Simultánea y Corrientes de Proyecto',
-      d: 'Las potencias unitarias asignadas consideran 60 VA (o 660 VA según caso) para IUG, 2200 VA para TUG y 3300 VA para TUE. Se aplican los coeficientes de simultaneidad (ks) para obtener la DPMS Total. La corriente de diseño (IB) se determina por tramo mediante IB = S / (U * cos φ).'
+      t: '3.3 Determinación de Potencias e Intensidades de Proyecto',
+      d: 'Se asignan potencias unitarias reglamentarias (60 VA o 660 VA según caso para IUG, 2200 VA para TUG y 3300 VA para TUE). Se aplican los factores de simultaneidad (ks) correspondientes para calcular la DPMS Total. La corriente de diseño por tramo (IB) se deduce mediante la expresión IB = S / (U * cos(phi)).'
     },
     {
-      t: '1.4 Criterios de Selección y Verificación de Conductores',
-      d: 'Cada tramo de conductor cumple con la triple verificación normativa:\n' +
-         '1) Capacidad de Conducción Admisible: Iz = Iz_base * k_temp * k_agrup * k_resist >= IB.\n' +
-         '2) Caída de Tensión Admisible: ΔV% en régimen permanente <= 3% para iluminación/tomacorrientes y <= 5% para fuerza motriz.\n' +
-         '3) Solicitación Térmica en Cortocircuito: la energía pasante del cortocircuito no supera la capacidad térmica del cable, cumpliendo (k * S)² >= I²t.'
+      t: '3.4 Criterios de Selección y Verificación de Conductores',
+      d: 'Todos los conductores especificados cumplen en forma simultánea con las tres verificaciones de seguridad:\n' +
+         '1) Capacidad de Conducción en Régimen Continuo: Iz = Iz_base * kTemp * kAgrup * kResist >= IB.\n' +
+         '2) Caída de Tensión Admisible: dV% en régimen permanente <= 3% para iluminación/tomacorrientes y <= 5% para fuerza motriz.\n' +
+         '3) Solicitación Térmica en Cortocircuito: soporta la energía pasante cumpliendo (k * S)^2 >= I^2 * t.'
     },
     {
-      t: '1.5 Criterios de Protecciones y Seguridad',
-      d: 'Todas las protecciones termomagnéticas (PIAs/MCCBs) se seleccionan cumpliendo IB <= In <= Iz e I2 <= 1.45 * Iz. Su poder de corte asignado (Icn) es igual o superior a la corriente de cortocircuito máxima (I"k_max). Se dispone protección diferencial de alta sensibilidad (30 mA) para salvaguardar contra contactos directos e indirectos, coordinada con la puesta a tierra (PAT).'
+      t: '3.5 Criterios de Protecciones Eléctricas y Seguridad',
+      d: 'Los interruptores termomagnéticos (PIAs) se coordinan respetando las condiciones IB <= In <= Iz e I2 = 1.45 * In <= 1.45 * Iz. Su poder de corte asignado (Icn) resulta superior a la corriente de cortocircuito máxima (I_k_max). Se especifica protección diferencial de alta sensibilidad (Idn = 30 mA) para asegurar la desconexión automática contra contactos indirectos en combinación con el sistema de Puesta a Tierra (PAT).'
     },
     {
-      t: '1.6 Criterios de Electroductos y Canalizaciones',
-      d: 'Los electroductos (caños PVC, rígidos o flexibles, de acero RS/RL) se especifican garantizando que la suma de las secciones transversales de los conductores (incluyendo aislación) no supere el 35% de la sección interna útil del tubo, asegurando la disipación térmica y facilitando el tendido.'
+      t: '3.6 Criterios de Canalizaciones y Electroductos',
+      d: 'Los caños de PVC rígidos o flexibles autoextinguibles (norma IRAM 62386) y canalizaciones metálicas se dimensionan garantizando un factor de ocupación de la sección interna útil de hasta el 35%, asegurando la correcta evacuación del calor en los conductores y facilitando el tendido.'
     }
   ];
 
-  doc.setFontSize(9);
+  doc.setFontSize(PDF_FONTS.bodySize);
   seccionesText.forEach(sec => {
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(colorDark);
-    doc.text(sec.t, marginLeft, cursorY);
+    doc.setFont(PDF_FONTS.family, 'bold');
+    doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+    doc.text(cleanMathFormula(sec.t), marginLeft, cursorY);
     cursorY += 4.5;
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(colorText);
-    const lines = doc.splitTextToSize(sec.d, contentWidth);
+    
+    doc.setFont(PDF_FONTS.family, 'normal');
+    doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+    const lines = doc.splitTextToSize(cleanMathFormula(sec.d), contentWidth);
     doc.text(lines, marginLeft, cursorY);
-    cursorY += lines.length * 4.5 + 4;
+    cursorY += lines.length * 4.2 + 4.5;
   });
 
   // ====================================================
-  // PÁGINA 3: PROTECCIONES Y SECCIONES ADOPTADAS
+  // PÁGINA 3: TABLA DE PROTECCIONES Y CONDUCTORES ADOPTADOS
   // ====================================================
   doc.addPage();
   cursorY = 20;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(colorPrimary);
-  doc.text('2. PROTECCIONES ELÉCTRICAS ADOPTADAS', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('4. TABLA ESPECÍFICA DE PROTECCIONES ADOPTADAS', marginLeft, cursorY);
   cursorY += 7;
 
-  // Tabla Protecciones Adoptadas
   const filasProtecciones: string[][] = [];
   const protTPCab = project.tableroPrincipal?.proteccionCabecera;
   const protTPDif = project.tableroPrincipal?.proteccionDiferencial;
@@ -196,7 +216,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   if (protTPCab) {
     filasProtecciones.push([
       'Tablero Principal (Cabecera)',
-      protTPCab.tipo_proteccion || 'PIA / TM',
+      protTPCab.tipo_proteccion || 'PIA Termomagnética',
       `${protTPCab.in_amp} A`,
       protTPCab.curva_disparo || 'C',
       `${protTPCab.capacidades?.[0]?.icn_ka || 3} kA`,
@@ -207,7 +227,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   if (protTPDif) {
     filasProtecciones.push([
       'Tablero Principal (Diferencial)',
-      protTPDif.tipo_proteccion || 'ID',
+      protTPDif.tipo_proteccion || 'ID Diferencial',
       `${protTPDif.in_amp} A`,
       '-',
       '6 kA',
@@ -231,34 +251,42 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
 
   autoTable(doc, {
     startY: cursorY,
-    head: [['UBICACIÓN / CIRCUITO', 'TIPO PROTECCIÓN', 'In [A]', 'CURVA', 'Icn [kA]', 'Idn [mA]', 'MARCA / NORMA']],
+    head: [['UBICACIÓN / CIRCUITO', 'TIPO PROTECCIÓN', 'In [A]', 'CURVA', 'Icn [kA]', 'Idn [mA]', 'NORMA / MARCA']],
     body: filasProtecciones.length > 0 ? filasProtecciones : [['Sin protecciones asignadas', '-', '-', '-', '-', '-', '-']],
     theme: 'grid',
-    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [50, 50, 50] },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 16, halign: 'center' },
+      3: { cellWidth: 16, halign: 'center' },
+      4: { cellWidth: 18, halign: 'center' },
+      5: { cellWidth: 18, halign: 'center' },
+      6: { cellWidth: 27, halign: 'center' },
+    },
     margin: { left: marginLeft, right: marginRight },
   });
 
   cursorY = (doc as any).lastAutoTable.finalY + 10;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(colorPrimary);
-  doc.text('3. SECCIONES DE CONDUCTORES ADOPTADAS', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('5. TABLA ESPECÍFICA DE CONDUCTORES Y SECCIONES ADOPTADAS', marginLeft, cursorY);
   cursorY += 7;
 
-  // Tabla Secciones Adoptadas
   const filasConductores: string[][] = [];
   if (project.tableroPrincipal?.conductorAlimentacion?.seccion) {
     const condAlim = project.tableroPrincipal.conductorAlimentacion;
     filasConductores.push([
-      'Alimentación TP / Línea Principal',
+      'Alimentador TP / Línea Principal',
       '4.0 mm²',
       `${condAlim.seccion} mm²`,
       `${condAlim.seccion} mm²`,
       `${condAlim.seccion} mm²`,
-      condAlim.resultadoCalculo?.cumpleCapacidadCorriente ? 'Cumple (Iz >= IB)' : 'Cumple',
-      condAlim.resultadoCalculo?.caidaTensionPorcentaje ? `${condAlim.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)}%` : '< 1%',
+      condAlim.resultadoCalculo?.cumpleCapacidadCorriente ? 'Cumple Iz' : 'Cumple',
+      condAlim.resultadoCalculo?.caidaTensionPorcentaje ? `${condAlim.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)}%` : '< 1.0%',
     ]);
   }
 
@@ -266,9 +294,8 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     const cond = obtenerConductorCircuito(project, c.id);
     const secMin = c.tipo.includes('iluminacion') ? '1.5 mm²' : '2.5 mm²';
     const secAdopt = cond?.seccion ? `${cond.seccion} mm²` : secMin;
-    const secPE = cond?.seccion ? `${cond.seccion >= 16 ? cond.seccion : (cond.seccion <= 6 ? 2.5 : cond.seccion)} mm²` : '2.5 mm²';
-    const caida = cond?.resultadoCalculo?.caidaTensionPorcentaje ? `${cond.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)}%` : '< 3%';
-    const izStatus = cond?.resultadoCalculo?.cumpleCapacidadCorriente ? 'Cumple Iz' : 'Cumple';
+    const secPE = cond?.seccion ? `${cond.seccion >= 16 ? cond.seccion : 2.5} mm²` : '2.5 mm²';
+    const caida = cond?.resultadoCalculo?.caidaTensionPorcentaje ? `${cond.resultadoCalculo.caidaTensionPorcentaje.toFixed(2)}%` : '< 3.0%';
 
     filasConductores.push([
       `Cto ${idx + 1}: ${c.nombre}`,
@@ -276,31 +303,40 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
       secAdopt,
       secAdopt,
       secPE,
-      izStatus,
+      'Cumple Iz',
       caida,
     ]);
   });
 
   autoTable(doc, {
     startY: cursorY,
-    head: [['CIRCUITO / TRAMO', 'SEC. MIN. AEA', 'FASE ADOPT.', 'NEUTRO ADOPT.', 'PE ADOPT.', 'VERIF. Iz', 'CAÍDA ΔV%']],
+    head: [['CIRCUITO / TRAMO', 'MÍNIMA AEA', 'FASE ADOPT.', 'NEUTRO ADOPT.', 'PE ADOPT.', 'CAPACIDAD (Iz)', 'CAÍDA (dV%)']],
     body: filasConductores.length > 0 ? filasConductores : [['Sin circuitos configurados', '-', '-', '-', '-', '-', '-']],
     theme: 'grid',
-    headStyles: { fillColor: [128, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+    headStyles: { fillColor: [112, 26, 30], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [50, 50, 50] },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      1: { cellWidth: 22, halign: 'center' },
+      2: { cellWidth: 23, halign: 'center' },
+      3: { cellWidth: 23, halign: 'center' },
+      4: { cellWidth: 22, halign: 'center' },
+      5: { cellWidth: 22, halign: 'center' },
+      6: { cellWidth: 18, halign: 'center' },
+    },
     margin: { left: marginLeft, right: marginRight },
   });
 
   // ====================================================
-  // PÁGINA 4: CANALIZACIONES Y VERIFICACIONES
+  // PÁGINA 4: CANALIZACIONES Y COMPROBACIONES
   // ====================================================
   doc.addPage();
   cursorY = 20;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(colorPrimary);
-  doc.text('4. CANALIZACIONES Y ELECTRODUCTOS USADOS', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('6. CANALIZACIONES Y ELECTRODUCTOS UTILIZADOS', marginLeft, cursorY);
   cursorY += 7;
 
   const filasCanalizaciones: string[][] = [];
@@ -310,19 +346,19 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     const diametro = cantCirc <= 2 ? 'Ø 20 mm (3/4")' : cantCirc <= 4 ? 'Ø 25 mm (1")' : 'Ø 32 mm (1 1/4")';
     filasCanalizaciones.push([
       can.nombre,
-      'Caño de PVC Rígido / Flexible Autoextinguible',
+      'Caño de PVC Rígido / Corrugado Ignífugo',
       diametro,
-      'IRAM 62386 / 2005',
+      'IRAM 62386',
       `${cantCirc} circuitos`,
       `fn = ${factorAgrup}`,
-      '< 35% (Cumple)',
+      '<= 35% (Cumple)',
     ]);
   });
 
   if (filasCanalizaciones.length === 0) {
     filasCanalizaciones.push([
-      'Canalización General por Cielorraso / Pared',
-      'Caño Corrugado / Rígido ignífugo',
+      'Canalización General Embebida en Mampostería',
+      'Caño de PVC Rígido / Flexible Autoextinguible',
       'Ø 20 mm / Ø 25 mm',
       'IRAM 62386',
       '1 a 3 circuitos',
@@ -336,48 +372,61 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     head: [['TRAMO CANALIZACIÓN', 'TIPO MATERIAL', 'DIÁMETRO NOMINAL', 'NORMA CAÑO', 'AGRUPAMIENTO', 'FACTOR fn', 'OCUPACIÓN S%']],
     body: filasCanalizaciones,
     theme: 'grid',
-    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [50, 50, 50] },
+    columnStyles: {
+      0: { cellWidth: 42 },
+      1: { cellWidth: 45 },
+      2: { cellWidth: 23, halign: 'center' },
+      3: { cellWidth: 20, halign: 'center' },
+      4: { cellWidth: 20, halign: 'center' },
+      5: { cellWidth: 15, halign: 'center' },
+      6: { cellWidth: 15, halign: 'center' },
+    },
     margin: { left: marginLeft, right: marginRight },
   });
 
   cursorY = (doc as any).lastAutoTable.finalY + 10;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(colorPrimary);
-  doc.text('5. COMPROBACIÓN REGLAMENTARIA DE VERIFICACIONES CRÍTICAS', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('7. MATRIZ DE COMPROBACIONES REGLAMENTARIAS DE SEGURIDAD', marginLeft, cursorY);
   cursorY += 7;
 
   autoTable(doc, {
     startY: cursorY,
     head: [['VERIFICACIÓN REGLAMENTARIA', 'CRITERIO / FÓRMULA NORMATIVA', 'ESTADO REGLAMENTARIO']],
     body: [
-      ['Capacidad de Conducción en Régimen', 'IB <= In <= Iz (con factores de temperatura y agrupamiento)', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Protección contra Sobrecargas', 'I2 = 1.45 * In <= 1.45 * Iz', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Verificación de Caída de Tensión', 'ΔV% <= 3% (Alumbrado/Tomas) / <= 5% (Fuerza Motriz)', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Poder de Corte en Cortocircuito', 'Icn (Protección) >= I"k_max (Punto de instalación)', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Solicitación Térmica del Cable', '(k * S)² >= I²t (Energía pasante)', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Desconexión ante Cortocircuito Mínimo', 'I"k_min > Im (Disparo magnético instantáneo)', 'CUMPLE SATISFACTORIAMENTE'],
-      ['Protección Diferencial y Contactos Indirectos', 'Idn = 30 mA | Ra * Idn <= 24V (Ambientes secos/húmedos)', 'CUMPLE SATISFACTORIAMENTE'],
+      ['Capacidad de Conducción en Régimen', cleanMathFormula('IB <= In <= Iz (con factores kTemp, kAgrup)'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Protección contra Sobrecargas', cleanMathFormula('I2 = 1.45 * In <= 1.45 * Iz'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Verificación de Caída de Tensión', cleanMathFormula('dV% <= 3.0% (Iluminación/Tomas) / <= 5.0% (Fuerza Motriz)'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Poder de Corte en Cortocircuito', cleanMathFormula('Icn (Protección) >= I_k_max (Punto de instalación)'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Solicitación Térmica del Cable', cleanMathFormula('(k * S)^2 >= I^2 * t (Energía pasante)'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Desconexión ante Cortocircuito Mínimo', cleanMathFormula('I_k_min > Im (Disparo magnético instantáneo)'), 'CUMPLE SATISFACTORIAMENTE'],
+      ['Protección Diferencial y Puesta a Tierra', cleanMathFormula('Idn = 30 mA | Ra * Idn <= 24V (Tensión límite)'), 'CUMPLE SATISFACTORIAMENTE'],
     ],
     theme: 'grid',
-    headStyles: { fillColor: [128, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-    bodyStyles: { fontSize: 8, textColor: [40, 40, 40] },
-    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 65 } },
+    headStyles: { fillColor: [112, 26, 30], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
+    bodyStyles: { fontSize: 7.5, textColor: [40, 40, 40] },
+    columnStyles: {
+      0: { fontStyle: 'bold', cellWidth: 60 },
+      1: { cellWidth: 80 },
+      2: { cellWidth: 40, halign: 'center', fontStyle: 'bold' }
+    },
     margin: { left: marginLeft, right: marginRight },
   });
 
   // ====================================================
-  // PÁGINA 5: LISTADO DE MATERIALES
+  // PÁGINA 5: LISTADO COMPLETO DE MATERIALES (BOM)
   // ====================================================
   doc.addPage();
   cursorY = 20;
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(colorPrimary);
-  doc.text('6. LISTADO DE MATERIALES CALCULADOS Y ESPECIFICADOS', marginLeft, cursorY);
+  doc.setFont(PDF_FONTS.family, 'bold');
+  doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+  doc.setTextColor(PDF_COLORS.burgundy[0], PDF_COLORS.burgundy[1], PDF_COLORS.burgundy[2]);
+  doc.text('8. LISTADO ESPECÍFICO DE MATERIALES CALCULADOS (BOM)', marginLeft, cursorY);
   cursorY += 8;
 
   const materiales = generarListadoMateriales(project, circuitos, ambientes);
@@ -386,15 +435,15 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     head: [['ITEM', 'CATEGORÍA', 'CANT.', 'UNID.', 'DESCRIPCIÓN TÉCNICA DEL COMPONENTE', 'NORMA / MARCA']],
     body: materiales.length > 0 ? materiales : [['1', 'General', '1', 'gbl', 'Componentes varios', 'AEA']],
     theme: 'grid',
-    headStyles: { fillColor: [128, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [40, 40, 40] },
     columnStyles: {
       0: { cellWidth: 12, halign: 'center' },
-      1: { cellWidth: 28 },
+      1: { cellWidth: 26 },
       2: { cellWidth: 14, halign: 'center' },
       3: { cellWidth: 14, halign: 'center' },
-      4: { cellWidth: 80 },
-      5: { cellWidth: 32 },
+      4: { cellWidth: 84 },
+      5: { cellWidth: 30, halign: 'center' },
     },
     margin: { left: marginLeft, right: marginRight },
   });
@@ -403,7 +452,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   const totalPages = (doc.internal as any).getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
-    addHeaderFooter(i, totalPages);
+    drawHeaderFooter(doc, i, totalPages, 'Memoria Descriptiva', project.name);
   }
 
   doc.save(`Memoria_Descriptiva_${project.name.replace(/\s+/g, '_')}.pdf`);

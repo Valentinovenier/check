@@ -8,7 +8,7 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
   const supCub = datosV?.superficieCubierta || 0;
   const supSemi = datosV?.superficieSemicubierta || 0;
   const supTotal = supCub + supSemi * 0.5;
-  const grado = datosV?.gradoElectrificacion || (supTotal <= 60 ? 'Minimo' : supTotal <= 130 ? 'Medio' : supTotal <= 200 ? 'Elevado' : 'Superior');
+  const grado = datosV?.gradoElectrificacion || (supTotal <= 60 ? 'Mínimo' : supTotal <= 130 ? 'Medio' : supTotal <= 200 ? 'Elevado' : 'Superior');
   const circuitos = datosV?.circuitosCalculados || [];
   const ambientes = datosV?.ambientes || [];
   const dpmsVA = datosV?.potenciaMaximaSimultanea || (project.tableroPrincipal as any)?.potenciaTotal || 0;
@@ -40,14 +40,14 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
   return (
     <div className="space-y-6 text-slate-200">
       {/* Header Memoria de Cálculo */}
-      <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 flex justify-between items-center flex-wrap gap-4">
+      <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 flex justify-between items-center flex-wrap gap-4 shadow-md">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Calculator className="text-emerald-400" size={24} />
             Memoria de Cálculo Paso a Paso (Toda la Aplicación)
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Desglose analítico de procedimientos, fórmulas, matrices de carga y verificaciones reglamentarias AEA 770.
+            Desglose analítico de procedimientos, fórmulas numéricas sustituidas y matrices de verificación AEA 90364.
           </p>
         </div>
         <div className="bg-emerald-950/60 border border-emerald-800/60 px-4 py-2 rounded-xl text-right">
@@ -84,12 +84,12 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
                 <span className="text-sm font-bold text-emerald-400">{supTotal.toFixed(2)} m²</span>
               </div>
             </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p>
-                <strong>Fórmula AEA 770.7.I:</strong> Stotal = Scub + 0.5 &times; Ssemicub = {supCub.toFixed(2)} + {(supSemi * 0.5).toFixed(2)} = <strong className="text-emerald-400">{supTotal.toFixed(2)} m²</strong>.
+            <div className="p-4 bg-slate-900/80 rounded-lg border border-slate-800 space-y-1 font-mono">
+              <p className="text-slate-200">
+                <strong>Fórmula AEA 770.7.I:</strong> S<sub>total</sub> = S<sub>cubierta</sub> + 0.5 &times; S<sub>semicubierta</sub> = {supCub.toFixed(2)} + {(supSemi * 0.5).toFixed(2)} = <strong className="text-emerald-400">{supTotal.toFixed(2)} m²</strong>.
               </p>
-              <p className="mt-1 text-slate-400">
-                Resultado: Para Stotal = {supTotal.toFixed(2)} m² se adopta el Grado de Electrificación <strong className="text-emerald-400">{grado.toUpperCase()}</strong>.
+              <p className="text-slate-400 text-[11px]">
+                Resultado: Para S<sub>total</sub> = {supTotal.toFixed(2)} m² corresponde el Grado de Electrificación <strong className="text-emerald-400">{grado.toUpperCase()}</strong>.
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
               <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
                 <h4 className="font-bold text-white text-sm">Corriente de Diseño de Alimentación (IB)</h4>
                 <p className="font-mono text-slate-300">
-                  IB = DPMS / (U &times; cos φ) = {dpmsVA.toFixed(0)} / ({project.tipoInstalacion === 'Trifásica' ? '380 &times; √3' : '220'} &times; {project.cosPhi || 0.85})
+                  I<sub>B</sub> = S / (U &times; cos φ) = {dpmsVA.toFixed(0)} VA / ({project.tipoInstalacion === 'Trifásica' ? '380 &times; &radic;3' : '220 V'} &times; {project.cosPhi || 0.85})
                 </p>
                 <div className="pt-2 font-mono flex justify-between border-t border-slate-800 text-white">
                   <span>Corriente de Alimentación IB:</span>

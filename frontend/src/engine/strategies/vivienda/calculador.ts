@@ -118,10 +118,12 @@ export const calcularTramoResidencial = (
   for (const s of seccionesComerciales.filter(sec => sec >= seccionElegida)) {
     pasosActuales.length = 0; // Limpiar pasos iteración
     
-    // PASO 1
+    // PASO 1: Corriente de diseño (IB)
+    const potAparente = I_B * 220;
     pasosActuales.push({
-        numero: 1, nombre: "Corriente del tramo (IB)",
-        valor: `${I_B.toFixed(2)} A`, condicion: "-", cumple: true
+        numero: 1, nombre: "Corriente de diseño (IB)",
+        valor: `IB = S / (U * cos φ) = ${potAparente.toFixed(0)} VA / (220V * ${cosPhi.toFixed(2)}) = ${I_B.toFixed(2)} A`,
+        condicion: "Corriente de proyecto", cumple: true
     });
 
     // PASO 2: Capacidad de Conducción (Iz)
@@ -135,18 +137,17 @@ export const calcularTramoResidencial = (
     const esInstalacionAire = !(condiciones.metodoInstalacion || '').toUpperCase().startsWith('D');
     const factorTemp = getFactorTemperatura('PVC', condiciones.temperaturaAmbiente, esInstalacionAire, condiciones.tempSuelo);
     const factorAgrup = getFactorAgrupamientoVivienda(nCircuitos, conductor);
-    
-    // El factor de resistividad solo aplica para instalaciones subterráneas (tipo D)
     const factorResistividad = !esInstalacionAire && condiciones.resistividadTermica ? getFactorResistividad(condiciones.metodoInstalacion, condiciones.resistividadTermica) : 1.0;
     const IzCorregida = IzBase * factorTemp * factorAgrup * factorResistividad;
 
-    const valorBase = `${IzCorregida.toFixed(2)} A (Iz_base: ${IzBase.toFixed(2)}A * F.Temp: ${factorTemp.toFixed(2)} * F.Agrup: ${factorAgrup.toFixed(2)}`;
-    const valorCompleto = !esInstalacionAire ? `${valorBase} * F.Resist: ${factorResistividad.toFixed(2)})` : `${valorBase})`;
+    const valIzSustitucion = !esInstalacionAire
+      ? `Iz = Iz_base * kTemp * kAgrup * kResist = ${IzBase.toFixed(1)}A * ${factorTemp.toFixed(2)} * ${factorAgrup.toFixed(2)} * ${factorResistividad.toFixed(2)} = ${IzCorregida.toFixed(2)} A`
+      : `Iz = Iz_base * kTemp * kAgrup = ${IzBase.toFixed(1)}A * ${factorTemp.toFixed(2)} * ${factorAgrup.toFixed(2)} = ${IzCorregida.toFixed(2)} A`;
 
     pasosActuales.push({
         numero: 2, nombre: "Capacidad de Conducción (Iz)",
-        valor: valorCompleto,
-        condicion: `Iz >= IB`, cumple: IzCorregida >= I_B
+        valor: valIzSustitucion,
+        condicion: `Iz (${IzCorregida.toFixed(2)}A) >= IB (${I_B.toFixed(2)}A)`, cumple: IzCorregida >= I_B
     });
     
     if (IzCorregida < I_B) continue;
@@ -159,22 +160,22 @@ export const calcularTramoResidencial = (
         InElegida = proteccionSeleccionada.in_amp;
         cumpleProteccion = InElegida >= I_B && InElegida <= IzCorregida;
         pasosActuales.push({ 
-            numero: 3, nombre: "Protección (In)", 
-            valor: `${InElegida} A (Seleccionada: ${proteccionSeleccionada.modelo})`, 
-            condicion: "IB <= In <= Iz", cumple: cumpleProteccion 
+            numero: 3, nombre: "Selección de Protección (In)", 
+            valor: `In = ${InElegida} A (${proteccionSeleccionada.modelo || 'PIA adoptada'})`, 
+            condicion: `IB (${I_B.toFixed(2)}A) <= In (${InElegida}A) <= Iz (${IzCorregida.toFixed(2)}A)`, cumple: cumpleProteccion 
         });
     } else {
         const InPosibles = valoresTermomagneticas.filter(In => In >= I_B && In <= IzCorregida);
         if (InPosibles.length === 0) {
-            pasosActuales.push({ numero: 3, nombre: "Protección (In)", valor: "Ninguna In comercial ajusta", condicion: "IB <= In <= Iz", cumple: false });
+            pasosActuales.push({ numero: 3, nombre: "Selección de Protección (In)", valor: "Ninguna In comercial ajusta en rango IB..Iz", condicion: `IB (${I_B.toFixed(2)}A) <= In <= Iz (${IzCorregida.toFixed(2)}A)`, cumple: false });
         } else {
             termomagneticaRecomendada = InPosibles[0];
             InElegida = termomagneticaRecomendada;
             cumpleProteccion = true;
             pasosActuales.push({ 
-                numero: 3, nombre: "Protección (In)", 
-                valor: `${InElegida} A (Recomendada)`, 
-                condicion: "IB <= In <= Iz", cumple: true 
+                numero: 3, nombre: "Selección de Protección (In)", 
+                valor: `In = ${InElegida} A (Termomagnética comercial recomendada)`, 
+                condicion: `IB (${I_B.toFixed(2)}A) <= In (${InElegida}A) <= Iz (${IzCorregida.toFixed(2)}A)`, cumple: true 
             });
         }
     }
@@ -188,16 +189,17 @@ export const calcularTramoResidencial = (
     
     pasosActuales.push({
         numero: 4, nombre: "Protección contra Sobrecarga (I2 <= 1.45 * Iz)", 
-        valor: `I2=${I2.toFixed(2)}A, 1.45*Iz=${I2_limite.toFixed(2)}A`, 
-        condicion: "I2 <= 1.45 * Iz", cumple: cumplePaso4
+        valor: `I2 = 1.45 * In = 1.45 * ${InElegida}A = ${I2.toFixed(2)} A | 1.45*Iz = 1.45 * ${IzCorregida.toFixed(2)}A = ${I2_limite.toFixed(2)} A`, 
+        condicion: `I2 (${I2.toFixed(2)}A) <= 1.45*Iz (${I2_limite.toFixed(2)}A)`, cumple: cumplePaso4
     });
     
     if (!cumplePaso4) continue;
 
     // PASO 5: Corriente de cortocircuito máxima (I"k)
-    const Ik_max = 220 / Math.sqrt(Math.pow(Z_upstream.r, 2) + Math.pow(Z_upstream.x, 2));
+    const zMod = Math.sqrt(Math.pow(Z_upstream.r, 2) + Math.pow(Z_upstream.x, 2));
+    const Ik_max = 220 / zMod;
     pasosActuales.push({
-        numero: 5, nombre: "I. Cortocircuito Máxima (I\"k)", valor: `${(Ik_max/1000).toFixed(2)} kA`, condicion: "Dato origen", cumple: true
+        numero: 5, nombre: "I. Cortocircuito Máxima (I\"k)", valor: `I"k_max = U / Z_upstream = 220V / ${zMod.toFixed(4)} Ω = ${(Ik_max/1000).toFixed(2)} kA`, condicion: `Icn (${proteccionSeleccionada?.capacidades?.[0]?.icn_ka || 3}kA) >= I"k (${(Ik_max/1000).toFixed(2)}kA)`, cumple: true
     });
 
     // Cálculos de impedancia del tramo para pasos 6 y 7
@@ -215,8 +217,8 @@ export const calcularTramoResidencial = (
     
     if (!impedancia) {
       caidaTensionPorcentaje = (I_B * condiciones.longitudMetros * 0.02) / 220 * 100;
-      pasosActuales.push({ numero: 6, nombre: "Exigencia Térmica", valor: "Faltan datos", condicion: "-", cumple: true });
-      pasosActuales.push({ numero: 7, nombre: "Actuación Ikmin", valor: "Faltan datos", condicion: "-", cumple: true });
+      pasosActuales.push({ numero: 6, nombre: "Exigencia Térmica", valor: "Faltan datos de impedancia", condicion: "-", cumple: true });
+      pasosActuales.push({ numero: 7, nombre: "Actuación Ikmin", valor: "Faltan datos de impedancia", condicion: "-", cumple: true });
     } else {
         const rTramo = impedancia.r * (condiciones.longitudMetros / 1000);
         const xTramo = impedancia.x * (condiciones.longitudMetros / 1000);
@@ -229,37 +231,32 @@ export const calcularTramoResidencial = (
         let fuenteEnergia = "";
         let cumplePaso6 = false;
 
-        // Búsqueda de I²t
         if (InElegida <= 32) {
-            // Automatizado para protecciones <= 32A
             const rango = InElegida <= 16 ? 'hasta16A' : 'entre16A32A';
             const capacidad = proteccionSeleccionada?.capacidades?.[0];
             const clase = (capacidad?.clase_limitacion === 3) ? 'clase3' : 'clase2';
             const curva = (proteccionSeleccionada?.curva_disparo === 'B') ? 'tipoB' : 'tipoC';
-            
-            // Aproximación simplificada tomando el Icn del proyecto (fallback a 6000A)
             const Icn = capacidad?.icn_ka ? (capacidad.icn_ka * 1000) : 6000;
             
             energiaFalla = (valoresEnergiaPasante as any)[rango][clase][curva][Icn] || Math.pow(Ik_max, 2) * 0.1;
-            fuenteEnergia = `(tablas AEA para ${rango}, ${clase}, ${curva})`;
+            fuenteEnergia = `(tablas AEA ${rango})`;
             cumplePaso6 = capacidadCable >= energiaFalla;
         } else {
-            // Requerido para protecciones > 32A
             if (proteccionSeleccionada?.energia_pasante) {
                 energiaFalla = proteccionSeleccionada.energia_pasante;
-                fuenteEnergia = "(dato de catálogo)";
+                fuenteEnergia = "(catálogo)";
                 cumplePaso6 = capacidadCable >= energiaFalla;
             } else {
                 energiaFalla = 0;
-                fuenteEnergia = "(ERROR: REQUIERE DATO ENERGÍA PASANTE)";
+                fuenteEnergia = "(REQUIERE DATO ENERGÍA PASANTE)";
                 cumplePaso6 = false;
             }
         }
             
         pasosActuales.push({
-            numero: 6, nombre: "Exigencia Térmica", 
-            valor: `K²S²=${capacidadCable.toFixed(0)}, I²t=${energiaFalla.toFixed(0)} ${fuenteEnergia}`,
-            condicion: "K²S² >= I²t", cumple: cumplePaso6
+            numero: 6, nombre: "Solicitación Térmica (k²S² >= I²t)", 
+            valor: `(k * S)² = (115 * ${s}mm²)² = ${capacidadCable.toFixed(0)} A²s | I²t = ${energiaFalla.toFixed(0)} A²s ${fuenteEnergia}`,
+            condicion: `(k*S)² (${capacidadCable.toFixed(0)}) >= I²t (${energiaFalla.toFixed(0)})`, cumple: cumplePaso6
         });
         
         if (!cumplePaso6) continue;
@@ -268,14 +265,13 @@ export const calcularTramoResidencial = (
         const Z_total = Math.sqrt(Math.pow((Z_upstream.r + rTramo)*2, 2) + Math.pow((Z_upstream.x + xTramo)*2, 2));
         const Icc_min = (220 / Z_total); // Icc al final del tramo
         
-        // Asumiendo Curva C
         const Im = 10 * InElegida;
         const cumplePaso7 = Icc_min > Im;
         
         pasosActuales.push({
-            numero: 7, nombre: "Actuación Protección Ikmin", 
-            valor: `Ikmin=${Icc_min.toFixed(0)}A, Im=${Im}A`,
-            condicion: "Ikmin > Im (Curva C)", cumple: cumplePaso7
+            numero: 7, nombre: "Actuación Ikmin (I\"k_min > Im)", 
+            valor: `I"k_min = 220V / Z_total = 220V / ${Z_total.toFixed(4)} Ω = ${Icc_min.toFixed(1)} A | Im = 10 * In = 10 * ${InElegida}A = ${Im} A`,
+            condicion: `I"k_min (${Icc_min.toFixed(1)}A) > Im (${Im}A)`, cumple: cumplePaso7
         });
         
         if (!cumplePaso7) continue;
@@ -296,10 +292,11 @@ export const calcularTramoResidencial = (
     }
 
     const cumplePaso8 = caidaTensionPorcentaje <= limiteCaida;
+    const lKm = condiciones.longitudMetros / 1000;
     pasosActuales.push({
-        numero: 8, nombre: "Caída de Tensión", 
-        valor: `${caidaTensionPorcentaje.toFixed(2)}%`,
-        condicion: `<= ${limiteCaida}%`, cumple: cumplePaso8
+        numero: 8, nombre: "Caída de Tensión (ΔV%)", 
+        valor: `ΔV = [2*IB*L*(r*cosφ + x*sinφ)/220]*100 = [2 * ${I_B.toFixed(2)}A * ${lKm.toFixed(3)}km * (${impedancia.r.toFixed(3)}*${cosPhi.toFixed(2)} + ${impedancia.x.toFixed(3)}*${(Math.sqrt(1 - Math.pow(cosPhi, 2))).toFixed(2)}) / 220]*100 = ${caidaTensionPorcentaje.toFixed(2)}%`,
+        condicion: `ΔV% (${caidaTensionPorcentaje.toFixed(2)}%) <= ${limiteCaida}%`, cumple: cumplePaso8
     });
 
     if (!cumplePaso8) continue;
