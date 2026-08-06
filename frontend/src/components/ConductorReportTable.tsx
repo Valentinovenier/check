@@ -25,10 +25,7 @@ export const ConductorReportTable: React.FC<Props> = ({ project, onDelete }) => 
             <th className="px-4 py-3">Tramo</th>
             <th className="px-4 py-3">Origen</th>
             <th className="px-4 py-3">Destino</th>
-            <th className="px-4 py-3">Cable</th>
             <th className="px-4 py-3">Sección</th>
-            <th className="px-4 py-3">I. Adm.</th>
-            <th className="px-4 py-3">Caída V.</th>
             {onDelete && <th className="px-4 py-3 text-right">Acción</th>}
             </tr>
             </thead>
@@ -40,10 +37,7 @@ export const ConductorReportTable: React.FC<Props> = ({ project, onDelete }) => 
                 <td className="px-4 py-3 font-medium text-white">{c.tipoTramo || '—'}</td>
                 <td className="px-4 py-3 text-slate-400">{(c as any).origenNombre || '—'}</td>
                 <td className="px-4 py-3 text-slate-400">{(c as any).destinoNombre || '—'}</td>
-                <td className="px-4 py-3 text-amber-400">{c.aislacion} {c.material} {c.normaCable || ''}</td>
-                <td className="px-4 py-3 font-bold text-emerald-400">{res?.cable?.seccion ? `${res.cable.seccion} mm²` : '—'}</td>
-                <td className="px-4 py-3">{res?.I_adm_corregida?.toFixed(1)} A</td>
-                <td className="px-4 py-3">{res?.porcentajeCaida?.toFixed(2)}%</td>
+                <td className="px-4 py-3 font-bold text-emerald-400">{c.seccion ? `${c.seccion} mm²` : '—'}</td>
                 {onDelete && (
                   <td className="px-4 py-3 text-right">
                     <button
