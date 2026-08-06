@@ -1,3 +1,4 @@
+import React from 'react';
 import { Project, Conductor } from '../../types/project';
 import { ShieldCheck, Zap, Layers, FileCheck, CheckCircle2, Box } from 'lucide-react';
 
