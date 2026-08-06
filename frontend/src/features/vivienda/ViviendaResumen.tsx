@@ -57,7 +57,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                         <span className="text-slate-300">{c.siglaEspecifica}</span>
                         <span className="text-indigo-300 font-mono">
                             {c.potencia} {c.unidadPotencia} × {c.coefUtilizacion} × {c.coefSimultaneidad} = {(
-                                (c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.8 : (c.potencia || 0)) * 
+                                (c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.85 : (c.potencia || 0)) * 
                                 (c.coefUtilizacion || 1) * 
                                 (c.coefSimultaneidad || 1)
                             ).toFixed(0)} VA
