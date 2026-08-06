@@ -35,7 +35,7 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
         <option value="">Seleccionar protección...</option>
         {disponibles.map(p => (
           <option key={p.id} value={p.id}>
-            {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A)
+            {p.marca || 'Genérica'} | {p.modelo} | {p.tipo_proteccion} | {p.in_amp} A | {p.curva_disparo || '-'} | {p.polos}P
           </option>
         ))}
       </select>
