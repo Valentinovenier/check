@@ -151,7 +151,7 @@ export const ProteccionesPage = () => {
                       />
                       {tablero.proteccionCabecera && (
                           <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                              Asignado: {tablero.proteccionCabecera.modelo}
+                              Asignado: {tablero.proteccionCabecera.modelo} | {tablero.proteccionCabecera.in_amp}A | Icn: {tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3}kA
                           </div>
                       )}
                       <AsignacionProteccion 
@@ -162,7 +162,7 @@ export const ProteccionesPage = () => {
                       />
                       {tablero.proteccionDiferencial && (
                           <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                              Asignado: {tablero.proteccionDiferencial.modelo}
+                              Asignado: {tablero.proteccionDiferencial.modelo} | {tablero.proteccionDiferencial.in_amp}A | Icn: {tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3}kA
                           </div>
                       )}
 

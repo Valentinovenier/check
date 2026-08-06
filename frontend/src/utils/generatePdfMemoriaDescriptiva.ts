@@ -231,7 +231,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
         tablero.proteccionDiferencial.tipo_proteccion || 'ID',
         `${tablero.proteccionDiferencial.in_amp} A`,
         '-',
-        '6 kA',
+        `${tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA`,
         `${tablero.proteccionDiferencial.sensibilidad || 30} mA`,
         tablero.proteccionDiferencial.marca || 'Normalizada',
       ]);
@@ -497,30 +497,43 @@ function generarListadoMateriales(project: Project, circuitos: CircuitoCalculado
   const list: string[][] = [];
   let itemIdx = 1;
 
-  const protCabecera = project.tableroPrincipal?.proteccionCabecera;
-  if (protCabecera) {
-    list.push([
-      `1.${itemIdx++}`,
-      'Protecciones',
-      '1',
-      'un.',
-      `Protección Cabecera TP: Termomagnética ${protCabecera.in_amp}A ${protCabecera.curva_disparo || 'C'}`,
-      protCabecera.marca || 'IEC 60898',
-    ]);
-  }
+  const tableros = project.datosVivienda?.tableros || [];
 
-  const protDif = project.tableroPrincipal?.proteccionDiferencial;
-  if (protDif) {
-    list.push([
-      `1.${itemIdx++}`,
-      'Protecciones',
-      '1',
-      'un.',
-      `Interruptor Diferencial TP: ${protDif.in_amp}A / 30mA`,
-      protDif.marca || 'IEC 61008',
-    ]);
-  }
+  tableros.forEach(tablero => {
+    if (tablero.proteccionCabecera) {
+      list.push([
+        `1.${itemIdx++}`,
+        'Protecciones',
+        '1',
+        'un.',
+        `${tablero.nombre} - Cabecera: ${tablero.proteccionCabecera.modelo} (${tablero.proteccionCabecera.in_amp}A)`,
+        tablero.proteccionCabecera.marca || 'Normalizada',
+      ]);
+    }
+    if (tablero.proteccionDiferencial) {
+      list.push([
+        `1.${itemIdx++}`,
+        'Protecciones',
+        '1',
+        'un.',
+        `${tablero.nombre} - Diferencial: ${tablero.proteccionDiferencial.in_amp}A / ${tablero.proteccionDiferencial.sensibilidad || 30}mA`,
+        tablero.proteccionDiferencial.marca || 'Normalizada',
+      ]);
+    }
 
+    (tablero.proteccionesSalida || []).forEach(ps => {
+      list.push([
+        `1.${itemIdx++}`,
+        'Protecciones',
+        '1',
+        'un.',
+        `${tablero.nombre} - Salida: ${ps.proteccion.modelo} (${ps.proteccion.in_amp}A)`,
+        ps.proteccion.marca || 'Normalizada',
+      ]);
+    });
+  });
+
+  // Circuitos (buscando protecciones)
   circuitos.forEach((c) => {
     if (c.proteccion) {
       list.push([
