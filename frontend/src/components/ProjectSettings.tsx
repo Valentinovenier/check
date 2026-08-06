@@ -71,7 +71,7 @@ export const ProjectSettings = ({ project, onChange, onSave, onDelete }: { proje
       
       {project.projectType !== 'Vivienda' && (
         <section className="bg-[var(--bg-primary)] p-4 rounded-xl border border-slate-700">
-            <h3 className="text-xl font-bold text-white mb-4">Canalizaciones</h3>
+            <h3 className="text-xl font-bold text-white mb-4"> Canalizaciones y Normas</h3>
             <div className="space-y-2">
                 {(project.canalizaciones || []).map((can: Canalizacion) => (
                     <div key={can.id} className="flex gap-2 items-center">
