@@ -37,38 +37,42 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
         {/* Desglose de Grado */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
             <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                <Zap size={16} /> DPMS Grado de Electrificación ({grado})
+                <Zap size={16} /> DPMS (IUG-TUG-C.Especial) ({grado})
             </h3>
             <div className="text-sm text-slate-300 space-y-1">
                 <div className="flex justify-between"><span>Potencia Instalada:</span> <span>{potenciaInstalada.toFixed(0)} VA</span></div>
                 <div className="flex justify-between border-b border-slate-800 pb-2"><span>Factor Simultaneidad:</span> <span>{factorSimultaneidadGrado}</span></div>
-                <div className="flex justify-between font-bold pt-2 text-white"><span>DPMS Grado:</span> <span>{DPMS_Grado.toFixed(0)} VA</span></div>
+                <div className="flex justify-between font-bold pt-2 text-white"><span>DPMS1:</span> <span>{DPMS_Grado.toFixed(0)} VA</span></div>
             </div>
         </div>
 
         {/* Desglose Específicas */}
         <div className="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
             <h3 className="text-sm font-bold text-indigo-400 flex items-center gap-2">
-                <Info size={16} /> DPMS Cargas Específicas
+                <Info size={16} /> DPMS (Cargas Específicas)
             </h3>
             <div className="space-y-2">
                 {datos.circuitosCalculados.filter(c => c.esEspecifico).map((c, i) => (
                     <div key={i} className="text-[11px] bg-slate-800 p-2 rounded flex justify-between">
                         <span className="text-slate-300">{c.siglaEspecifica}</span>
                         <span className="text-indigo-300 font-mono">
-                            {c.potencia} {c.unidadPotencia} × {c.coefUtilizacion} × {c.coefSimultaneidad} = {( (c.potencia || 0) * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1)).toFixed(0)} VA
+                            {c.potencia} {c.unidadPotencia} × {c.coefUtilizacion} × {c.coefSimultaneidad} = {(
+                                (c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.8 : (c.potencia || 0)) * 
+                                (c.coefUtilizacion || 1) * 
+                                (c.coefSimultaneidad || 1)
+                            ).toFixed(0)} VA
                         </span>
                     </div>
                 ))}
                 {datos.circuitosCalculados.filter(c => c.esEspecifico).length === 0 && <span className="text-xs text-slate-500 italic">No hay cargas específicas.</span>}
-                <div className="flex justify-between font-bold pt-2 border-t border-slate-700 text-white"><span>Total Específicas:</span> <span>{DPMS_Específicas.toFixed(0)} VA</span></div>
+                <div className="flex justify-between font-bold pt-2 border-t border-slate-700 text-white"><span>DPMS2:</span> <span>{DPMS_Específicas.toFixed(0)} VA</span></div>
             </div>
         </div>
       </div>
 
       {/* Carga Total y Advertencias */}
       <div className="bg-indigo-900/20 p-5 rounded-xl border border-indigo-800 flex justify-between items-center">
-        <span className="text-lg font-bold text-white">Carga Total del Inmueble:</span>
+        <span className="text-lg font-bold text-white">DPMS Total:</span>
         <span className="text-2xl font-bold text-emerald-400">{cargaTotal.toFixed(0)} VA</span>
       </div>
 
