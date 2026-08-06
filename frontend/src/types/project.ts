@@ -54,6 +54,7 @@ export interface Proteccion {
   marca?: 'Schneider' | 'ABB';
   capacidades: { tension_v: number; icn_ka: number; clase_limitacion: number }[];
   energia_pasante?: number;
+  sensibilidad?: number;
 }
 
 export interface Transformador {
