@@ -27,14 +27,13 @@ export const ConductorReportTable: React.FC<Props> = ({ project, onDelete }) => 
             <th className="px-4 py-3">Destino</th>
             <th className="px-4 py-3">Cable</th>
             <th className="px-4 py-3">Sección</th>
-            <th className="px-4 py-3">Cant.</th>
             <th className="px-4 py-3">I. Adm.</th>
             <th className="px-4 py-3">Caída V.</th>
             {onDelete && <th className="px-4 py-3 text-right">Acción</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {conductores.map((c, index) => {
+            </tr>
+            </thead>
+            <tbody>
+            {conductores.map((c, index) => {
             const res = c.resultadoCalculo;
             return (
               <tr key={index} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
@@ -43,12 +42,11 @@ export const ConductorReportTable: React.FC<Props> = ({ project, onDelete }) => 
                 <td className="px-4 py-3 text-slate-400">{(c as any).destinoNombre || '—'}</td>
                 <td className="px-4 py-3 text-amber-400">{c.aislacion} {c.material} {c.normaCable || ''}</td>
                 <td className="px-4 py-3 font-bold text-emerald-400">{res?.cable?.seccion ? `${res.cable.seccion} mm²` : '—'}</td>
-                <td className="px-4 py-3">{res?.nConductores || '—'}</td>
                 <td className="px-4 py-3">{res?.I_adm_corregida?.toFixed(1)} A</td>
                 <td className="px-4 py-3">{res?.porcentajeCaida?.toFixed(2)}%</td>
                 {onDelete && (
                   <td className="px-4 py-3 text-right">
-                    <button 
+                    <button
                       onClick={() => onDelete(index)}
                       className="text-red-400 hover:text-red-300 text-xs uppercase font-bold"
                     >
@@ -58,7 +56,7 @@ export const ConductorReportTable: React.FC<Props> = ({ project, onDelete }) => 
                 )}
               </tr>
             );
-          })}
+            })}
         </tbody>
       </table>
     </div>
