@@ -213,6 +213,8 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   const filasProtecciones: string[][] = [];
   // Usando tableros declarado al inicio
 
+  // ... (filasProtecciones ya declarado)
+
   tableros.forEach(tablero => {
     if (tablero.proteccionCabecera) {
       filasProtecciones.push([
@@ -248,6 +250,21 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
             ps.proteccion.marca || 'Normalizada',
         ]);
     });
+  });
+
+  // Agregar protecciones de circuitos
+  circuitos.forEach((c) => {
+    if (c.proteccion) {
+      filasProtecciones.push([
+        `Circuito: ${c.nombre}`,
+        c.proteccion.tipo_proteccion || 'PIA',
+        `${c.proteccion.in_amp} A`,
+        c.proteccion.curva_disparo || 'C',
+        `${c.proteccion.capacidades?.[0]?.icn_ka || 3} kA`,
+        '-',
+        c.proteccion.marca || 'Normalizada',
+      ]);
+    }
   });
 
   autoTable(doc, {

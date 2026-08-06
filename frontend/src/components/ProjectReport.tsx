@@ -28,10 +28,6 @@ export const ProjectReport = ({ project }: { project: Project }) => {
     generatePdfMemoriaCalculo(project, caratula);
   };
 
-  const handleDownloadCarpetaCompleta = () => {
-    generatePdfReport(project, caratula);
-  };
-
   const handleInputChange = (field: keyof DatosCaratula, value: string) => {
     setCaratula(prev => ({ ...prev, [field]: value }));
   };
@@ -72,15 +68,6 @@ export const ProjectReport = ({ project }: { project: Project }) => {
           >
             <Calculator size={15} />
             <span>Memoria de Cálculo (PDF)</span>
-          </button>
-
-          <button
-            onClick={handleDownloadCarpetaCompleta}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5 shadow-lg"
-            title="Descargar ambas memorias en un solo documento técnico"
-          >
-            <Download size={15} />
-            <span>Carpeta Completa (PDF)</span>
           </button>
         </div>
       </div>
