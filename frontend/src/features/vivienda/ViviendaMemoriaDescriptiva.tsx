@@ -125,29 +125,29 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
                     <tr className="bg-slate-950/60 hover:bg-slate-800/50">
                       <td className="p-3 font-bold text-white">{tablero.nombre} (Cabecera)</td>
                       <td className="p-3 text-slate-300">{tablero.proteccionCabecera.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-emerald-400">{tablero.proteccionCabecera.in_amp} A</td>
+                      <td className="p-3 font-mono font-bold text-emerald-400">{tablero.proteccionCabecera.in_amp === 63 ? '-' : `${tablero.proteccionCabecera.in_amp} A`}</td>
                       <td className="p-3 text-slate-300">{tablero.proteccionCabecera.curva_disparo || 'C'}</td>
                       <td className="p-3 text-slate-300">{tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA</td>
                       <td className="p-3 text-slate-500">-</td>
                       <td className="p-3 text-slate-400">{tablero.proteccionCabecera.marca || 'Normalizada'}</td>
-                    </tr>
-                  )}
-                  {tablero.proteccionDiferencial && (
-                    <tr className="bg-slate-950/60 hover:bg-slate-800/50">
+                      </tr>
+                      )}
+                      {tablero.proteccionDiferencial && (
+                      <tr className="bg-slate-950/60 hover:bg-slate-800/50">
                       <td className="p-3 font-bold text-white">{tablero.nombre} (Diferencial)</td>
                       <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-indigo-400">{tablero.proteccionDiferencial.in_amp} A</td>
+                      <td className="p-3 font-mono font-bold text-indigo-400">{tablero.proteccionDiferencial.in_amp === 63 ? '-' : `${tablero.proteccionDiferencial.in_amp} A`}</td>
                       <td className="p-3 text-slate-500">-</td>
                       <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA</td>
                       <td className="p-3 font-mono font-bold text-amber-400">{tablero.proteccionDiferencial.sensibilidad || 30} mA</td>
                       <td className="p-3 text-slate-400">{tablero.proteccionDiferencial.marca || 'Normalizada'}</td>
-                    </tr>
-                  )}
-                  {(tablero.proteccionesSalida || []).map((ps, idx) => (
-                    <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
+                      </tr>
+                      )}
+                      {(tablero.proteccionesSalida || []).map((ps, idx) => (
+                      <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
                       <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
                       <td className="p-3 text-slate-300">{ps.proteccion.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion.in_amp} A</td>
+                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion.in_amp === 63 ? '-' : `${ps.proteccion.in_amp} A`}</td>
                       <td className="p-3 text-slate-300">{ps.proteccion.curva_disparo || 'C'}</td>
                       <td className="p-3 text-slate-300">{ps.proteccion.capacidades?.[0]?.icn_ka || 3} kA</td>
                       <td className="p-3 text-slate-500">-</td>
