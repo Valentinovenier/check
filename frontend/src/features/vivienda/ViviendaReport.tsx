@@ -1,19 +1,47 @@
+import { useState } from 'react';
 import { Project } from '../../types/project';
+import { ViviendaMemoriaDescriptiva } from './ViviendaMemoriaDescriptiva';
+import { ViviendaMemoriaCalculo } from './ViviendaMemoriaCalculo';
+import { ShieldCheck, Calculator } from 'lucide-react';
 
-export const ViviendaReport = ({ project }: { project: Project }) => (
+export const ViviendaReport = ({ project }: { project: Project }) => {
+  const [activeTab, setActiveTab] = useState<'descriptiva' | 'calculo'>('descriptiva');
+
+  return (
     <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-white mb-4">Memoria de Cálculo: Vivienda (AEA 770)</h1>
-        
-        <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700">
-            <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 border-b border-slate-800 pb-2">Resultados de Tramos</h3>
-            <div className="space-y-3">
-                {Object.entries(project.conductores || {}).map(([key, cond]) => (
-                    <div key={key} className="p-3 bg-slate-900 rounded border border-slate-800 text-sm">
-                        <p className="font-semibold text-white">{key.replace('__', ' - ')}</p>
-                        <p className="text-xs text-slate-400">Sección: {cond.seccion} mm² | Caída: {cond.resultadoCalculo?.caidaTensionPorcentaje?.toFixed(2)}%</p>
-                    </div>
-                ))}
-            </div>
-        </div>
+      {/* Navegación por Pestañas */}
+      <div className="flex gap-2 border-b border-slate-800 pb-3 print:hidden">
+        <button
+          onClick={() => setActiveTab('descriptiva')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors ${
+            activeTab === 'descriptiva'
+              ? 'bg-emerald-600 text-white shadow-lg'
+              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+          }`}
+        >
+          <ShieldCheck size={18} />
+          <span>Memoria Descriptiva</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('calculo')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors ${
+            activeTab === 'calculo'
+              ? 'bg-emerald-600 text-white shadow-lg'
+              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+          }`}
+        >
+          <Calculator size={18} />
+          <span>Memoria de Cálculo (Paso a Paso)</span>
+        </button>
+      </div>
+
+      {/* Renderizado del Informe Seleccionado */}
+      {activeTab === 'descriptiva' ? (
+        <ViviendaMemoriaDescriptiva project={project} />
+      ) : (
+        <ViviendaMemoriaCalculo project={project} />
+      )}
     </div>
-);
+  );
+};

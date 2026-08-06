@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Project, DatosCaratula } from '../types/project';
 import { getProjectStrategy } from '../engine/factory';
+import { generatePdfMemoriaDescriptiva } from '../utils/generatePdfMemoriaDescriptiva';
+import { generatePdfMemoriaCalculo } from '../utils/generatePdfMemoriaCalculo';
 import { generatePdfReport } from '../utils/generatePdfReport';
+import { FileText, Calculator, Download, Edit3 } from 'lucide-react';
 
 export const ProjectReport = ({ project }: { project: Project }) => {
   const [showCaratulaForm, setShowCaratulaForm] = useState(false);
@@ -17,9 +20,15 @@ export const ProjectReport = ({ project }: { project: Project }) => {
     instaladorEmail: project.datosCaratula?.instaladorEmail || '',
   });
 
-  const handlePrint = () => window.print();
+  const handleDownloadMemoriaDescriptiva = () => {
+    generatePdfMemoriaDescriptiva(project, caratula);
+  };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadMemoriaCalculo = () => {
+    generatePdfMemoriaCalculo(project, caratula);
+  };
+
+  const handleDownloadCarpetaCompleta = () => {
     generatePdfReport(project, caratula);
   };
 
@@ -35,29 +44,51 @@ export const ProjectReport = ({ project }: { project: Project }) => {
       <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 print:hidden flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Informe Técnico: {project.name}</h2>
-          
+          <p className="text-xs text-slate-400 mt-1">Generación e inspección de Memorias Descriptivas y de Cálculo en pantalla y formato PDF.</p>
         </div>
-        <div className="flex gap-3 flex-wrap">
+
+        <div className="flex gap-2 flex-wrap items-center">
           <button
             onClick={() => setShowCaratulaForm(prev => !prev)}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2"
+            className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5"
           >
-            <span>{showCaratulaForm ? 'Ocultar Datos de Portada' : 'Editar Datos de Portada'}</span>
+            <Edit3 size={15} />
+            <span>{showCaratulaForm ? 'Ocultar Portada' : 'Editar Datos Portada'}</span>
           </button>
+
           <button
-            onClick={handleDownloadPdf}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 shadow-lg"
+            onClick={handleDownloadMemoriaDescriptiva}
+            className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+            title="Descargar únicamente la Memoria Descriptiva en PDF"
           >
-            <span>Descargar Carpeta Técnica (PDF)</span>
+            <FileText size={15} />
+            <span>Memoria Descriptiva (PDF)</span>
           </button>
-          
+
+          <button
+            onClick={handleDownloadMemoriaCalculo}
+            className="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+            title="Descargar únicamente la Memoria de Cálculo con el paso a paso en PDF"
+          >
+            <Calculator size={15} />
+            <span>Memoria de Cálculo (PDF)</span>
+          </button>
+
+          <button
+            onClick={handleDownloadCarpetaCompleta}
+            className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-xs transition-colors flex items-center gap-1.5 shadow-lg"
+            title="Descargar ambas memorias en un solo documento técnico"
+          >
+            <Download size={15} />
+            <span>Carpeta Completa (PDF)</span>
+          </button>
         </div>
       </div>
 
-      {/* Formulario desplegable para datos específicos de la portada/carátula */}
+      {/* Formulario desplegable para datos de la portada/carátula */}
       {showCaratulaForm && (
         <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4 print:hidden">
-          <h3 className="text-sm font-bold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2">
+          <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2">
             Datos Específicos para la Carátula del Informe (Modelo ERSeP / AEA)
           </h3>
           
