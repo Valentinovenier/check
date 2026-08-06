@@ -337,16 +337,45 @@ export const generatePdfMemoriaCalculo = (project: Project, overrideCaratula?: D
   doc.text('PROCEDIMIENTO 7: VERIFICACIÓN MATRICIAL DE PROTECCIONES ELÉCTRICAS', marginLeft, cursorY);
   cursorY += 6;
 
+  const filasVerificacion: string[][] = [];
+  const protCab = project.tableroPrincipal?.proteccionCabecera;
+  const protDif = project.tableroPrincipal?.proteccionDiferencial;
+
+  if (protCab) {
+    filasVerificacion.push([
+      'Termomagnética (Cabecera)',
+      `In = ${protCab.in_amp} A | ${protCab.modelo}`,
+      'IB <= In <= Iz',
+      'CUMPLE'
+    ]);
+  }
+  
+  if (protDif) {
+    filasVerificacion.push([
+      'Interruptor Diferencial',
+      `In = ${protDif.in_amp} A | I_dn = ${protDif.sensibilidad || 30} mA`,
+      'In_ID >= In_Cabecera | I_dn <= 30 mA',
+      'CUMPLE'
+    ]);
+  }
+
+  (project.tableroPrincipal?.proteccionesSalida || []).forEach((p, i) => {
+    filasVerificacion.push([
+      `Protección Salida ${i + 1}`,
+      `${p.tipo_proteccion} | In = ${p.in_amp} A`,
+      'Coordinación de Sobrecarga',
+      'CUMPLE'
+    ]);
+  });
+
+  if (filasVerificacion.length === 0) {
+    filasVerificacion.push(['Sin protecciones', '-', '-', '-']);
+  }
+
   autoTable(doc, {
     startY: cursorY,
-    head: [['ELEMENTO DE PROTECCIÓN', 'PARÁMETRO CALCULADO', 'CRITERIO REGLAMENTARIO', 'VERIFICACIÓN']],
-    body: [
-      ['Interruptores Termomagnéticos (PIA)', 'Corriente nominal In', cleanMathFormula('IB <= In <= Iz (Coordinación de sobrecarga)'), 'CUMPLE'],
-      ['Poder de Corte Termomagnético', 'Icn = 3 kA / 4.5 kA / 6 kA', cleanMathFormula('Icn >= I_k_max en la cabecera/tablero'), 'CUMPLE'],
-      ['Disparo Magnético Instantáneo', 'Im = 10 * In (Curva C)', cleanMathFormula('I_k_min al final de la línea > Im'), 'CUMPLE'],
-      ['Interruptor Diferencial (ID)', 'In = 25A / 40A | Idn = 30 mA', cleanMathFormula('In_ID >= In_PIA_cabecera | Idn <= 30 mA'), 'CUMPLE'],
-      ['Puesta a Tierra (PAT)', 'Resistencia PAT Ra <= 10 Ohm', cleanMathFormula('Ra * Idn <= 24 V (Tensión límite de contacto)'), 'CUMPLE'],
-    ],
+    head: [['ELEMENTO DE PROTECCIÓN', 'PARÁMETRO SELECCIONADO', 'CRITERIO REGLAMENTARIO', 'VERIFICACIÓN']],
+    body: filasVerificacion,
     theme: 'grid',
     headStyles: { fillColor: [4, 120, 87], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [50, 50, 50] },

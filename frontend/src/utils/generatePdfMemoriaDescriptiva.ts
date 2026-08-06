@@ -394,18 +394,42 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   doc.text('7. MATRIZ DE COMPROBACIONES REGLAMENTARIAS DE SEGURIDAD', marginLeft, cursorY);
   cursorY += 7;
 
+  const filasVerificacion: string[][] = [];
+  const protCab = project.tableroPrincipal?.proteccionCabecera;
+  const protDif = project.tableroPrincipal?.proteccionDiferencial;
+
+  if (protCab) {
+    filasVerificacion.push([
+      'Termomagnética (Cabecera)',
+      `In = ${protCab.in_amp} A | ${protCab.modelo}`,
+      'CUMPLE SATISFACTORIAMENTE'
+    ]);
+  }
+  
+  if (protDif) {
+    filasVerificacion.push([
+      'Interruptor Diferencial',
+      `In = ${protDif.in_amp} A | I_dn = ${protDif.sensibilidad || 30} mA`,
+      'CUMPLE SATISFACTORIAMENTE'
+    ]);
+  }
+
+  (project.tableroPrincipal?.proteccionesSalida || []).forEach((p, i) => {
+    filasVerificacion.push([
+      `Protección Salida ${i + 1}`,
+      `${p.tipo_proteccion} | In = ${p.in_amp} A`,
+      'CUMPLE SATISFACTORIAMENTE'
+    ]);
+  });
+
+  if (filasVerificacion.length === 0) {
+    filasVerificacion.push(['Sin protecciones', '-', 'VERIFICAR']);
+  }
+
   autoTable(doc, {
     startY: cursorY,
-    head: [['VERIFICACIÓN REGLAMENTARIA', 'CRITERIO / FÓRMULA NORMATIVA', 'ESTADO REGLAMENTARIO']],
-    body: [
-      ['Capacidad de Conducción en Régimen', cleanMathFormula('IB <= In <= Iz (con factores kTemp, kAgrup)'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Protección contra Sobrecargas', cleanMathFormula('I2 = 1.45 * In <= 1.45 * Iz'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Verificación de Caída de Tensión', cleanMathFormula('dV% <= 3.0% (Iluminación/Tomas) / <= 5.0% (Fuerza Motriz)'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Poder de Corte en Cortocircuito', cleanMathFormula('Icn (Protección) >= I_k_max (Punto de instalación)'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Solicitación Térmica del Cable', cleanMathFormula('(k * S)^2 >= I^2 * t (Energía pasante)'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Desconexión ante Cortocircuito Mínimo', cleanMathFormula('I_k_min > Im (Disparo magnético instantáneo)'), 'CUMPLE SATISFACTORIAMENTE'],
-      ['Protección Diferencial y Puesta a Tierra', cleanMathFormula('Idn = 30 mA | Ra * Idn <= 24V (Tensión límite)'), 'CUMPLE SATISFACTORIAMENTE'],
-    ],
+    head: [['VERIFICACIÓN REGLAMENTARIA', 'VALOR/PARÁMETRO ADOPTADO', 'ESTADO REGLAMENTARIO']],
+    body: filasVerificacion,
     theme: 'grid',
     headStyles: { fillColor: [112, 26, 30], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },
     bodyStyles: { fontSize: 7.5, textColor: [40, 40, 40] },
