@@ -31,6 +31,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
 
   // Extracción de datos de proyecto
   const datosV: DatosVivienda | undefined = project.datosVivienda;
+  const tableros = datosV?.tableros || [];
   const supCubierta = datosV?.superficieCubierta || 0;
   const supSemicubierta = datosV?.superficieSemicubierta || 0;
   const superficieTotal = supCubierta + supSemicubierta * 0.5;
@@ -210,7 +211,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   cursorY += 7;
 
   const filasProtecciones: string[][] = [];
-  const tableros = project.datosVivienda?.tableros || [];
+  // Usando tableros declarado al inicio
 
   tableros.forEach(tablero => {
     if (tablero.proteccionCabecera) {
@@ -395,7 +396,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
   cursorY += 7;
 
   const filasVerificacion: string[][] = [];
-  const tableros = project.datosVivienda?.tableros || [];
+  // Usando tableros declarado al inicio
 
   tableros.forEach(tablero => {
     if (tablero.proteccionCabecera) {
