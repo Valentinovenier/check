@@ -119,30 +119,45 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {protTPCab && (
-                <tr className="bg-slate-950/60 hover:bg-slate-800/50">
-                  <td className="p-3 font-bold text-white">Tablero Principal (Cabecera)</td>
-                  <td className="p-3 text-slate-300">{protTPCab.tipo_proteccion || 'PIA'}</td>
-                  <td className="p-3 font-mono font-bold text-emerald-400">{protTPCab.in_amp} A</td>
-                  <td className="p-3 text-slate-300">{protTPCab.curva_disparo || 'C'}</td>
-                  <td className="p-3 text-slate-300">{protTPCab.capacidades?.[0]?.icn_ka || 3} kA</td>
-                  <td className="p-3 text-slate-500">-</td>
-                  <td className="p-3 text-slate-400">{protTPCab.marca || 'IEC 60898'}</td>
-                </tr>
-              )}
-              {protTPDif && (
-                <tr className="bg-slate-950/60 hover:bg-slate-800/50">
-                  <td className="p-3 font-bold text-white">Tablero Principal (Diferencial)</td>
-                  <td className="p-3 text-slate-300">{protTPDif.tipo_proteccion || 'ID'}</td>
-                  <td className="p-3 font-mono font-bold text-indigo-400">{protTPDif.in_amp} A</td>
-                  <td className="p-3 text-slate-500">-</td>
-                  <td className="p-3 text-slate-300">6 kA</td>
-                  <td className="p-3 font-mono font-bold text-amber-400">30 mA</td>
-                  <td className="p-3 text-slate-400">{protTPDif.marca || 'IEC 61008'}</td>
-                </tr>
-              )}
+              {(project.datosVivienda?.tableros || []).map(tablero => (
+                <React.Fragment key={tablero.id}>
+                  {tablero.proteccionCabecera && (
+                    <tr className="bg-slate-950/60 hover:bg-slate-800/50">
+                      <td className="p-3 font-bold text-white">{tablero.nombre} (Cabecera)</td>
+                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.tipo_proteccion}</td>
+                      <td className="p-3 font-mono font-bold text-emerald-400">{tablero.proteccionCabecera.in_amp} A</td>
+                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.curva_disparo || 'C'}</td>
+                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA</td>
+                      <td className="p-3 text-slate-500">-</td>
+                      <td className="p-3 text-slate-400">{tablero.proteccionCabecera.marca || 'Normalizada'}</td>
+                    </tr>
+                  )}
+                  {tablero.proteccionDiferencial && (
+                    <tr className="bg-slate-950/60 hover:bg-slate-800/50">
+                      <td className="p-3 font-bold text-white">{tablero.nombre} (Diferencial)</td>
+                      <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.tipo_proteccion}</td>
+                      <td className="p-3 font-mono font-bold text-indigo-400">{tablero.proteccionDiferencial.in_amp} A</td>
+                      <td className="p-3 text-slate-500">-</td>
+                      <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA</td>
+                      <td className="p-3 font-mono font-bold text-amber-400">{tablero.proteccionDiferencial.sensibilidad || 30} mA</td>
+                      <td className="p-3 text-slate-400">{tablero.proteccionDiferencial.marca || 'Normalizada'}</td>
+                    </tr>
+                  )}
+                  {(tablero.proteccionesSalida || []).map((ps, idx) => (
+                    <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
+                      <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion.tipo_proteccion}</td>
+                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion.in_amp} A</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion.curva_disparo || 'C'}</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion.capacidades?.[0]?.icn_ka || 3} kA</td>
+                      <td className="p-3 text-slate-500">-</td>
+                      <td className="p-3 text-slate-400">{ps.proteccion.marca || 'Normalizada'}</td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
               {circuitos.map((c, idx) => (
-                <tr key={idx} className="hover:bg-slate-800/50">
+                <tr key={`circuito-${c.id}`} className="hover:bg-slate-800/50">
                   <td className="p-3 font-medium text-slate-200">Cto {idx + 1}: {c.nombre}</td>
                   <td className="p-3 text-slate-300">{c.proteccion?.tipo_proteccion || 'PIA'}</td>
                   <td className="p-3 font-mono font-bold text-emerald-400">{c.proteccion ? `${c.proteccion.in_amp} A` : '-'}</td>
