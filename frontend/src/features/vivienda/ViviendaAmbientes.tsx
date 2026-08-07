@@ -77,8 +77,8 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
       <div className="space-y-3">
         {/* Encabezados */}
         <div className="grid grid-cols-12 gap-3 px-3 text-xs font-semibold text-slate-400 uppercase">
-          <div className="col-span-2">Ambientes</div>
-          <div className="col-span-3">Dimensiones (m²)</div>
+          <div className="col-span-2 text-center">Ambientes</div>
+          <div className="col-span-3 text-center">Dimensiones (m²)</div>
           <div className="col-span-4 text-center">Puntos de utilización minimos</div>
         </div>
         {datos.ambientes.map((a) => (

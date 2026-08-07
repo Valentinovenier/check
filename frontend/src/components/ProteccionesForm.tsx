@@ -6,7 +6,7 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
   const [formData, setFormData] = useState(initialData ? {
     ...initialData,
     marca: initialData.specs_tecnicas?.marca || '',
-    capacidades: initialData.capacidades || [],
+    capacidades: initialData.capacidades && initialData.capacidades.length > 0 ? initialData.capacidades : [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }],
     tipo_interruptor: initialData.tipo_interruptor || 'compacto',
     energia_pasante: initialData.energia_pasante || null,
     sensibilidad: initialData.sensibilidad || 30,
