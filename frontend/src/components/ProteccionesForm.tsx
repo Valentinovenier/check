@@ -3,6 +3,7 @@ import { X, Plus, Trash2 } from 'lucide-react';
 import { obtenerEnergiaPasanteInterruptor } from '../engine/strategies/protecciones/helpers';
 
 export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { onClose: () => void, onSave: (data: any) => void, onDelete?: (id: string) => void, initialData?: any }) => {
+  console.log('DEBUG: ProteccionesForm initialData:', initialData);
   const [formData, setFormData] = useState(initialData ? {
     ...initialData,
     marca: initialData.specs_tecnicas?.marca || '',
