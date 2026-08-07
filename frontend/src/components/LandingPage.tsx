@@ -83,7 +83,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             </div>
             <div>
               <span className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                Electro<span className="text-emerald-400">SaaS</span>
+                Electro<p className="text-emerald-400">Check</p>
               </span>
               
             </div>
@@ -264,6 +264,9 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {[
               'Cálculos normativos AEA',
               'Informes técnicos en PDF',
+              'Verificacion de conductores',
+              'Verificacion de protecciones',
+              'Calculo DPMS',
               'Proyectos ilimitados',
               'Soporte prioritario',
             ].map((feature, i) => (
