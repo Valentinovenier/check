@@ -99,9 +99,9 @@ export async function onRequestPost(context) {
     if (capacidades && Array.isArray(capacidades) && capacidades.length > 0) {
       const capStatements = capacidades.map(cap => 
         env.DB.prepare(
-          'INSERT INTO capacidades_corte (proteccion_id, tension_v, icn_ka, icu_ka, ics_ka) VALUES (?, ?, ?, ?, ?)'
+          'INSERT INTO capacidades_corte (proteccion_id, tension_v, icn_ka, clase_limitacion) VALUES (?, ?, ?, ?)'
         )
-        .bind(proteccion_id, cap.tension_v, cap.icn_ka, cap.icu_ka || cap.icn_ka, cap.ics_ka || cap.icn_ka)
+        .bind(proteccion_id, cap.tension_v, cap.icn_ka, cap.clase_limitacion)
       );
       await env.DB.batch(capStatements);
     }
@@ -146,9 +146,9 @@ export async function onRequestPut(context) {
       capacidades.forEach(cap => {
         statements.push(
           env.DB.prepare(
-            'INSERT INTO capacidades_corte (proteccion_id, tension_v, icn_ka, icu_ka, ics_ka) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO capacidades_corte (proteccion_id, tension_v, icn_ka, clase_limitacion) VALUES (?, ?, ?, ?)'
           )
-          .bind(id, cap.tension_v, cap.icn_ka, cap.icu_ka || cap.icn_ka, cap.ics_ka || cap.icn_ka)
+          .bind(id, cap.tension_v, cap.icn_ka, cap.clase_limitacion)
         );
       });
     }
