@@ -253,7 +253,11 @@ export const ProteccionesPage = () => {
                 <p className="text-white text-sm">{p.modelo}</p>
                 <p className="text-[var(--text-secondary)] text-xs">{p.tipo_proteccion} | {p.in_amp}A</p>
               </div>
-              <button onClick={() => { setEditingProteccion(p); setShowForm(true); }} className="text-[var(--text-secondary)] hover:text-white">
+              <button onClick={() => { 
+                console.log('DEBUG: Protección seleccionada para editar:', p);
+                setEditingProteccion(p); 
+                setShowForm(true); 
+              }} className="text-[var(--text-secondary)] hover:text-white">
                 <Pencil size={16} />
               </button>
             </div>
