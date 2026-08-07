@@ -66,8 +66,34 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   try {
     const user = await verifyAuth(request, env);
-    const { results } = await env.DB.prepare('SELECT * FROM protecciones WHERE user_id = ?').bind(user.userId).all();
-    return new Response(JSON.stringify(results), { 
+    
+    // 1. Obtener todas las protecciones del usuario
+    const { results: protecciones } = await env.DB.prepare('SELECT * FROM protecciones WHERE user_id = ?').bind(user.userId).all();
+    
+    if (protecciones.length === 0) {
+      return new Response(JSON.stringify([]), { 
+        status: 200, 
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
+      });
+    }
+
+    const ids = protecciones.map(p => p.id);
+    
+    // 2. Obtener todas las capacidades para esas protecciones
+    // Usamos IN para obtener todas de una sola vez
+    const placeholders = ids.map(() => '?').join(',');
+    const { results: capacidades } = await env.DB.prepare(`SELECT * FROM capacidades_corte WHERE proteccion_id IN (${placeholders})`)
+      .bind(...ids)
+      .all();
+
+    // 3. Unir datos
+    const resultado = protecciones.map(p => ({
+      ...p,
+      specs_tecnicas: JSON.parse(p.specs_tecnicas as string),
+      capacidades: capacidades.filter(c => c.proteccion_id === p.id)
+    }));
+
+    return new Response(JSON.stringify(resultado), { 
       status: 200, 
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } 
     });
