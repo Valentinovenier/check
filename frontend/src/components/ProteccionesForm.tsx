@@ -76,7 +76,8 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
         ...formData, 
         energia_pasante: energia,
         tipo_interruptor: isCompacto ? 'compacto' : 'abierto',
-        specs_tecnicas: { ...formData.specs_tecnicas, marca: formData.marca }
+        specs_tecnicas: { ...formData.specs_tecnicas, marca: formData.marca },
+        capacidades: formData.capacidades // Asegurar explícitamente el envío
       };
       await onSave(payload);
     } catch (error) {

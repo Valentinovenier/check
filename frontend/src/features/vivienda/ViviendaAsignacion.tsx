@@ -158,7 +158,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
         <div className="flex justify-between items-end border-b border-slate-800 pb-2">
             <h2 className="text-xl font-bold text-white">Ambientes</h2>
             
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Puntos mínimos de utilización</h3>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Puntos de utilización</h3>
         </div>
         {datos.ambientes.map((ambiente) => {
             const tomasAmbiente = datos.tomasPorAmbiente?.[ambiente.id] || {};

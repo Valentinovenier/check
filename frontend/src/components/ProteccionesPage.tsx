@@ -43,6 +43,7 @@ export const ProteccionesPage = () => {
   if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
 
   const handleSave = async (data: any) => {
+    console.log('DEBUG: Payload enviado al backend:', data);
     const token = localStorage.getItem('token');
     const method = editingProteccion ? 'PUT' : 'POST';
     const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
