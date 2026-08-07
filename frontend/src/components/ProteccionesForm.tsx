@@ -3,37 +3,37 @@ import { X, Plus, Trash2 } from 'lucide-react';
 import { obtenerEnergiaPasanteInterruptor } from '../engine/strategies/protecciones/helpers';
 
 export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { onClose: () => void, onSave: (data: any) => void, onDelete?: (id: string) => void, initialData?: any }) => {
-  console.log('DEBUG: ProteccionesForm initialData:', initialData);
-  const initialCapacidades = (initialData?.capacidades && Array.isArray(initialData.capacidades) && initialData.capacidades.length > 0) 
-        ? initialData.capacidades.map((c: any) => ({
-            tension_v: c.tension_v || 230,
-            icn_ka: c.icn_ka || 3,
-            clase_limitacion: c.clase_limitacion || 1
-        }))
-        : [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }];
-  
-  console.log('DEBUG: ProteccionesForm initialCapacidades calculadas:', initialCapacidades);
-
-  const [formData, setFormData] = useState(initialData ? {
-    ...initialData,
-    marca: initialData.specs_tecnicas?.marca || '',
-    capacidades: initialCapacidades,
-    tipo_interruptor: initialData.tipo_interruptor || 'compacto',
-    energia_pasante: initialData.energia_pasante || null,
-    sensibilidad: initialData.sensibilidad || 30,
-  } : {
-    marca_id: 1,
-    marca: '',
-    modelo: '',
-    tipo_proteccion: 'Interruptor Automatico',
-    in_amp: 25,
-    curva_disparo: 'C',
-    polos: 2,
-    specs_tecnicas: {},
-    capacidades: [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }],
-    tipo_interruptor: 'compacto',
-    energia_pasante: null,
-    sensibilidad: 30,
+  const [formData, setFormData] = useState(() => {
+    if (initialData) {
+      return {
+        ...initialData,
+        marca: initialData.specs_tecnicas?.marca || '',
+        capacidades: (Array.isArray(initialData.capacidades) && initialData.capacidades.length > 0) 
+          ? initialData.capacidades.map((c: any) => ({
+              tension_v: c.tension_v || 230,
+              icn_ka: c.icn_ka || 3,
+              clase_limitacion: c.clase_limitacion || 1
+          }))
+          : [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }],
+        tipo_interruptor: initialData.tipo_interruptor || 'compacto',
+        energia_pasante: initialData.energia_pasante || null,
+        sensibilidad: initialData.sensibilidad || 30,
+      };
+    }
+    return {
+      marca_id: 1,
+      marca: '',
+      modelo: '',
+      tipo_proteccion: 'Interruptor Automatico',
+      in_amp: 25,
+      curva_disparo: 'C',
+      polos: 2,
+      specs_tecnicas: {},
+      capacidades: [{ tension_v: 230, icn_ka: 3, clase_limitacion: 1 }],
+      tipo_interruptor: 'compacto',
+      energia_pasante: null,
+      sensibilidad: 30,
+    };
   });
 
 
