@@ -306,7 +306,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               </ul>
               
               <button 
-                onClick={() => handleSubscribeClick('basic')} 
+                onClick={() => handleSubscribeClick(plan.isPro ? 'pro' : 'basic')} 
                 className={`w-full py-4 font-bold rounded-xl transition-all ${plan.isPro ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
               >
                 {plan.buttonText}
