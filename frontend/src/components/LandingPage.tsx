@@ -510,7 +510,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             Calculá, verificá y documentá tus instalaciones eléctricas de forma ágil, normativa y profesional.
           </p>
           <button
-            onClick={handleSubscribeClick}
+            onClick={() => handleSubscribeClick('basic')}
             className="px-10 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 group mx-auto"
           >
             <span>Acceder a la Plataforma</span>
