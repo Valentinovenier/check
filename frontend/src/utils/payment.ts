@@ -1,4 +1,4 @@
-export const startPayment = async () => {
+export const startPayment = async (planType: 'basic' | 'pro') => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -13,6 +13,7 @@ export const startPayment = async () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json' 
       },
+      body: JSON.stringify({ planType })
     });
 
     if (response.status === 401) {

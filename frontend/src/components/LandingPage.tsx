@@ -38,9 +38,9 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubscribeClick = () => {
+  const handleSubscribeClick = (planType: 'basic' | 'pro') => {
     if (isAuthenticated) {
-      startPayment();
+      startPayment(planType);
     } else {
       navigate('/register');
     }
@@ -252,19 +252,20 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
             {
-              title: "Calculadora",
-              price: "$4.500",
-              desc: "Acceso a cálculos de parámetros",
-              features: [
-                { name: "Cálculos normativos AEA", included: true },
-                { name: "Dimensionamiento de conductores", included: true },
-                { name: "Verificación de protecciones", included: false },
-                { name: "Informes técnicos PDF", included: false },
-                { name: "Soporte prioritario", included: false },
-              ],
-              buttonText: "Seleccionar Plan",
-              isPro: false
+            title: "Calculadora",
+            price: "$4.500",
+            desc: "Acceso a cálculos de parámetros",
+            features: [
+              { name: "Cálculos normativos AEA", included: true },
+              { name: "Dimensionamiento de conductores", included: true },
+              { name: "Verificación de protecciones", included: false },
+              { name: "Informes técnicos PDF", included: false },
+              { name: "Soporte prioritario", included: false },
+            ],
+            buttonText: "Suscribirse Ahora",
+            isPro: false
             },
+
             {
               title: "Acceso Total",
               price: "$9.000",
@@ -305,11 +306,12 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               </ul>
               
               <button 
-                onClick={handleSubscribeClick} 
+                onClick={() => handleSubscribeClick('basic')} 
                 className={`w-full py-4 font-bold rounded-xl transition-all ${plan.isPro ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
               >
                 {plan.buttonText}
               </button>
+
             </div>
           ))}
         </div>

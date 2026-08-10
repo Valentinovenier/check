@@ -35,6 +35,17 @@ export async function onRequestPost(context: any) {
     const appBaseUrl = env.APP_BASE_URL || 'https://saasingenieriaelectrica200417.pages.dev';
 
     // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API
+    const body = await request.json().catch(() => ({}));
+    const { planType } = body;
+    
+    // Configuración de IDs de planes
+    const PLAN_IDS = {
+        pro: '8c28f422fee34b11b7be627df7a9dc6a',
+        basic: '29130c3d9c384fda8091d85b8d209369'
+    };
+    
+    const preapproval_plan_id = PLAN_IDS[planType as 'pro' | 'basic'] || env.MP_PREAPPROVAL_PLAN_ID || "29130c3d9c384fda8091d85b8d209369";
+
     if (env.MP_ACCESS_TOKEN) {
         try {
             // Determinar el email a utilizar: MP_TEST_PAYER_EMAIL si existe, el email del usuario si tiene formato de email, ESTE CODIGO FUNCIONA MUY BIEN
@@ -46,23 +57,20 @@ export async function onRequestPost(context: any) {
 
             if (payerEmail) {
                 const bodyPayload: any = {
-                    reason: 'Suscripción ElectroSaaS Premium',
+                    reason: `Suscripción ElectroSaaS ${planType || 'Premium'}`,
                     external_reference: decoded.userId,
                     payer_email: payerEmail,
                     auto_recurring: {
                         frequency: 1,
                         frequency_type: 'months',
-                        transaction_amount: 150,
+                        transaction_amount: planType === 'pro' ? 9000 : 4500,
                         currency_id: 'ARS'
                     },
                     back_url: `${appBaseUrl}/app-entry`,
                     notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
-                    status: 'pending'
+                    status: 'pending',
+                    preapproval_plan_id: preapproval_plan_id
                 };
-
-                if (env.MP_PREAPPROVAL_PLAN_ID) {
-                    bodyPayload.preapproval_plan_id = env.MP_PREAPPROVAL_PLAN_ID;
-                }
 
                 console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
 
@@ -94,8 +102,7 @@ export async function onRequestPost(context: any) {
     }
 
     // 2. Fallback a URL directa de suscripción (con el ID de plan de Mercado Pago del usuario)
-    const planId = env.MP_PREAPPROVAL_PLAN_ID || "f60b996e809848a482e25b74b1c44128";
-    const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${planId}&external_reference=${decoded.userId}`;
+    const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${preapproval_plan_id}&external_reference=${decoded.userId}`;
 
     return new Response(JSON.stringify({ init_point: subscriptionUrl }), {
         headers: { 'Content-Type': 'application/json' },
