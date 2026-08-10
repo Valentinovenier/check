@@ -54,6 +54,23 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   const addCircuito = () => {
     if (!nuevoNombre) return;
     
+    // Validación de bocas
+    if (nuevoTipo === 'usos_especificos') {
+        const maxBocas = circuitoEspecificoSeleccionado.maximoBocas;
+        
+        if (typeof maxBocas === 'number' && bocas > maxBocas) {
+            alert(`La cantidad de bocas excede el máximo permitido (${maxBocas}) para este tipo de circuito.`);
+            return;
+        } else if (maxBocas === '12 por fase' && bocas > 12) {
+            alert(`La cantidad de bocas excede el máximo permitido (12 por fase) para este tipo de circuito.`);
+            return;
+        } else if (maxBocas === 'N/A') {
+            alert(`Este circuito no admite bocas.`);
+            return;
+        }
+        // 'Sin límite' no requiere validación
+    }
+    
     const nuevoCircuito: CircuitoCalculado = {
         id: `custom-${Date.now()}`,
         nombre: nuevoNombre,
@@ -66,6 +83,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
             esEspecifico: true,
             siglaEspecifica: circuitoEspecificoSeleccionado.sigla,
             maximoBocas: circuitoEspecificoSeleccionado.maximoBocas,
+            bocas: bocas, // Añadir bocas
             condicionProteccion: circuitoEspecificoSeleccionado.proteccionCondicion,
             potencia: potencia,
             unidadPotencia: unidadPotencia,
@@ -219,6 +237,15 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                             <option key={c.descripcion} value={c.descripcion}>{c.descripcion}</option>
                         ))}
                     </select>
+                </div>
+                <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Cantidad de Bocas</label>
+                    <input 
+                        type="number" 
+                        value={bocas}
+                        onChange={(e) => setBocas(Number(e.target.value))}
+                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
+                    />
                 </div>
                 <div>
                     <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Potencia</label>

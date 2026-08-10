@@ -7,10 +7,11 @@ interface AsignacionProteccionProps {
   disponibles: Proteccion[];
   onChange: (p: Proteccion | undefined) => void;
   opcional?: boolean;
-  maxAmp?: number; // Nueva propiedad
+  maxAmp?: number; 
+  minAmp?: number; // Nueva propiedad
 }
 
-export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange, opcional = true, maxAmp }: AsignacionProteccionProps) => {
+export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange, opcional = true, maxAmp, minAmp }: AsignacionProteccionProps) => {
   return (
     <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-slate-700 mb-2">
       <div className="flex justify-between items-center mb-2">
@@ -31,19 +32,27 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
           const selectedId = e.target.value;
           const selected = disponibles.find(p => String(p.id) === selectedId);
           
-          if (selected && maxAmp && selected.in_amp > maxAmp) {
-              alert(`La protección seleccionada excede el máximo permitido para este circuito (${maxAmp} A).`);
-              return;
+          if (selected) {
+              if (maxAmp && selected.in_amp > maxAmp) {
+                  alert(`La protección seleccionada excede el máximo permitido para este circuito (${maxAmp} A).`);
+                  return;
+              }
+              if (minAmp && selected.in_amp < minAmp) {
+                  alert(`La protección seleccionada es inferior a la corriente de diseño (${minAmp} A).`);
+                  return;
+              }
           }
           onChange(selected);
         }}
       >
         <option value="">Seleccionar protección...</option>
         {disponibles.map(p => {
-          const isDisabled = maxAmp && p.in_amp > maxAmp;
+          const isTooHigh = maxAmp && p.in_amp > maxAmp;
+          const isTooLow = minAmp && p.in_amp < minAmp;
+          const isDisabled = isTooHigh || isTooLow;
           return (
             <option key={p.id} value={p.id} disabled={isDisabled}>
-              {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) {isDisabled ? '(Excede máximo)' : ''}
+              {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) {isTooHigh ? '(Excede máx)' : ''} {isTooLow ? '(Inferior a Ib)' : ''}
             </option>
           );
         })}

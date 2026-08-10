@@ -43,8 +43,8 @@ export const DashboardLayout = ({
       {/* Sidebar Global */}
       <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col">
         <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
-          <Zap size={38} fill="currentColor" />
-          <h1 className="text-2xl font-black tracking-tighter text-white font-sans uppercase">ElectroCheck</h1>
+          <Zap size={48} fill="currentColor" />
+          <h1 className="text-lg font-black tracking-tighter text-white font-sans lowercase">electrocheck</h1>
         </div>
         <nav className="space-y-2 flex-1">
           {sidebarItems.map((item) => (

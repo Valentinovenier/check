@@ -210,10 +210,14 @@ export const ProteccionesPage = () => {
                         const iNominal = getCircuitoNominalCurrent(circuito, project);
                         
                         // Mapeo de tipos de circuitos a calibres máximos (Amperes)
-                        const calibresMaximos: Record<string, number> = {
+                        // Ajustado según normativa AEA para circuitos de uso general, especial y específicos.
+                        const calibresMaximos: Record<string, number | undefined> = {
                             'iluminacion_usos_generales': 16,
                             'tomacorrientes_usos_generales': 20,
                             'usos_especiales': 32,
+                            'alimentacion_mbtf': 20, // MBTF
+                            'alimentacion_motores': 25, // APM
+                            // Otros circuitos específicos son responsabilidad del proyectista (sin restricción automática)
                         };
                         const maxAmp = calibresMaximos[circuito.tipo as string];
 
@@ -231,6 +235,7 @@ export const ProteccionesPage = () => {
                               disponibles={protecciones}
                               onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
                               maxAmp={maxAmp}
+                              minAmp={iNominal} // Validar que la protección sea >= Ib
                             />
                             {circuito.proteccion && (
                                 <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
