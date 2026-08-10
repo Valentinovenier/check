@@ -149,6 +149,7 @@ export const ProteccionesPage = () => {
                         proteccion={tablero.proteccionCabecera}
                         disponibles={protecciones}
                         onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                        iccTablero={tablero.Ik}
                       />
                       {tablero.proteccionCabecera && (
                           <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
@@ -160,6 +161,7 @@ export const ProteccionesPage = () => {
                         proteccion={tablero.proteccionDiferencial}
                         disponibles={protecciones}
                         onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                        iccTablero={tablero.Ik}
                       />
                       {tablero.proteccionDiferencial && (
                           <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
@@ -193,6 +195,7 @@ export const ProteccionesPage = () => {
                                         label="Asignar Protección"
                                         proteccion={ps.proteccion}
                                         disponibles={protecciones}
+                                        iccTablero={tablero.Ik}
                                         onChange={(p) => {
                                             const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
                                             nuevasSalidas[index] = { ...ps, proteccion: p! };
@@ -236,6 +239,7 @@ export const ProteccionesPage = () => {
                               onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
                               maxAmp={maxAmp}
                               minAmp={iNominal} // Validar que la protección sea >= Ib
+                              iccTablero={tablero.Ik}
                             />
                             {circuito.proteccion && (
                                 <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
