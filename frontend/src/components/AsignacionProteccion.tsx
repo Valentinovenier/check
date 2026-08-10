@@ -8,10 +8,11 @@ interface AsignacionProteccionProps {
   onChange: (p: Proteccion | undefined) => void;
   opcional?: boolean;
   maxAmp?: number; 
-  minAmp?: number; // Nueva propiedad
+  minAmp?: number;
+  iccTablero?: number; // Nueva propiedad
 }
 
-export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange, opcional = true, maxAmp, minAmp }: AsignacionProteccionProps) => {
+export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange, opcional = true, maxAmp, minAmp, iccTablero }: AsignacionProteccionProps) => {
   return (
     <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-slate-700 mb-2">
       <div className="flex justify-between items-center mb-2">
@@ -41,6 +42,14 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
                   alert(`La protección seleccionada es inferior a la corriente de diseño (${minAmp} A).`);
                   return;
               }
+              // Validación de Icc
+              if (iccTablero && selected.capacidades && selected.capacidades.length > 0) {
+                  const maxIcn = Math.max(...selected.capacidades.map(c => c.icn_ka));
+                  if (maxIcn < iccTablero) {
+                      alert(`La capacidad de ruptura de esta protección (${maxIcn} kA) es insuficiente para el cortocircuito del tablero (${iccTablero} kA).`);
+                      return;
+                  }
+              }
           }
           onChange(selected);
         }}
@@ -49,10 +58,16 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
         {disponibles.map(p => {
           const isTooHigh = maxAmp && p.in_amp > maxAmp;
           const isTooLow = minAmp && p.in_amp < minAmp;
-          const isDisabled = !!(isTooHigh || isTooLow);
+          // Validación de Icc para deshabilitar
+          const isIcnInsuficiente = iccTablero && p.capacidades && Math.max(...p.capacidades.map(c => c.icn_ka)) < iccTablero;
+          
+          const isDisabled = !!(isTooHigh || isTooLow || isIcnInsuficiente);
           return (
             <option key={p.id} value={p.id} disabled={isDisabled}>
-              {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) {isTooHigh ? '(Excede máx)' : ''} {isTooLow ? '(Inferior a Ib)' : ''}
+              {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) 
+              {isTooHigh ? ' (Excede máx)' : ''} 
+              {isTooLow ? ' (Inferior a Ib)' : ''}
+              {isIcnInsuficiente ? ' (Icn insuficiente)' : ''}
             </option>
           );
         })}

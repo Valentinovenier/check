@@ -4,7 +4,7 @@ import { getProjectStrategy } from '../engine/factory';
 import { generatePdfMemoriaDescriptiva } from '../utils/generatePdfMemoriaDescriptiva';
 import { generatePdfMemoriaCalculo } from '../utils/generatePdfMemoriaCalculo';
 import { generatePdfReport } from '../utils/generatePdfReport';
-import { FileText, Calculator, Download, Edit3 } from 'lucide-react';
+import { FileText, Calculator, Download, Edit3, Save, ChevronDown, ChevronRight, Layout, Zap, FileDown } from 'lucide-react';
 
 export const ProjectReport = ({ project }: { project: Project }) => {
   const [showCaratulaForm, setShowCaratulaForm] = useState(false);
@@ -49,26 +49,26 @@ export const ProjectReport = ({ project }: { project: Project }) => {
             className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5"
           >
             <Edit3 size={15} />
-            import { FileText, Calculator, Download, Edit3, Save, ChevronDown, ChevronRight, Layout, Zap, FileDown } from 'lucide-react';
-            // ... (omitted)
+            <span>{showCaratulaForm ? 'Ocultar Portada' : 'Editar Datos Portada'}</span>
+          </button>
 
-                      <button
-                        onClick={handleDownloadMemoriaDescriptiva}
-                        className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-                        title="Descargar únicamente la Memoria Descriptiva en PDF"
-                      >
-                        <FileDown size={15} />
-                        <span>Memoria Descriptiva (PDF)</span>
-                      </button>
+          <button
+            onClick={handleDownloadMemoriaDescriptiva}
+            className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+            title="Descargar únicamente la Memoria Descriptiva en PDF"
+          >
+            <FileDown size={15} />
+            <span>Memoria Descriptiva (PDF)</span>
+          </button>
 
-                      <button
-                        onClick={handleDownloadMemoriaCalculo}
-                        className="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-                        title="Descargar únicamente la Memoria de Cálculo con el paso a paso en PDF"
-                      >
-                        <FileDown size={15} />
-                        <span>Memoria de Cálculo (PDF)</span>
-                      </button>
+          <button
+            onClick={handleDownloadMemoriaCalculo}
+            className="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+            title="Descargar únicamente la Memoria de Cálculo con el paso a paso en PDF"
+          >
+            <FileDown size={15} />
+            <span>Memoria de Cálculo (PDF)</span>
+          </button>
 
         </div>
       </div>
