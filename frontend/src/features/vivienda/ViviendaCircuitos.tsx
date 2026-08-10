@@ -28,6 +28,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   const [nuevoTipo, setNuevoTipo] = useState<CircuitoCalculado['tipo']>('iluminacion_usos_generales');
   const [circuitoEspecificoSeleccionado, setCircuitoEspecificoSeleccionado] = useState(CIRCUITOS_ESPECIFICOS[0]);
   const [potencia, setPotencia] = useState(0);
+  const [bocas, setBocas] = useState(0); // Estado para las bocas
   const [unidadPotencia, setUnidadPotencia] = useState<'W' | 'VA'>('W');
   const [coefUtilizacion, setCoefUtilizacion] = useState(1);
   const [coefSimultaneidad, setCoefSimultaneidad] = useState(1);

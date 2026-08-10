@@ -49,7 +49,7 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
         {disponibles.map(p => {
           const isTooHigh = maxAmp && p.in_amp > maxAmp;
           const isTooLow = minAmp && p.in_amp < minAmp;
-          const isDisabled = isTooHigh || isTooLow;
+          const isDisabled = !!(isTooHigh || isTooLow);
           return (
             <option key={p.id} value={p.id} disabled={isDisabled}>
               {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) {isTooHigh ? '(Excede máx)' : ''} {isTooLow ? '(Inferior a Ib)' : ''}
