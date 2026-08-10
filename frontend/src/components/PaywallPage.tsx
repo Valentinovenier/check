@@ -6,7 +6,10 @@ export const PaywallPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    startPayment();
+    const init = async () => {
+        await startPayment('basic');
+    };
+    init();
   }, []);
 
   return (

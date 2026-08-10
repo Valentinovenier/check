@@ -44,7 +44,8 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
       if (data.token) {
         login(data.token);
         // Redirigir directamente al checkout de suscripción de MercadoPago
-        await startPayment();
+        const plan: 'basic' | 'pro' = 'basic';
+        await startPayment(plan);
       }
     } catch (err: any) {
       setError(err.message);
