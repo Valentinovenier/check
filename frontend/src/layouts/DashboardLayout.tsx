@@ -3,6 +3,7 @@ import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, ClipboardList,
 import { useAuth } from '../context/AuthContext';
 import { Project } from '../types/project';
 import { SaveIndicator } from '../components/SaveIndicator';
+import { usePlanAccess } from '../hooks/usePlanAccess';
 
 export const DashboardLayout = ({ 
   children, 
@@ -20,6 +21,7 @@ export const DashboardLayout = ({
   lastSaved: Project | null
 }) => {
   const { user, logout } = useAuth();
+  const { canAccessFullFeatures } = usePlanAccess();
 
   // Menú global lateral
   const sidebarItems = [
@@ -28,14 +30,18 @@ export const DashboardLayout = ({
 
   // Menú contextual superior (solo si hay proyecto)
   const headerItems = projectSelected 
-    ? [
-        { icon: Settings, label: 'Parámetros', id: 'parametros' },
-        { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
-        { icon: Network, label: 'Canalizaciones', id: 'canalizaciones' },
-        { icon: Zap, label: 'Protecciones', id: 'protecciones' },
-        { icon: Cable, label: 'Conductores', id: 'conductores' },
-        { icon: FileText, label: 'Informe', id: 'informe' },
-      ]
+    ? canAccessFullFeatures() 
+      ? [
+          { icon: Settings, label: 'Parámetros', id: 'parametros' },
+          { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
+          { icon: Network, label: 'Canalizaciones', id: 'canalizaciones' },
+          { icon: Zap, label: 'Protecciones', id: 'protecciones' },
+          { icon: Cable, label: 'Conductores', id: 'conductores' },
+          { icon: FileText, label: 'Informe', id: 'informe' },
+        ]
+      : [
+          { icon: Zap, label: 'Calculadora DPMS', id: 'parametros' },
+        ]
     : [];
 
   return (

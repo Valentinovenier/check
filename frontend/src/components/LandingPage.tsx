@@ -240,48 +240,78 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
       </section>
 
       {/* ═══════════════════════════════════════════════
-          TARJETA SUSCRIPCIÓN PREMIUM
+          TARJETAS DE SUSCRIPCIÓN
       ═══════════════════════════════════════════════ */}
       <section id="precio" className="py-24 px-4 bg-slate-900/30">
         <div className="text-center mb-12">
           <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">Planes</span>
-          <h2 className="text-3xl font-bold text-white">Suscripción Premium</h2>
-          <p className="text-slate-400 mt-2">Acceso completo a todas las funcionalidades de la plataforma.</p>
+          <h2 className="text-3xl font-bold text-white">Elige tu Plan</h2>
+          <p className="text-slate-400 mt-2">Accede a las herramientas que necesitas.</p>
         </div>
-        <div className="max-w-md mx-auto bg-slate-900 border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-500/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4">
-            <Crown className="w-8 h-8 text-emerald-400" />
-          </div>
-          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-
-          <h3 className="text-2xl font-bold text-white mb-1">Acceso Total</h3>
-          <p className="text-slate-400 text-sm mb-5">Todo incluido, sin límites.</p>
-          <div className="flex items-baseline gap-1 mb-7">
-            <span className="text-4xl font-black text-white">$9.000</span>
-            <span className="text-slate-400">/ mes</span>
-          </div>
-          <ul className="space-y-4 mb-8 text-slate-300">
-            {[
-              'Cálculos normativos AEA',
-              'Informes técnicos en PDF',
-              'Verificacion de conductores',
-              'Verificacion de protecciones',
-              'Calculo DPMS',
-              'Proyectos ilimitados',
-              'Soporte prioritario',
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={handleSubscribeClick}
-            className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20"
-          >
-            Suscribirse Ahora
-          </button>
+        
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[
+            {
+              title: "Calculadora",
+              price: "$4.500",
+              desc: "Acceso a cálculos de parámetros",
+              features: [
+                { name: "Cálculos normativos AEA", included: true },
+                { name: "Dimensionamiento de conductores", included: true },
+                { name: "Verificación de protecciones", included: false },
+                { name: "Informes técnicos PDF", included: false },
+                { name: "Soporte prioritario", included: false },
+              ],
+              buttonText: "Seleccionar Plan",
+              isPro: false
+            },
+            {
+              title: "Acceso Total",
+              price: "$9.000",
+              desc: "Todo incluido, sin límites",
+              features: [
+                { name: "Cálculos normativos AEA", included: true },
+                { name: "Dimensionamiento de conductores", included: true },
+                { name: "Verificación de protecciones", included: true },
+                { name: "Informes técnicos PDF", included: true },
+                { name: "Soporte prioritario", included: true },
+              ],
+              buttonText: "Suscribirse Ahora",
+              isPro: true
+            }
+          ].map((plan, i) => (
+            <div key={i} className={`rounded-3xl p-8 shadow-2xl relative flex flex-col ${plan.isPro ? 'bg-slate-900 border-2 border-emerald-500/50' : 'bg-slate-900/50 border border-slate-700'}`}>
+              {plan.isPro && <div className="absolute top-0 right-0 p-4"><Crown className="w-8 h-8 text-emerald-400" /></div>}
+              
+              <h3 className="text-2xl font-bold text-white mb-1">{plan.title}</h3>
+              <p className="text-slate-400 text-sm mb-5">{plan.desc}</p>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-5xl font-black text-white">{plan.price}</span>
+                <span className="text-slate-400">/ mes</span>
+              </div>
+              
+              <ul className="space-y-4 mb-8 flex-1">
+                {plan.features.map((feat, idx) => (
+                  <li key={idx} className={`flex items-center gap-3 ${feat.included ? 'text-slate-100' : 'text-slate-500'}`}>
+                    {feat.included ? 
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" /> : 
+                      <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
+                        <span className="text-slate-600 font-bold">✕</span>
+                      </div>
+                    }
+                    {feat.name}
+                  </li>
+                ))}
+              </ul>
+              
+              <button 
+                onClick={handleSubscribeClick} 
+                className={`w-full py-4 font-bold rounded-xl transition-all ${plan.isPro ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
+              >
+                {plan.buttonText}
+              </button>
+            </div>
+          ))}
         </div>
       </section>
 

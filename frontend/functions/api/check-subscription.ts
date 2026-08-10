@@ -28,7 +28,7 @@ export async function onRequest(context: any) {
         }
 
         // Consultar el estado actual registrado en la base de datos (actualizado únicamente por el Webhook)
-        const user = await env.DB.prepare('SELECT subscription_status FROM users WHERE id = ?')
+        const user = await env.DB.prepare('SELECT subscription_status, plan_type FROM users WHERE id = ?')
             .bind(decoded.userId)
             .first();
 
@@ -37,15 +37,17 @@ export async function onRequest(context: any) {
         }
 
         const userStatus = user.subscription_status || 'pending';
+        const userPlanType = user.plan_type || 'basic';
 
         // Generar un nuevo token JWT actualizado con el estado actual
         const updatedToken = jwt.sign({ 
             userId: decoded.userId, 
             username: decoded.username,
-            subscription_status: userStatus
+            subscription_status: userStatus,
+            plan_type: userPlanType
         }, secret, { expiresIn: '7d' });
 
-        return new Response(JSON.stringify({ status: userStatus, token: updatedToken }), {
+        return new Response(JSON.stringify({ status: userStatus, plan_type: userPlanType, token: updatedToken }), {
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (e: any) {

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { id: string; username: string; subscriptionStatus: string } | null;
+  user: { id: string; username: string; subscriptionStatus: string; planType: string } | null;
   login: (token: string) => void;
   logout: () => void;
   updateUserSubscription: (newStatus: string, newToken?: string) => void;
@@ -21,7 +21,13 @@ const decodeToken = (token: string) => {
         .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join('')
     );
-    return JSON.parse(jsonPayload);
+    const payload = JSON.parse(jsonPayload);
+    return {
+      userId: payload.userId,
+      username: payload.username,
+      subscription_status: payload.subscription_status,
+      plan_type: payload.plan_type || 'basic'
+    };
   } catch (e) {
     console.error("Error decodificando token:", e);
     return null;
@@ -30,7 +36,7 @@ const decodeToken = (token: string) => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; username: string; subscriptionStatus: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; username: string; subscriptionStatus: string; planType: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -39,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = decodeToken(token);
       if (decoded && decoded.userId) {
         setIsAuthenticated(true);
-        setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status });
+        setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status, planType: decoded.plan_type });
 
         // Si el estado en el token no es 'active', verificar en segundo plano contra el backend D1 por si el Webhook ya lo activó
         if (decoded.subscription_status !== 'active' && decoded.username !== 'vale07venier@gmail.com') {
@@ -52,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (data.token) {
                 localStorage.setItem('token', data.token);
               }
-              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active' });
+              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active', planType: data.plan_type || 'pro' });
             }
           })
           .catch(err => console.error("Error validando suscripción inicial en AuthContext:", err));
@@ -69,15 +75,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const decoded = decodeToken(token);
     if (decoded && decoded.userId) {
       setIsAuthenticated(true);
-      setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status });
+      setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status, planType: decoded.plan_type });
     }
   };
 
-  const updateUserSubscription = (newStatus: string, newToken?: string) => {
+  const updateUserSubscription = (newStatus: string, newToken?: string, newPlanType?: string) => {
     if (newToken) {
       localStorage.setItem('token', newToken);
     }
-    setUser(prev => prev ? { ...prev, subscriptionStatus: newStatus } : null);
+    setUser(prev => prev ? { ...prev, subscriptionStatus: newStatus, planType: newPlanType || prev.planType } : null);
   };
 
   const logout = () => {

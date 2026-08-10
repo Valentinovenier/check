@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   mp_subscription_id TEXT,
   subscription_status TEXT DEFAULT 'pending',
+  plan_type TEXT DEFAULT 'basic',
   subscription_end_date DATETIME
 );
 
