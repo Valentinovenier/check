@@ -208,6 +208,15 @@ export const ProteccionesPage = () => {
                     <div className="space-y-3">
                       {baseTablero.circuitosTerminales.map((circuito: any) => {
                         const iNominal = getCircuitoNominalCurrent(circuito, project);
+                        
+                        // Mapeo de tipos de circuitos a calibres máximos (Amperes)
+                        const calibresMaximos: Record<string, number> = {
+                            'iluminacion_usos_generales': 16,
+                            'tomacorrientes_usos_generales': 20,
+                            'usos_especiales': 32,
+                        };
+                        const maxAmp = calibresMaximos[circuito.tipo as string];
+
                         return (
                           <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
                             <div className="flex justify-between items-center mb-2">
@@ -221,6 +230,7 @@ export const ProteccionesPage = () => {
                               proteccion={circuito.proteccion}
                               disponibles={protecciones}
                               onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
+                              maxAmp={maxAmp}
                             />
                             {circuito.proteccion && (
                                 <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
