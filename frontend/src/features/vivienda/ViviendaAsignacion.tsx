@@ -141,12 +141,16 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     return acc + (tomas.IUG || 0) + (tomas.TUG || 0) + (tomas.TUE || 0);
                 }, 0);
                 
-                const superaLimite = totalTomas > 15;
+                // Determinar límite dinámico
+                const maxBocas = (c as any).maximoBocas || 15;
+                const limiteNumerico = typeof maxBocas === 'number' ? maxBocas : (maxBocas === '12 por fase' ? 12 : 9999);
+                const superaLimite = maxBocas !== 'Sin límite' && maxBocas !== 'N/A' && totalTomas > limiteNumerico;
+                
                 return (
                     <div key={c.id} className={`p-3 rounded border flex justify-between items-center ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
                         <div className="text-white text-xs font-bold truncate">{c.nombre}</div>
                         <div className={`text-xl font-black ${superaLimite ? 'text-red-500' : 'text-emerald-500'}`}>
-                            {totalTomas}<span className="text-sm text-slate-500 font-normal">/15</span>
+                            {totalTomas}<span className="text-sm text-slate-500 font-normal">/{maxBocas === 'Sin límite' ? '∞' : maxBocas}</span>
                         </div>
                     </div>
                 )
