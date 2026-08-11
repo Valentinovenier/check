@@ -187,6 +187,52 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
         )}
       </div>
 
+      {/* PROC 5: Resumen DPMS por Circuitos */}
+      <div className="bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden">
+        <button
+          onClick={() => toggleProc('proc5')}
+          className="w-full flex justify-between items-center p-4 bg-slate-800/80 hover:bg-slate-800 transition-colors text-left"
+        >
+          <span className="font-bold text-sm text-emerald-400 flex items-center gap-2">
+            <Zap size={16} /> Procedimiento 5: Resumen de DPMS (Motor de Cálculo)
+          </span>
+          {procedimientosAbiertos.proc5 ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+
+        {procedimientosAbiertos.proc5 && (
+            <div className="p-5 bg-slate-950/40 text-xs">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-800 text-slate-300 border-b border-slate-700">
+                                <th className="p-3">Categoría</th>
+                                <th className="p-3">Potencia (VA)</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800 text-slate-200">
+                            <tr>
+                                <td className="p-3">Grado Electrificación (AEA)</td>
+                                <td className="p-3 font-mono">{valoresDPMS.DPMS_Grado.toFixed(0)}</td>
+                            </tr>
+                            <tr>
+                                <td className="p-3">Circuitos Específicos</td>
+                                <td className="p-3 font-mono">{valoresDPMS.DPMS_Específicas.toFixed(0)}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot className="bg-slate-800/50 font-bold text-white">
+                            <tr>
+                                <td className="p-3">Total DPMS</td>
+                                <td className="p-3 text-emerald-400 font-mono">
+                                    {valoresDPMS.cargaTotal.toFixed(0)} VA
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        )}
+      </div>
+
       {/* PROC 6: Paso a Paso Detallado por Conductor/Circuito (8 Pasos) */}
       <div className="bg-slate-900/60 rounded-2xl border border-slate-800 overflow-hidden">
         <button
