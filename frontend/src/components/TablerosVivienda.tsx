@@ -12,11 +12,12 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tableros: [] };
   const tableros = datos.tableros || [];
 
-  // Asegurar tablero principal por defecto
+  // Asegurar tablero principal y seccional general por defecto
   useEffect(() => {
     if (datos.circuitosCalculados.length > 0 && !tableros.find(t => t.tipo === 'Principal')) {
         const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [], proteccionesSalida: [] };
-        onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp] } });
+        const tsg: TableroVivienda = { id: 'tsg', nombre: 'Tablero Seccional General', tipo: 'Seccional', circuitosIds: [], proteccionesSalida: [] };
+        onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp, tsg] } });
     }
   }, [datos.circuitosCalculados, tableros, project, onChange, datos]);
 
@@ -51,11 +52,30 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   };
 
   const addTablero = (tipo: 'Seccional' | 'SubSeccional', padreId?: string) => {
-    // Usar la referencia más actualizada de tableros obtenida de 'datos'
-    const nuevosTableros = datos.tableros || [];
+    const nuevosTableros = [...(datos.tableros || [])];
+    
+    let nombre = `${tipo} ${nuevosTableros.length + 1}`;
+    
+    if (tipo === 'Seccional') {
+        const seccionales = nuevosTableros.filter(t => t.tipo === 'Seccional');
+        
+        if (seccionales.length === 1 && seccionales[0].nombre === 'Tablero Seccional General') {
+            // Renombrar el primero
+            const idx = nuevosTableros.findIndex(t => t.id === seccionales[0].id);
+            nuevosTableros[idx].nombre = 'Tablero Seccional General 1';
+            nombre = 'Tablero Seccional General 2';
+        } else if (seccionales.length > 1) {
+            // Si ya hay varios, incrementar el número (o simplemente buscar el siguiente)
+            // Para simplificar: basarse en la cantidad
+            nombre = `Tablero Seccional General ${seccionales.length + 1}`;
+        } else {
+            nombre = 'Tablero Seccional General';
+        }
+    }
+
     const nuevoTablero: TableroVivienda = {
         id: Date.now().toString(),
-        nombre: `${tipo} ${nuevosTableros.length + 1}`,
+        nombre,
         tipo,
         tableroPadreId: padreId,
         circuitosIds: [],
@@ -134,35 +154,39 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
                       {tableros.filter(t => t.tipo !== 'Principal').map(t => (
                         <div key={t.id} className="flex items-center gap-3 p-3 bg-slate-950 border border-amber-900/30 rounded-lg ml-2">
                             <Zap size={16} className="text-amber-500"/>
-                            <span className="text-sm text-amber-200">Tramo hacia {t.nombre}</span>
+                            <span className="text-sm text-amber-200">Linea de alimentacion principal</span>
                         </div>
                       ))}
                   </div>
                 )}
 
-                <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
-                {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
-                    // Lógica actualizada: 
-                    // 1. Está asignado si el circuito está explícitamente en la lista de IDs del tablero.
-                    const esAsignado = tablero.circuitosIds.includes(c.id);
-                    const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));
-                    
-                    return (
-                        <label key={c.id} className={`flex items-center gap-3 p-3 rounded-lg text-sm transition-all border ${esAsignado ? 'bg-emerald-900/10 border-emerald-800/50' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-600`}>
-                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${esAsignado ? 'bg-emerald-600 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}>
-                                {esAsignado && <span className="text-white">✓</span>}
-                            </div>
-                            <input 
-                                type="checkbox" 
-                                checked={esAsignado} 
-                                className="hidden"
-                                onChange={() => toggleCircuitoEnTablero(tablero.id, c.id)}
-                            />
-                            <span className={esAsignado ? 'text-white' : 'text-slate-400'}>{c.nombre}</span>
-                            {estaEnOtro && !esAsignado && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado a otro tablero)</span>}
-                        </label>
-                    );
-                })}
+                {tablero.tipo !== 'Principal' && (
+                  <>
+                    <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
+                    {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
+                        // Lógica actualizada: 
+                        // 1. Está asignado si el circuito está explícitamente en la lista de IDs del tablero.
+                        const esAsignado = tablero.circuitosIds.includes(c.id);
+                        const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));
+                        
+                        return (
+                            <label key={c.id} className={`flex items-center gap-3 p-3 rounded-lg text-sm transition-all border ${esAsignado ? 'bg-emerald-900/10 border-emerald-800/50' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-600`}>
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${esAsignado ? 'bg-emerald-600 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}>
+                                    {esAsignado && <span className="text-white">✓</span>}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    checked={esAsignado} 
+                                    className="hidden"
+                                    onChange={() => toggleCircuitoEnTablero(tablero.id, c.id)}
+                                />
+                                <span className={esAsignado ? 'text-white' : 'text-slate-400'}>{c.nombre}</span>
+                                {estaEnOtro && !esAsignado && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado a otro tablero)</span>}
+                            </label>
+                        );
+                    })}
+                  </>
+                )}
                 {subTableros.map((st: TableroVivienda) => renderTableroNode(st, depth + 1))}
             </div>
         )}

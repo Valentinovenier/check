@@ -157,17 +157,22 @@ export const ProteccionesPage = () => {
                               Asignado: {tablero.proteccionCabecera.modelo} | {tablero.proteccionCabecera.in_amp}A | Icn: {tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3}kA
                           </div>
                       )}
-                      <AsignacionProteccion 
-                        label="Protección Diferencial"
-                        proteccion={tablero.proteccionDiferencial}
-                        disponibles={protecciones}
-                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
-                        minAmp={corrienteTotal}
-                      />
-                      {tablero.proteccionDiferencial && (
-                          <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                              Asignado: {tablero.proteccionDiferencial.modelo} | {tablero.proteccionDiferencial.in_amp}A | Icn: {tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3}kA
-                          </div>
+                      
+                      {tablero.tipo !== 'Principal' && (
+                        <>
+                          <AsignacionProteccion 
+                            label="Protección Diferencial"
+                            proteccion={tablero.proteccionDiferencial}
+                            disponibles={protecciones}
+                            onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                            minAmp={corrienteTotal}
+                          />
+                          {tablero.proteccionDiferencial && (
+                              <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                                  Asignado: {tablero.proteccionDiferencial.modelo} | {tablero.proteccionDiferencial.in_amp}A | Icn: {tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3}kA
+                              </div>
+                          )}
+                        </>
                       )}
 
                       {/* Nuevas protecciones de salida - Lógica de Sincronización */}
