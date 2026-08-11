@@ -48,7 +48,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             onChange(calculated);
         }
     }
-  }, [project, tieneProteccionAsignada, tramoId, conductor?.metodoInstalacion, conductor?.longitud, conductor?.normaCable, conductor?.tempSuelo, conductor?.temperaturaAmbiente, conductor?.resistividadTermica, conductor?.separacionBordes, conductor?.caidaMaxPermitida]);
+  }, [project, tieneProteccionAsignada, tramoId, conductor]);
 
   const datosFaltantes = !conductor?.metodoInstalacion || !conductor?.longitud;
 
