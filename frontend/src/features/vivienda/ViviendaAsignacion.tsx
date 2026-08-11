@@ -141,8 +141,8 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     return acc + (tomas.IUG || 0) + (tomas.TUG || 0) + (tomas.TUE || 0);
                 }, 0);
                 
-                // Determinar límite dinámico
-                const maxBocas = (c as any).maximoBocas || 15;
+                // Determinar límite: usa maximoBocas si existe, si no, es 15 por defecto (normativo)
+                const maxBocas = (c as any).maximoBocas !== undefined ? (c as any).maximoBocas : 15;
                 const limiteNumerico = typeof maxBocas === 'number' ? maxBocas : (maxBocas === '12 por fase' ? 12 : 9999);
                 const superaLimite = maxBocas !== 'Sin límite' && maxBocas !== 'N/A' && totalTomas > limiteNumerico;
                 
