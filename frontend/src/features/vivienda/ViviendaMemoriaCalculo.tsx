@@ -2,6 +2,7 @@ import { Project, Conductor } from '../../types/project';
 import { DetalleCalculoConductor } from './DetalleCalculoConductor';
 import { Calculator, Zap, Home, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+import { calcularDPMS } from '../../engine/strategies/vivienda/calculoPotencia';
 
 export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
   const datosV = project.datosVivienda;
@@ -11,6 +12,10 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
   const grado = datosV?.gradoElectrificacion || (supTotal <= 60 ? 'Mínimo' : supTotal <= 130 ? 'Medio' : supTotal <= 200 ? 'Elevado' : 'Superior');
   const circuitos = datosV?.circuitosCalculados || [];
   const ambientes = datosV?.ambientes || [];
+  
+  // Agregar uso del motor de cálculo
+  const valoresDPMS = datosV ? calcularDPMS(datosV) : { DPMS_Grado: 0, DPMS_Específicas: 0, cargaTotal: 0 };
+  
   const dpmsVA = datosV?.potenciaMaximaSimultanea || (project.tableroPrincipal as any)?.potenciaTotal || 0;
   const dpmsKW = (dpmsVA * (project.cosPhi || 0.85)) / 1000;
   const ibAlim = dpmsVA > 0 ? (dpmsVA / (project.tipoInstalacion === 'Trifásica' ? 380 * Math.sqrt(3) : 220)).toFixed(2) : '-';
