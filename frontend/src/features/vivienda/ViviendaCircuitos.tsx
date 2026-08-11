@@ -240,15 +240,6 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     </select>
                 </div>
                 <div>
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Cantidad de Bocas</label>
-                    <input 
-                        type="number" 
-                        value={bocas}
-                        onChange={(e) => setBocas(Number(e.target.value))}
-                        className="bg-slate-900 p-2 rounded-lg text-white text-sm border border-slate-700 w-full"
-                    />
-                </div>
-                <div>
                     <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Potencia</label>
                     <input 
                         type="number" 
