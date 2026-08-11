@@ -101,6 +101,7 @@ export interface CondicionesTramoResidencial {
   tempSuelo?: number;
   resistividadTermica?: number;
   separacionBordes?: string;
+  caidaMaxPermitida?: number;
 }
 
 export interface PasoVerificacion {
