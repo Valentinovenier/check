@@ -160,33 +160,29 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
                   </div>
                 )}
 
-                {tablero.tipo !== 'Principal' && (
-                  <>
-                    <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
-                    {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
-                        // Lógica actualizada: 
-                        // 1. Está asignado si el circuito está explícitamente en la lista de IDs del tablero.
-                        const esAsignado = tablero.circuitosIds.includes(c.id);
-                        const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));
-                        
-                        return (
-                            <label key={c.id} className={`flex items-center gap-3 p-3 rounded-lg text-sm transition-all border ${esAsignado ? 'bg-emerald-900/10 border-emerald-800/50' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-600`}>
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${esAsignado ? 'bg-emerald-600 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}>
-                                    {esAsignado && <span className="text-white">✓</span>}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    checked={esAsignado} 
-                                    className="hidden"
-                                    onChange={() => toggleCircuitoEnTablero(tablero.id, c.id)}
-                                />
-                                <span className={esAsignado ? 'text-white' : 'text-slate-400'}>{c.nombre}</span>
-                                {estaEnOtro && !esAsignado && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado a otro tablero)</span>}
-                            </label>
-                        );
-                    })}
-                  </>
-                )}
+                <div className="text-[10px] font-bold text-slate-500 uppercase ml-2">Circuitos</div>
+                {datos.circuitosCalculados.map((c: CircuitoCalculado) => {
+                    // Lógica actualizada: 
+                    // 1. Está asignado si el circuito está explícitamente en la lista de IDs del tablero.
+                    const esAsignado = tablero.circuitosIds.includes(c.id);
+                    const estaEnOtro = tableros.some((t: TableroVivienda) => t.id !== tablero.id && t.circuitosIds.includes(c.id));
+                    
+                    return (
+                        <label key={c.id} className={`flex items-center gap-3 p-3 rounded-lg text-sm transition-all border ${esAsignado ? 'bg-emerald-900/10 border-emerald-800/50' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-600`}>
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${esAsignado ? 'bg-emerald-600 border-emerald-500' : 'bg-slate-800 border-slate-600'}`}>
+                                {esAsignado && <span className="text-white">✓</span>}
+                            </div>
+                            <input 
+                                type="checkbox" 
+                                checked={esAsignado} 
+                                className="hidden"
+                                onChange={() => toggleCircuitoEnTablero(tablero.id, c.id)}
+                            />
+                            <span className={esAsignado ? 'text-white' : 'text-slate-400'}>{c.nombre}</span>
+                            {estaEnOtro && !esAsignado && <span className="text-[10px] text-slate-500 italic ml-auto">(Asignado a otro tablero)</span>}
+                        </label>
+                    );
+                })}
                 {subTableros.map((st: TableroVivienda) => renderTableroNode(st, depth + 1))}
             </div>
         )}
