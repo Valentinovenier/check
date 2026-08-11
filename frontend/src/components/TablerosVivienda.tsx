@@ -12,12 +12,11 @@ export const TablerosVivienda = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], tableros: [] };
   const tableros = datos.tableros || [];
 
-  // Asegurar tablero principal y seccional general por defecto
+  // Asegurar tablero principal por defecto
   useEffect(() => {
     if (datos.circuitosCalculados.length > 0 && !tableros.find(t => t.tipo === 'Principal')) {
         const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [], proteccionesSalida: [] };
-        const tsg: TableroVivienda = { id: 'tsg', nombre: 'Tablero Seccional General', tipo: 'Seccional', circuitosIds: [], proteccionesSalida: [] };
-        onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp, tsg] } });
+        onChange({ ...project, datosVivienda: { ...datos, tableros: [...tableros, tp] } });
     }
   }, [datos.circuitosCalculados, tableros, project, onChange, datos]);
 
