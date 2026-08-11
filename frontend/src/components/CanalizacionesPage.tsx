@@ -16,7 +16,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
   const tableros = project.datosVivienda?.tableros || [];
   const tramosAlimentacion = tableros.filter(t => t.tipo !== 'Principal').map(t => ({
       id: `tramo_${t.id}`,
-      nombre: `Tramo al ${t.nombre}`
+      nombre: `Linea de alimentacion principal`
   }));
 
   const addCanalizacion = () => {
@@ -98,13 +98,30 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
     addToast('Asignación actualizada', 'success');
   };
 
+  const updateTramoNorma = (tramoId: string, norma: string) => {
+      // Necesito actualizar el tablero correspondiente en project.datosVivienda.tableros
+      const tableros = project.datosVivienda?.tableros || [];
+      const nuevosTableros = tableros.map(t => 
+          `tramo_${t.id}` === tramoId ? { ...t, normaCable: norma } : t
+      );
+      onChange({
+          ...project,
+          datosVivienda: {
+              ...project.datosVivienda!,
+              tableros: nuevosTableros
+          }
+      });
+  };
+
   return (
     <div className="p-6">
       
-      {/* SECCIÓN NUEVA: Configuración de normas por circuito (MOVIDA ARRIBA) */}
+      {/* SECCIÓN NUEVA: Configuración de normas */}
       <div className="bg-[var(--bg-secondary)] p-6 rounded-xl border border-slate-700 mb-8 shadow-lg">
-          <h3 className="text-xl font-bold text-white mb-4">Configuración de Normas por Circuito</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <h3 className="text-xl font-bold text-white mb-4">Configuración de Normas</h3>
+          
+          <h4 className="text-white text-md font-medium mb-2">Por Circuito</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
               {(project.datosVivienda?.circuitosCalculados || []).map((circ: any) => (
                   <div key={circ.id} className="flex flex-col gap-1 p-3 bg-slate-950 rounded border border-slate-700">
                       <span className="text-white text-sm font-medium">{circ.nombre}</span>
@@ -112,6 +129,25 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                         className="bg-slate-800 text-white text-xs rounded p-2 border border-slate-700"
                         value={circ.normaCable || 'IRAM 2178'}
                         onChange={(e) => updateCircuitoNorma(circ.id, e.target.value)}
+                      >
+                          <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
+                          <option value="IRAM 62266">IRAM 62266</option>
+                          <option value="IRAM 62267">IRAM 62267</option>
+                          <option value="IRAM 2178">IRAM 2178</option>
+                      </select>
+                  </div>
+              ))}
+          </div>
+
+          <h4 className="text-white text-md font-medium mb-2">Por Línea de Alimentación Principal</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(project.datosVivienda?.tableros || []).filter(t => t.tipo !== 'Principal').map((tablero: any) => (
+                  <div key={tablero.id} className="flex flex-col gap-1 p-3 bg-slate-950 rounded border border-slate-700">
+                      <span className="text-white text-sm font-medium">Línea hacia {tablero.nombre}</span>
+                      <select 
+                        className="bg-slate-800 text-white text-xs rounded p-2 border border-slate-700"
+                        value={tablero.normaCable || 'IRAM 2178'}
+                        onChange={(e) => updateTramoNorma(`tramo_${tablero.id}`, e.target.value)}
                       >
                           <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
                           <option value="IRAM 62266">IRAM 62266</option>
