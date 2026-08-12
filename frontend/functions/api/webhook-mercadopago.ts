@@ -47,15 +47,18 @@ async function handleWebhook(context: any) {
         let status: string | null = null;
         let payData: any = null; // Definir aquí
 
-        // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id
+        // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id o external_reference
         if (topic === 'payment' || body.type === 'payment') {
             console.log('Consultando API de pagos para ID:', preapprovalId);
             const payRes = await fetch(`https://api.mercadopago.com/v1/payments/${preapprovalId}`, {
                 headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` }
             });
             if (payRes.ok) {
-                payData = await payRes.json(); // Asignar aquí
+                const payData: any = await payRes.json();
                 console.log('Datos de pago obtenidos:', JSON.stringify(payData));
+                if (payData.preapproval_id) {
+                    targetPreapprovalId = payData.preapproval_id;
+                }
                 
                 // Extraer userId del external_reference del pago
                 if (payData.external_reference) {
@@ -86,13 +89,10 @@ async function handleWebhook(context: any) {
             const mpStatus = subData.status; // 'authorized', 'active', 'paused', 'cancelled', etc.
             
             // Lógica inteligente de estados:
-            // 1. Si es un pago aprobado, activamos directamente (resiliente a que la API de suscripción tarde en actualizarse)
-            // 2. Si es 'authorized' o 'active', marcar como 'active'.
-            // 3. Si es 'cancelled', 'paused', 'expired', marcar como 'inactive'.
-            
-            const isPaymentApproved = (topic === 'payment' || body.type === 'payment') && payData?.status === 'approved';
-            
-            if (isPaymentApproved || mpStatus === 'authorized' || mpStatus === 'active') {
+            // - Si es 'authorized' o 'active', marcar como 'active'.
+            // - Si es 'cancelled', 'paused', 'expired', marcar como 'inactive'.
+            // - Si es 'pending', no hacer nada (preservar estado actual).
+            if (mpStatus === 'authorized' || mpStatus === 'active') {
                 status = 'active';
             } else if (['cancelled', 'paused', 'expired', 'refunded'].includes(mpStatus)) {
                 status = 'inactive';
