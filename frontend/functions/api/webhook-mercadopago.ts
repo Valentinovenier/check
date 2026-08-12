@@ -100,8 +100,15 @@ async function handleWebhook(context: any) {
                 const planId = subData.preapproval_plan_id;
                 
                 // Obtenemos los IDs de las variables de entorno
-                const PRO_PLAN_ID = env.PLAN_ID_PRO || 'f60b996e809848a482e25b74b1c44128'; 
-                const planType = (planId === PRO_PLAN_ID) ? 'pro' : 'basic';
+                const PRO_PLAN_ID = env.PLAN_ID_PRO; 
+                const BASIC_PLAN_ID = env.PLAN_ID_BASIC;
+                
+                let planType = 'unknown';
+                if (planId === PRO_PLAN_ID) {
+                    planType = 'pro';
+                } else if (planId === BASIC_PLAN_ID) {
+                    planType = 'basic';
+                }
                 
                 console.log(`Actualizando base de datos para usuario ${userId} a estado '${status}', plan '${planType}' (ID: ${planId}) y fecha ${nextPaymentDate}...`);
                 const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ?, plan_type = ? WHERE id = ?')
