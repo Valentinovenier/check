@@ -57,19 +57,11 @@ export async function onRequestPost(context: any) {
 
             if (payerEmail) {
                 const bodyPayload: any = {
-                    reason: `Suscripción ElectroSaaS ${planType || 'Premium'}`,
-                    external_reference: decoded.userId,
+                    preapproval_plan_id: preapproval_plan_id,
                     payer_email: payerEmail,
-                    auto_recurring: {
-                        frequency: 1,
-                        frequency_type: 'months',
-                        transaction_amount: planType === 'pro' ? 150 : 50,
-                        currency_id: 'ARS'
-                    },
+                    external_reference: decoded.userId,
                     back_url: `${appBaseUrl}/app-entry`,
-                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`,
-                    status: 'pending',
-                    preapproval_plan_id: preapproval_plan_id
+                    notification_url: `${appBaseUrl}/api/webhook-mercadopago`
                 };
 
                 console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
