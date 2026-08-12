@@ -1,15 +1,11 @@
 // frontend/functions/api/webhook-mercadopago.ts
-
 async function handleWebhook(context: any) {
     const { request, env } = context;
-    
     console.log('--- NUEVO EVENTO WEBHOOK MERCADO PAGO ---');
-    
     try {
         const url = new URL(request.url);
         let preapprovalId = url.searchParams.get('id') || url.searchParams.get('data.id');
         let topic = url.searchParams.get('topic') || url.searchParams.get('type');
-
         let body: any = {};
         if (request.method === 'POST') {
             try {
@@ -22,31 +18,25 @@ async function handleWebhook(context: any) {
                 console.warn('Cuerpo no parseable como JSON:', e);
             }
         }
-
         if (!preapprovalId) {
             preapprovalId = body.data?.id || body.id || body.resource?.id;
         }
         if (!topic) {
             topic = body.type || body.topic || body.action;
         }
-
         console.log(`ID extraído: ${preapprovalId} | Tópico: ${topic}`);
-
         if (!preapprovalId) {
             console.log('No se obtuvo ID del webhook. Retornando HTTP 200.');
             return new Response('OK - Sin ID', { status: 200 });
         }
-
         if (!env.MP_ACCESS_TOKEN) {
             console.error('Error: MP_ACCESS_TOKEN no está configurado en las variables de entorno.');
             return new Response('OK - Sin MP_ACCESS_TOKEN', { status: 200 });
         }
-
         let targetPreapprovalId = preapprovalId;
         let userId: string | null = null;
         let status: string | null = null;
-        let payData: any = null; // Definir aquí
-
+        
         // Si la notificación es sobre un pago individual, consultamos la API de pagos para obtener el preapproval_id o external_reference
         if (topic === 'payment' || body.type === 'payment') {
             console.log('Consultando API de pagos para ID:', preapprovalId);
