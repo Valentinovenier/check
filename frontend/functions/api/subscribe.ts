@@ -40,8 +40,8 @@ export async function onRequestPost(context: any) {
     
     // Configuración de IDs de planes
     const PLAN_IDS = {
-        pro: '8c28f422fee34b11b7be627df7a9dc6a',
-        basic: '29130c3d9c384fda8091d85b8d209369'
+        pro: 'f60b996e809848a482e25b74b1c44128',
+        basic: '53c1ba35b5fd4219b09b5be4d9585262'
     };
     
     const preapproval_plan_id = PLAN_IDS[planType as 'pro' | 'basic'] || env.MP_PREAPPROVAL_PLAN_ID || "29130c3d9c384fda8091d85b8d209369";
