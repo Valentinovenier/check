@@ -46,6 +46,7 @@ export async function onRequestPost(context: any) {
     
     const preapproval_plan_id = PLAN_IDS[planType as 'pro' | 'basic'] || env.MP_PREAPPROVAL_PLAN_ID || "29130c3d9c384fda8091d85b8d209369";
 
+    /*
     if (env.MP_ACCESS_TOKEN) {
         try {
             // Determinar el email a utilizar: MP_TEST_PAYER_EMAIL si existe, el email del usuario si tiene formato de email, ESTE CODIGO FUNCIONA MUY BIEN
@@ -92,6 +93,7 @@ export async function onRequestPost(context: any) {
             console.error('Error al invocar API de Mercado Pago:', e);
         }
     }
+    */
 
     // 2. Fallback a URL directa de suscripción (con el ID de plan de Mercado Pago del usuario)
     const subscriptionUrl = `https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=${preapproval_plan_id}&external_reference=${decoded.userId}`;
