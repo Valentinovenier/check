@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (data.token) {
                 localStorage.setItem('token', data.token);
               }
-              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active', planType: data.plan_type || 'pro' });
+              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active', planType: data.plan_type || decoded.plan_type || 'basic' });
             }
           })
           .catch(err => console.error("Error validando suscripción inicial en AuthContext:", err));

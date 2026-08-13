@@ -68,6 +68,14 @@ export const DashboardLayout = ({
             </button>
           ))}
         </nav>
+
+        {/* User Plan Badge */}
+        <div className="mb-4 p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+          <span className="text-slate-400 font-medium">Plan Activo:</span>
+          <span className={`font-bold px-2 py-0.5 rounded ${user?.planType === 'pro' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
+            {user?.planType === 'pro' ? 'PRO' : 'BASIC'}
+          </span>
+        </div>
         
         {/* Logout button */}
         <button

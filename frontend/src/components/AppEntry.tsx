@@ -30,7 +30,7 @@ export const AppEntry = () => {
         .then(data => {
             console.log("Respuesta check-subscription:", data);
             if (data.status === 'active') {
-                updateUserSubscription('active', data.token);
+                updateUserSubscription('active', data.token, data.plan_type);
                 navigate('/app');
             } else if (retryCount < 3) {
                 // Reintentar cada 2.5 segundos hasta 3 veces para darle tiempo al webhook de MercadoPago
