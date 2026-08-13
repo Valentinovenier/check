@@ -7,8 +7,24 @@ export async function onRequestPost(context) {
   try {
     const { username, password } = await request.json();
 
+    // Validación de entrada
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     if (!username || !password) {
       return new Response(JSON.stringify({ error: 'Username and password are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!emailRegex.test(username)) {
+      return new Response(JSON.stringify({ error: 'Invalid email format (must be a gmail account)' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (password.length <= 7) {
+      return new Response(JSON.stringify({ error: 'Password must be longer than 7 characters' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
