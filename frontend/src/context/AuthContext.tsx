@@ -5,7 +5,7 @@ interface AuthContextType {
   user: { id: string; username: string; subscriptionStatus: string; planType: string } | null;
   login: (token: string) => void;
   logout: () => void;
-  updateUserSubscription: (newStatus: string, newToken?: string) => void;
+  updateUserSubscription: (newStatus: string, newToken?: string, newPlanType?: string) => void;
   loading: boolean;
 }
 
