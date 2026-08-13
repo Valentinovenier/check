@@ -357,7 +357,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 icon: Award,
                 color: 'text-teal-400',
                 title: 'Garantía de Cumplimiento Normativo',
-                desc: 'Cumplimiento estricto de AEA 90364-7-770 y normativas provinciales (ERSeP/ENRE). Reducís los rechazos en entes de fiscalización y distribuidoras.',
+                desc: 'Cumplimiento estricto de AEA.                                            Reducís los rechazos en entes de fiscalización y distribuidoras.',
               },
               {
                 icon: FileText,

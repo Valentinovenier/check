@@ -3,6 +3,7 @@ import { Project, DatosCaratula } from '../types/project';
 import { getProjectStrategy } from '../engine/factory';
 import { generatePdfMemoriaDescriptiva } from '../utils/generatePdfMemoriaDescriptiva';
 import { generatePdfMemoriaCalculo } from '../utils/generatePdfMemoriaCalculo';
+import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
 import { generatePdfReport } from '../utils/generatePdfReport';
 import { FileText, Calculator, Download, Edit3, Save, ChevronDown, ChevronRight, Layout, Zap, FileDown } from 'lucide-react';
 
@@ -26,6 +27,10 @@ export const ProjectReport = ({ project }: { project: Project }) => {
 
   const handleDownloadMemoriaCalculo = () => {
     generatePdfMemoriaCalculo(project, caratula);
+  };
+
+  const handleDownloadMemoriaBasico = () => {
+    generatePdfMemoriaCalculoBasico(project, caratula);
   };
 
   const handleInputChange = (field: keyof DatosCaratula, value: string) => {
@@ -68,6 +73,15 @@ export const ProjectReport = ({ project }: { project: Project }) => {
           >
             <FileDown size={15} />
             <span>Memoria de Cálculo (PDF)</span>
+          </button>
+          
+          <button
+            onClick={handleDownloadMemoriaBasico}
+            className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+            title="Descargar Informe Básico Paso a Paso"
+          >
+            <FileDown size={15} />
+            <span>Informe Básico (PDF)</span>
           </button>
 
         </div>
