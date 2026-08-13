@@ -147,12 +147,12 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
                       {(tablero.proteccionesSalida || []).map((ps, idx) => (
                       <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
                       <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion.in_amp ? `${ps.proteccion.in_amp} A` : '-'}</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion.curva_disparo || 'C'}</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion.capacidades?.[0]?.icn_ka || 3} kA</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion?.tipo_proteccion || 'PIA'}</td>
+                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion?.in_amp ? `${ps.proteccion.in_amp} A` : '-'}</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion?.curva_disparo || 'C'}</td>
+                      <td className="p-3 text-slate-300">{ps.proteccion?.capacidades?.[0]?.icn_ka || 3} kA</td>
                       <td className="p-3 text-slate-500">-</td>
-                      <td className="p-3 text-slate-400">{ps.proteccion.marca || 'Normalizada'}</td>
+                      <td className="p-3 text-slate-400">{ps.proteccion?.marca || 'Normalizada'}</td>
                     </tr>
                   ))}
                 </React.Fragment>

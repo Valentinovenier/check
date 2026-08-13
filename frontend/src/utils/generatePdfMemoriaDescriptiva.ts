@@ -240,6 +240,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     }
 
     (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        if (!ps.proteccion) return;
         filasProtecciones.push([
             `Tablero: ${tablero.nombre} (Salida ${i + 1})`,
             ps.proteccion.tipo_proteccion || 'PIA',
@@ -432,6 +433,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
     }
 
     (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        if (!ps.proteccion) return;
         filasVerificacion.push([
             `Protección Salida ${i + 1} (${tablero.nombre})`,
             `${ps.proteccion.tipo_proteccion} | In = ${ps.proteccion.in_amp} A`,

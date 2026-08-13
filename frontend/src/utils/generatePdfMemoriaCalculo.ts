@@ -360,6 +360,7 @@ export const generatePdfMemoriaCalculo = (project: Project, overrideCaratula?: D
     }
 
     (tablero.proteccionesSalida || []).forEach((ps, i) => {
+        if (!ps.proteccion) return;
         filasVerificacion.push([
             `Protección Salida ${i + 1} (${tablero.nombre})`,
             `${ps.proteccion.tipo_proteccion} | In = ${ps.proteccion.in_amp} A`,

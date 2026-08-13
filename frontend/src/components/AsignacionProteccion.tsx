@@ -55,7 +55,8 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
         }}
       >
         <option value="">Seleccionar protección...</option>
-        {disponibles.map(p => {
+        {(disponibles || []).map(p => {
+          if (!p) return null;
           const isTooHigh = maxAmp && p.in_amp > maxAmp;
           const isTooLow = minAmp && p.in_amp < minAmp;
           // Validación de Icc para deshabilitar
@@ -64,7 +65,7 @@ export const AsignacionProteccion = ({ label, proteccion, disponibles, onChange,
           const isDisabled = !!(isTooHigh || isTooLow || isIcnInsuficiente);
           return (
             <option key={p.id} value={p.id} disabled={isDisabled}>
-              {p.modelo} - {p.tipo_proteccion} ({p.in_amp}A) 
+              {p.modelo} - {p.tipo_proteccion || 'Protección'} ({p.in_amp}A) 
               {isTooHigh ? ' (Excede máx)' : ''} 
               {isTooLow ? ' (Inferior a Ib)' : ''}
               {isIcnInsuficiente ? ' (Icn insuficiente)' : ''}
