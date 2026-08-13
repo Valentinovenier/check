@@ -70,7 +70,7 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
             onClick={onLandingClick}
             className="text-xs font-semibold text-emerald-400 hover:underline mb-4 inline-block"
           >
-            ← Volver a la Landing Page
+            ← Volver
           </button>
         )}
         <h3 className="text-2xl font-bold text-white text-center mb-2">Iniciar Sesión</h3>

@@ -1,5 +1,5 @@
-import { Project, DatosCaratula } from '../../types/project';
-import { generatePdfMemoriaCalculoBasico } from '../../utils/generatePdfMemoriaCalculoBasico';
+import { Project, DatosCaratula } from '../types/project';
+import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
 import { FileDown } from 'lucide-react';
 
 export const InformeBasicoSection = ({ project, caratula }: { project: Project, caratula: DatosCaratula }) => {

@@ -152,7 +152,11 @@ export const ProjectReport = ({ project }: { project: Project }) => {
         </div>
       )}
 
-      <ReportComponent project={project} />
+      {isPro ? (
+        <ReportComponent project={project} />
+      ) : (
+        <InformeBasicoSection project={project} caratula={caratula} />
+      )}
     </div>
   );
 };
