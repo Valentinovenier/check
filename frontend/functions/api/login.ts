@@ -33,12 +33,13 @@ export async function onRequestPost(context) {
       });
     }
 
+    const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
     const token = jwt.sign({ 
       userId: user.id, 
       username: user.username,
       subscription_status: user.subscription_status || 'inactive',
       plan_type: user.plan_type || 'basic'
-    }, env.SECRET_KEY, { expiresIn: '1h' });
+    }, secret, { expiresIn: '7d' });
 
     return new Response(JSON.stringify({ token }), {
       status: 200,

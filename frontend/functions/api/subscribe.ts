@@ -58,23 +58,33 @@ export async function onRequestPost(context: any) {
                 || TEST_PAYER_EMAIL;
 
             if (payerEmail) {
-                const bodyPayload: any = {
-                    reason: planReason,
-                    external_reference: decoded.userId,
-                    payer_email: payerEmail,
-                    auto_recurring: {
-                        frequency: 1,
-                        frequency_type: 'months',
-                        transaction_amount: planAmount,
-                        currency_id: 'ARS'
-                    },
-                    back_url: `${appBaseUrl}/app-entry?user_id=${decoded.userId}&plan_type=${planType}`,
-                    notification_url: `${appBaseUrl}/api/webhooks/mercadopago?user_id=${decoded.userId}&plan_type=${planType}`,
-                    status: 'pending'
-                };
+                const backUrl = `${appBaseUrl}/app-entry?user_id=${decoded.userId}&plan_type=${planType}`;
+                const notificationUrl = `${appBaseUrl}/api/webhooks/mercadopago?user_id=${decoded.userId}&plan_type=${planType}`;
 
+                let bodyPayload: any;
                 if (targetPlanId) {
-                    bodyPayload.preapproval_plan_id = targetPlanId;
+                    // Cuando se utiliza un preapproval_plan_id existente, NO se debe enviar auto_recurring ni reason
+                    bodyPayload = {
+                        preapproval_plan_id: targetPlanId,
+                        payer_email: payerEmail,
+                        external_reference: decoded.userId,
+                        back_url: backUrl
+                    };
+                } else {
+                    // Suscripción dinámica sin plan pre-creado
+                    bodyPayload = {
+                        reason: planReason,
+                        external_reference: decoded.userId,
+                        payer_email: payerEmail,
+                        auto_recurring: {
+                            frequency: 1,
+                            frequency_type: 'months',
+                            transaction_amount: planAmount,
+                            currency_id: 'ARS'
+                        },
+                        back_url: backUrl,
+                        notification_url: notificationUrl
+                    };
                 }
 
                 console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
