@@ -35,8 +35,23 @@ interface LandingPageProps {
 
 export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [planPrices, setPlanPrices] = useState({ basic: '$4.500', pro: '$9.000' });
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('/api/plans')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setPlanPrices({
+            basic: data.basic?.formatted || '$4.500',
+            pro: data.pro?.formatted || '$9.000'
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubscribeClick = (planType: 'basic' | 'pro') => {
     if (isAuthenticated) {
@@ -253,7 +268,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
           {[
             {
             title: "Calculadora",
-            price: "$4.500",
+            price: planPrices.basic,
             desc: "Acceso a cálculos de parámetros",
             features: [
               { name: "Cálculos normativos AEA", included: true },
@@ -268,7 +283,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
             {
               title: "Acceso Total",
-              price: "$9.000",
+              price: planPrices.pro,
               desc: "Todo incluido, sin límites",
               features: [
                 { name: "Cálculos normativos AEA", included: true },

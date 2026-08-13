@@ -46,7 +46,10 @@ export async function onRequestPost(context: any) {
     const PLAN_ID_PRO = env.PLAN_ID_PRO || 'f60b996e809848a482e25b74b1c44128';
     const PLAN_ID_BASIC = env.PLAN_ID_BASIC || '53c1ba35b5fd4219b09b5be4d9585262';
     const targetPlanId = planType === 'pro' ? PLAN_ID_PRO : PLAN_ID_BASIC;
-    const planAmount = planType === 'pro' ? 9000 : 4500;
+
+    const PLAN_PRICE_PRO = Number(env.PLAN_PRICE_PRO) || 9000;
+    const PLAN_PRICE_BASIC = Number(env.PLAN_PRICE_BASIC) || 4500;
+    const planAmount = planType === 'pro' ? PLAN_PRICE_PRO : PLAN_PRICE_BASIC;
     const planReason = planType === 'pro' ? 'Suscripción ElectroCheck Pro' : 'Suscripción ElectroCheck Basic';
 
     // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API
