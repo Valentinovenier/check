@@ -1,13 +1,26 @@
-import { Project } from '../../types/project';
+import { Project, DatosCaratula } from '../../types/project';
+import { FileDown } from 'lucide-react';
+import { generatePdfReport } from '../../utils/generatePdfReport';
 
 const TRAMOS_ELECTRICOS = [
   { id: 'trafo-tgbt', label: 'Transformador - Interruptor Cabecera TGBT' },
   { id: 'tgbt-barra', label: 'Interruptor Cabecera TGBT - Barra Omnibus' },
 ];
 
-export const IndustrialReport = ({ project }: { project: Project }) => {
+export const IndustrialReport = ({ project, isPro, caratula }: { project: Project, isPro: boolean, caratula: DatosCaratula }) => {
   return (
     <div className="space-y-6">
+        {isPro && (
+            <div className='flex justify-end'>
+                <button
+                    onClick={() => generatePdfReport(project, caratula)}
+                    className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+                >
+                    <FileDown size={16} />
+                    <span>Descargar Carpeta Técnica (PDF)</span>
+                </button>
+            </div>
+        )}
       {/* Resumen del transformador */}
       <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 shadow-sm print:bg-white print:border-slate-300">
         <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2 print:text-slate-600 print:border-slate-300">

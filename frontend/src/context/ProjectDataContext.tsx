@@ -1,20 +1,35 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Project } from '../types/project';
+import { useAuth } from './AuthContext';
 
 interface ProjectContextType {
   state: Project | null;
   lastSavedProject: Project | null;
   setState: React.Dispatch<React.SetStateAction<Project | null>>;
   setLastSaved: (p: Project) => void;
+  clearProject: () => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export const ProjectProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
   const [state, setState] = useState<Project | null>(null);
   const [lastSavedProject, setLastSavedProject] = useState<Project | null>(null);
 
+  // Resetear proyecto cuando cambia o se destruye el usuario autenticado
+  useEffect(() => {
+    if (!user) {
+      setState(null);
+      setLastSavedProject(null);
+    }
+  }, [user?.id]);
+
   const setLastSaved = (p: Project) => setLastSavedProject(JSON.parse(JSON.stringify(p)));
+  const clearProject = () => {
+    setState(null);
+    setLastSavedProject(null);
+  };
 
   // Auto-save logic
   useEffect(() => {
@@ -22,6 +37,9 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
     
     // Si no hay proyecto guardado, no iniciamos auto-guardado automático sin intervención inicial
     if (!lastSavedProject) return;
+
+    // Asegurar que state y lastSavedProject correspondan al mismo proyecto por ID
+    if (state.id !== lastSavedProject.id) return;
 
     const isDirty = JSON.stringify(state) !== JSON.stringify(lastSavedProject);
     if (!isDirty) return;
@@ -54,7 +72,7 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   }, [state, lastSavedProject]);
 
   return (
-    <ProjectContext.Provider value={{ state, lastSavedProject, setState, setLastSaved }}>
+    <ProjectContext.Provider value={{ state, lastSavedProject, setState, setLastSaved, clearProject }}>
       {children}
     </ProjectContext.Provider>
   );

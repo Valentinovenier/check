@@ -1,4 +1,4 @@
-import { Project, CondicionesTramo } from '../../../types/project';
+import { Project, CondicionesTramo, DatosCaratula } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularTramoResidencial } from './calculador';
 import { ViviendaConductorForm } from '../../../features/vivienda/ViviendaConductorForm';
@@ -31,7 +31,7 @@ export class ViviendaStrategy implements BaseProjectStrategy {
     return ViviendaConductorForm;
   }
 
-  getInformeComponente(): React.ComponentType<{ project: Project }> {
+  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }> {
     return ViviendaReport;
   }
 }

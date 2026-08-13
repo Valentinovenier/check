@@ -197,7 +197,10 @@ export default function App() {
         return (
           <ProjectSettings
             project={selectedProject}
-            onChange={(updated) => setSelectedProject(updated)}
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
             onSave={(updated) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
               setSelectedProject(updated);

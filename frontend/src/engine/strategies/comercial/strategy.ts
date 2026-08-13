@@ -1,4 +1,4 @@
-import { Project, CondicionesTramo } from '../../../types/project';
+import { Project, CondicionesTramo, DatosCaratula } from '../../../types/project';
 import { BaseProjectStrategy } from '../base';
 import { calcularTramoComercial } from './calculador';
 import { ComercialConductorForm } from '../../../features/comercial/ComercialConductorForm';
@@ -18,7 +18,7 @@ export class ComercialStrategy implements BaseProjectStrategy {
     return ComercialConductorForm;
   }
 
-  getInformeComponente(): React.ComponentType<{ project: Project }> {
+  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }> {
     return ComercialReport;
   }
 }

@@ -7,7 +7,7 @@ async function verifyAuth(request, env) {
   }
   
   const token = authHeader.split(' ')[1];
-  const SECRET = env.SECRET_KEY || 'fallback_secret_key_for_development';
+  const SECRET = env.SECRET_KEY || 'super_secret_jwt_key_please_change_me';
   try {
     return jwt.verify(token, SECRET) as any;
   } catch (e: any) {
