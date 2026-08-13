@@ -22,11 +22,16 @@ const decodeToken = (token: string) => {
         .join('')
     );
     const payload = JSON.parse(jsonPayload);
+    const cleanPlanType = (rawPlanType: string) => {
+      if (rawPlanType.includes('pro')) return 'pro';
+      return 'basic';
+    };
+
     return {
       userId: payload.userId,
       username: payload.username,
       subscription_status: payload.subscription_status,
-      plan_type: payload.plan_type || 'basic'
+      plan_type: cleanPlanType(payload.plan_type || 'basic')
     };
   } catch (e) {
     console.error("Error decodificando token:", e);
