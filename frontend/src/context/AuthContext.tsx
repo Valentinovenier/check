@@ -23,7 +23,9 @@ const decodeToken = (token: string) => {
     );
     const payload = JSON.parse(jsonPayload);
     const cleanPlanType = (rawPlanType: string) => {
-      if (rawPlanType.includes('pro')) return 'pro';
+      // Si la cadena empieza exactamente con 'pro', asumimos que es 'pro'.
+      // Si contiene 'basic', o cualquier otra cosa que no sea 'pro', es 'basic'.
+      if (rawPlanType.startsWith('pro')) return 'pro';
       return 'basic';
     };
 
