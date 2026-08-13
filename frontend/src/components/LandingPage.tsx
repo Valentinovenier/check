@@ -497,35 +497,6 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════
-          BANNER CTA FINAL
-      ═══════════════════════════════════════════════ */}
-      <section className="py-24 relative overflow-hidden border-t border-slate-800/80">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-slate-950 to-teal-900/20 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold mb-6">
-            <Zap className="w-4 h-4" />
-            Comenzá hoy
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
-            Empezá a generar tus Carpetas Técnicas{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
-              en minutos
-            </span>
-          </h2>
-          <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-            Calculá, verificá y documentá tus instalaciones eléctricas de forma ágil, normativa y profesional.
-          </p>
-          <button
-            onClick={() => handleSubscribeClick('basic')}
-            className="px-10 py-4 text-base font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:brightness-110 transition-all rounded-xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 group mx-auto"
-          >
-            <span>Acceder a la Plataforma</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════════════
           FOOTER
