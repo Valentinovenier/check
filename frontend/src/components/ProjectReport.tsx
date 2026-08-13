@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Project, DatosCaratula } from '../types/project';
 import { getProjectStrategy } from '../engine/factory';
-import { generatePdfMemoriaDescriptiva } from '../utils/generatePdfMemoriaDescriptiva';
-import { generatePdfMemoriaCalculo } from '../utils/generatePdfMemoriaCalculo';
-import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
-import { generatePdfReport } from '../utils/generatePdfReport';
-import { FileText, Calculator, Download, Edit3, Save, ChevronDown, ChevronRight, Layout, Zap, FileDown } from 'lucide-react';
+import { usePlanAccess } from '../hooks/usePlanAccess';
+import { InformeBasicoSection } from './InformeBasicoSection';
+import { Edit3, FileDown } from 'lucide-react';
 
 export const ProjectReport = ({ project }: { project: Project }) => {
   const [showCaratulaForm, setShowCaratulaForm] = useState(false);
@@ -21,17 +19,8 @@ export const ProjectReport = ({ project }: { project: Project }) => {
     instaladorEmail: project.datosCaratula?.instaladorEmail || '',
   });
 
-  const handleDownloadMemoriaDescriptiva = () => {
-    generatePdfMemoriaDescriptiva(project, caratula);
-  };
-
-  const handleDownloadMemoriaCalculo = () => {
-    generatePdfMemoriaCalculo(project, caratula);
-  };
-
-  const handleDownloadMemoriaBasico = () => {
-    generatePdfMemoriaCalculoBasico(project, caratula);
-  };
+  const { canAccessFullFeatures } = usePlanAccess();
+  const isPro = canAccessFullFeatures();
 
   const handleInputChange = (field: keyof DatosCaratula, value: string) => {
     setCaratula(prev => ({ ...prev, [field]: value }));
@@ -45,7 +34,7 @@ export const ProjectReport = ({ project }: { project: Project }) => {
       <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 print:hidden flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Informe Técnico: {project.name}</h2>
-          <p className="text-xs text-slate-400 mt-1">Generación e inspección de Memorias Descriptivas y de Cálculo en pantalla y formato PDF.</p>
+          <p className="text-xs text-slate-400 mt-1">Generación e inspección de Informes.</p>
         </div>
 
         <div className="flex gap-2 flex-wrap items-center">
@@ -56,34 +45,6 @@ export const ProjectReport = ({ project }: { project: Project }) => {
             <Edit3 size={15} />
             <span>{showCaratulaForm ? 'Ocultar Portada' : 'Editar Datos Portada'}</span>
           </button>
-
-          <button
-            onClick={handleDownloadMemoriaDescriptiva}
-            className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-            title="Descargar únicamente la Memoria Descriptiva en PDF"
-          >
-            <FileDown size={15} />
-            <span>Memoria Descriptiva (PDF)</span>
-          </button>
-
-          <button
-            onClick={handleDownloadMemoriaCalculo}
-            className="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-800/60 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-            title="Descargar únicamente la Memoria de Cálculo con el paso a paso en PDF"
-          >
-            <FileDown size={15} />
-            <span>Memoria de Cálculo (PDF)</span>
-          </button>
-          
-          <button
-            onClick={handleDownloadMemoriaBasico}
-            className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-            title="Descargar Informe Básico Paso a Paso"
-          >
-            <FileDown size={15} />
-            <span>Informe Básico (PDF)</span>
-          </button>
-
         </div>
       </div>
 

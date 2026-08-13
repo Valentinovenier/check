@@ -44,7 +44,7 @@ export const ViviendaWorkflow = ({ project, onChange, onSave }: Props) => {
       {/* Stepper / Indicador de progreso */}
       <div className="flex justify-center items-center gap-4 mb-8">
         {[1, 2, 3, 4, 5].map((s) => (
-          <div key={s} className="flex items-center gap-2">
+          <div key={s} className="flex items-center gap-2 cursor-pointer" onClick={() => setStep(s)}>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
               step === s ? 'bg-[var(--accent)] text-black' : 
               step > s ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'
