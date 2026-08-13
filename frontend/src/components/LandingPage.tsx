@@ -57,7 +57,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
     if (isAuthenticated) {
       startPayment(planType);
     } else {
-      navigate('/register');
+      navigate(`/register?plan=${planType}`);
     }
   };
 

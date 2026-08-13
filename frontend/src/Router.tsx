@@ -27,12 +27,14 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 // Ya no necesitamos AuthRedirect aquí, la lógica pasa al flujo de login/entry
 const LoginPageWrapper = () => {
     const navigate = useNavigate();
-    return <LoginPage onRegisterClick={() => navigate('/register')} onLandingClick={() => navigate('/')} />;
+    const search = window.location.search;
+    return <LoginPage onRegisterClick={() => navigate('/register' + search)} onLandingClick={() => navigate('/')} />;
 };
 
 const RegisterPageWrapper = () => {
     const navigate = useNavigate();
-    return <RegisterPage onLoginClick={() => navigate('/login')} onLandingClick={() => navigate('/')} />;
+    const search = window.location.search;
+    return <RegisterPage onLoginClick={() => navigate('/login' + search)} onLandingClick={() => navigate('/')} />;
 };
 
 const LandingPageWrapper = () => {

@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   
   try {
-    const { username, password } = await request.json();
+    const { username, password, planType } = await request.json();
 
     if (!username || !password) {
       return new Response(JSON.stringify({ error: 'Username and password are required' }), {
@@ -13,6 +13,8 @@ export async function onRequestPost(context) {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    const targetPlanType = (planType === 'basic' || planType === 'pro') ? planType : 'pro';
 
     const existingUser = await env.DB.prepare('SELECT id FROM users WHERE username = ?')
       .bind(username)
@@ -29,7 +31,7 @@ export async function onRequestPost(context) {
     const userId = Date.now().toString();
 
     await env.DB.prepare('INSERT INTO users (id, username, password_hash, subscription_status, plan_type) VALUES (?, ?, ?, ?, ?)')
-      .bind(userId, username, passwordHash, 'pending', 'basic')
+      .bind(userId, username, passwordHash, 'pending', targetPlanType)
       .run();
 
     const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
@@ -37,7 +39,7 @@ export async function onRequestPost(context) {
       userId, 
       username,
       subscription_status: 'pending',
-      plan_type: 'basic'
+      plan_type: targetPlanType
     }, secret, { expiresIn: '1h' });
 
     return new Response(JSON.stringify({ message: 'User registered successfully', token }), {

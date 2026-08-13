@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { startPayment } from '../utils/payment';
 
 interface LoginPageProps {
   onRegisterClick: () => void;
@@ -8,6 +9,10 @@ interface LoginPageProps {
 }
 
 export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) => {
+  const [searchParams] = useSearchParams();
+  const planParam = searchParams.get('plan');
+  const selectedPlan: 'basic' | 'pro' | null = (planParam === 'basic' || planParam === 'pro') ? planParam : null;
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +52,8 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
       
       if (subData.status === 'active') {
         navigate('/app');
+      } else if (selectedPlan) {
+        await startPayment(selectedPlan);
       } else {
         navigate('/#precio');
       }

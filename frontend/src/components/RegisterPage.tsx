@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { startPayment } from '../utils/payment';
 
@@ -8,6 +9,10 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps) => {
+  const [searchParams] = useSearchParams();
+  const planParam = searchParams.get('plan');
+  const selectedPlan: 'basic' | 'pro' = planParam === 'basic' ? 'basic' : 'pro';
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,7 +37,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, planType: selectedPlan }),
       });
 
       const data = await response.json();
@@ -43,9 +48,8 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
 
       if (data.token) {
         login(data.token);
-        // Redirigir directamente al checkout de suscripción de MercadoPago
-        const plan: 'basic' | 'pro' = 'basic';
-        await startPayment(plan);
+        // Redirigir directamente al checkout de suscripción de MercadoPago con el plan seleccionado por el usuario
+        await startPayment(selectedPlan);
       }
     } catch (err: any) {
       setError(err.message);
@@ -66,7 +70,9 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
           </button>
         )}
         <h3 className="text-2xl font-bold text-white text-center mb-2">Crear tu Cuenta</h3>
-        <p className="text-xs text-slate-400 text-center mb-6">Regístrate para continuar con la suscripción a ElectroSaaS</p>
+        <p className="text-xs text-slate-400 text-center mb-6">
+          Regístrate para continuar con la suscripción al {selectedPlan === 'pro' ? 'Plan Acceso Total (Pro)' : 'Plan Calculadora (Básico)'}
+        </p>
         
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
@@ -114,7 +120,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
                 disabled={loading}
                 className="px-6 py-2 text-slate-950 font-bold bg-emerald-400 rounded-lg hover:bg-emerald-300 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Procesando...' : 'Registrarse y Pagar'}
+                {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? 'Pro' : 'Básico'}`}
               </button>
               <button 
                 type="button"
