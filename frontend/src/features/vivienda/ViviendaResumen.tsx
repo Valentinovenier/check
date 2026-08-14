@@ -81,7 +81,15 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                     
                     {/* Todos los Circuitos */}
                     {circuitos.map((c, i) => {
-                        const potenciaNominalVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / cosPhi : (c.potencia || 0);
+                        // Calcular potencia nominal base si no está definida
+                        let nominalVA = c.potencia || 0;
+                        if (!c.esEspecifico && nominalVA === 0) {
+                            if (c.tipo === 'iluminacion_usos_generales') nominalVA = (c.puntosIUG || 0) * 60;
+                            else if (c.tipo === 'tomacorrientes_usos_generales') nominalVA = 2200;
+                            else if (c.tipo === 'usos_especiales') nominalVA = 3300;
+                        }
+
+                        const potenciaNominalVA = c.unidadPotencia === 'W' ? nominalVA / cosPhi : nominalVA;
                         const demandaVA = potenciaNominalVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
                         return (
                             <tr key={i}>
