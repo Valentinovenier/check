@@ -81,27 +81,29 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
 
       <div className="mt-4">
         <label className="block text-[13px] font-semibold uppercase text-slate-500 mb-2">Tipo de Suministro</label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer text-white">
-            <input
-              type="radio"
-              name="supplyType"
-              value="monophasic"
-              checked={datos.supplyType !== 'trifasic'}
-              onChange={() => handleUpdate({ supplyType: 'monophasic' })}
-            />
-            Monofásico
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer text-white">
-            <input
-              type="radio"
-              name="supplyType"
-              value="trifasic"
-              checked={datos.supplyType === 'trifasic'}
-              onChange={() => handleUpdate({ supplyType: 'trifasic' })}
-            />
-            Trifásico
-          </label>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => handleUpdate({ supplyType: 'monophasic' })}
+            className={`p-4 rounded-xl border-2 transition-all ${
+              datos.supplyType !== 'trifasic'
+                ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-white'
+                : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500'
+            }`}
+          >
+            <div className="font-bold">Monofásico</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleUpdate({ supplyType: 'trifasic' })}
+            className={`p-4 rounded-xl border-2 transition-all ${
+              datos.supplyType === 'trifasic'
+                ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-white'
+                : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500'
+            }`}
+          >
+            <div className="font-bold">Trifásico</div>
+          </button>
         </div>
       </div>
     </div>
