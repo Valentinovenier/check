@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Project } from '../../types/project';
 import { ViviendaMemoriaDescriptiva } from './ViviendaMemoriaDescriptiva';
 import { ViviendaMemoriaCalculo } from './ViviendaMemoriaCalculo';
-import { ShieldCheck, Calculator, FileDown } from 'lucide-react';
+import { ShieldCheck, Calculator, FileDown, FileText } from 'lucide-react';
 import { usePlanAccess } from '../../hooks/usePlanAccess';
 import { generatePdfMemoriaDescriptiva } from '../../utils/generatePdfMemoriaDescriptiva';
 import { generatePdfMemoriaCalculo } from '../../utils/generatePdfMemoriaCalculo';
+import { generateDocxMemoriaCalculoBasico } from '../../utils/generateDocxMemoriaCalculoBasico';
 
 export const ViviendaReport = ({ project }: { project: Project }) => {
   const [activeTab, setActiveTab] = useState<'descriptiva' | 'calculo'>('descriptiva');
@@ -44,6 +45,14 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
 
         {isPro && (
           <div className="flex gap-2">
+            <button
+              onClick={() => generateDocxMemoriaCalculoBasico(project)}
+              className="bg-blue-900 hover:bg-blue-800 text-blue-100 border border-blue-600 px-3 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+              title="Descargar versión editable compatible con Google Docs y Microsoft Word"
+            >
+              <FileText size={16} />
+              <span>Google Docs (.docx)</span>
+            </button>
             <button
               onClick={() => generatePdfMemoriaDescriptiva(project)}
               className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
