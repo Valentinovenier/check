@@ -1,3 +1,4 @@
+import { useMemo, useEffect } from 'react';
 import { Project } from '../../types/project';
 import { AlertTriangle } from 'lucide-react';
 import { calcularPotencias } from '../../engine/strategies/vivienda/normas770';
@@ -13,22 +14,24 @@ interface Props {
 export const ViviendaResumen = ({ project, onChange }: Props) => {
   const datos = project.datosVivienda || { superficieCubierta: 0, superficieSemicubierta: 0, ambientes: [], circuitosCalculados: [], gradoElectrificacion: 'Minimo' };
   
-  // Cálculos
-  const { potenciaInstalada } = calcularPotencias(datos);
-  const dpmsData = calcularDPMS(datos);
+  // Cálculos memorizados
+  const { potenciaInstalada } = useMemo(() => calcularPotencias(datos), [datos]);
+  const dpmsData = useMemo(() => calcularDPMS(datos), [datos]);
   
   // Coeficientes
-  const minimos = obtenerCircuitosMinimos(datos.gradoElectrificacion || 'Minimo');
-  const factorSimultaneidadGrado = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
+  const minimos = useMemo(() => obtenerCircuitosMinimos(datos.gradoElectrificacion || 'Minimo'), [datos.gradoElectrificacion]);
+  const factorSimultaneidadGrado = useMemo(() => (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6, [minimos]);
   const cosPhi = project.cosPhi || 0.85;
 
   // Filtrar específicos para mostrar detalle
-  const circuitosEspecificos = datos.circuitosCalculados.filter(c => c.esEspecifico);
+  const circuitosEspecificos = useMemo(() => datos.circuitosCalculados.filter(c => c.esEspecifico), [datos.circuitosCalculados]);
 
-  // Actualizar proyecto
-  if (project.datosVivienda && (project.datosVivienda.potenciaMaximaSimultanea !== dpmsData.cargaTotal)) {
-      onChange({ ...project, datosVivienda: { ...project.datosVivienda, potenciaInstalada, potenciaMaximaSimultanea: dpmsData.cargaTotal } });
-  }
+  // Actualizar proyecto de forma segura mediante useEffect
+  useEffect(() => {
+    if (project.datosVivienda && (project.datosVivienda.potenciaMaximaSimultanea !== dpmsData.cargaTotal)) {
+        onChange({ ...project, datosVivienda: { ...project.datosVivienda, potenciaInstalada, potenciaMaximaSimultanea: dpmsData.cargaTotal } });
+    }
+  }, [dpmsData.cargaTotal, potenciaInstalada]);
   
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
