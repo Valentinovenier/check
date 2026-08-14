@@ -23,8 +23,8 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
   const factorSimultaneidadGrado = useMemo(() => (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6, [minimos]);
   const cosPhi = project.cosPhi || 0.85;
 
-  // Filtrar específicos para mostrar detalle
-  const circuitosEspecificos = useMemo(() => datos.circuitosCalculados.filter(c => c.esEspecifico), [datos.circuitosCalculados]);
+  // Filtrar todos los circuitos para mostrar detalle
+  const circuitos = useMemo(() => datos.circuitosCalculados, [datos.circuitosCalculados]);
 
   // Actualizar proyecto de forma segura mediante useEffect
   useEffect(() => {
@@ -79,13 +79,15 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                         <td className="p-3 text-right font-mono">{(dpmsData.DPMS_Grado * cosPhi).toFixed(0)}</td>
                     </tr>
                     
-                    {/* Circuitos Específicos */}
-                    {circuitosEspecificos.map((c, i) => {
+                    {/* Todos los Circuitos */}
+                    {circuitos.map((c, i) => {
                         const potenciaNominalVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / cosPhi : (c.potencia || 0);
                         const demandaVA = potenciaNominalVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
                         return (
                             <tr key={i}>
-                                <td className="p-3 pl-6 text-slate-400">{c.nombre}</td>
+                                <td className="p-3 pl-6 text-slate-400">
+                                    {c.nombre} {c.esEspecifico ? '(Específico)' : '(General)'}
+                                </td>
                                 <td className="p-3 text-right font-mono">{c.coefUtilizacion || 1}</td>
                                 <td className="p-3 text-right font-mono">{c.coefSimultaneidad || 1}</td>
                                 <td className="p-3 text-right font-mono">{demandaVA.toFixed(0)}</td>
