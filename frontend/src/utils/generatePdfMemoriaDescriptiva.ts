@@ -238,7 +238,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
       }
 
       (tablero.proteccionesSalida || []).forEach((ps, i) => {
-          if (!ps.proteccion) return;
+          if (!ps || !ps.proteccion) return;
           filasProtecciones.push([
               `Tablero: ${tablero.nombre} (Salida ${i + 1})`,
               ps.proteccion.tipo_proteccion || 'PIA',
@@ -542,14 +542,16 @@ function generarListadoMateriales(project: Project, circuitos: CircuitoCalculado
     }
 
     (tablero.proteccionesSalida || []).forEach(ps => {
-      list.push([
-        `1.${itemIdx++}`,
-        'Protecciones',
-        '1',
-        'un.',
-        `${tablero.nombre} - Salida: ${ps.proteccion.modelo} (${ps.proteccion.in_amp}A)`,
-        ps.proteccion.marca || 'Normalizada',
-      ]);
+      if (ps.proteccion && ps.proteccion.modelo) {
+        list.push([
+          `1.${itemIdx++}`,
+          'Protecciones',
+          '1',
+          'un.',
+          `${tablero.nombre} - Salida: ${ps.proteccion.modelo} (${ps.proteccion.in_amp}A)`,
+          ps.proteccion.marca || 'Normalizada',
+        ]);
+      }
     });
   });
 
