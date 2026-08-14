@@ -92,16 +92,25 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                     
                     {/* Todos los Circuitos */}
                     {circuitos.map((c, i) => {
-                        // Calcular potencia nominal base si no está definida
-                        let nominalVA = c.potencia || 0;
-                        console.log(`DEBUG: Circuito ${c.nombre} (tipo: ${c.tipo}) - Potencia definida: ${c.potencia}, Puntos IUG: ${c.puntosIUG}`);
+                        // 1. Calcular puntos totales asignados a este circuito desde todos los ambientes
+                        const tomasPorAmbiente = datos.tomasPorAmbiente || {};
+                        let puntosIUG = 0;
+                        let puntosTUG = 0;
+                        
+                        Object.values(tomasPorAmbiente).forEach(amb => {
+                            if (amb[c.id]) {
+                                puntosIUG += amb[c.id].IUG || 0;
+                                puntosTUG += amb[c.id].TUG || 0;
+                            }
+                        });
 
+                        // 2. Calcular potencia nominal base si no está definida
+                        let nominalVA = c.potencia || 0;
                         if (!c.esEspecifico && nominalVA === 0) {
-                            if (c.tipo === 'iluminacion_usos_generales') nominalVA = (c.puntosIUG || 0) * 60;
-                            else if (c.tipo === 'tomacorrientes_usos_generales') nominalVA = 2200;
+                            if (c.tipo === 'iluminacion_usos_generales') nominalVA = puntosIUG * 60;
+                            else if (c.tipo === 'tomacorrientes_usos_generales') nominalVA = 2200; // Valor fijo normativo
                             else if (c.tipo === 'usos_especiales') nominalVA = 3300;
                         }
-                        console.log(`DEBUG: Circuito ${c.nombre} - Nominal VA calculado: ${nominalVA}`);
 
                         const potenciaNominalVA = c.unidadPotencia === 'W' ? nominalVA / cosPhi : nominalVA;
                         const demandaVA = potenciaNominalVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
