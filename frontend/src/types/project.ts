@@ -4,7 +4,7 @@ export interface ProjectStrategy {
   calcularTramo(condiciones: CondicionesTramo, project?: Project): any;
   validarReglas(project: Project): boolean;
   getFormularioComponente(): React.ComponentType<any>;
-  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }>;
+  getInformeComponente(): React.ComponentType<{ project: Project }>;
 }
 
 export interface HarmonicDistortion {

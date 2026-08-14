@@ -31,7 +31,7 @@ export class ViviendaStrategy implements BaseProjectStrategy {
     return ViviendaConductorForm;
   }
 
-  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }> {
+  getInformeComponente(): React.ComponentType<{ project: Project }> {
     return ViviendaReport;
   }
 }
