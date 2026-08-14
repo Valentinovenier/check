@@ -20,8 +20,19 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
   
   // Coeficientes
   const minimos = useMemo(() => obtenerCircuitosMinimos(datos.gradoElectrificacion || 'Minimo'), [datos.gradoElectrificacion]);
-  const factorSimultaneidadGrado = useMemo(() => (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6, [minimos]);
+  const factorSimultaneidadNormativo = useMemo(() => (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6, [minimos]);
   const cosPhi = project.cosPhi || 0.85;
+
+// Resetear el valor manual si el grado de electrificación cambia
+  useEffect(() => {
+    if (project.datosVivienda?.coefSimultaneidadManual && 
+        project.datosVivienda?.gradoElectrificacion !== datos.gradoElectrificacion) {
+        onChange({ ...project, datosVivienda: { ...datos, coefSimultaneidadManual: undefined } });
+    }
+  }, [datos.gradoElectrificacion]);
+
+  // Mostrar valor: si existe manual, usarlo, si no, usar el normativo
+  const factorSimultaneidadVisible = project.datosVivienda?.coefSimultaneidadManual || factorSimultaneidadNormativo;
 
   // Filtrar todos los circuitos para mostrar detalle
   const circuitos = useMemo(() => datos.circuitosCalculados, [datos.circuitosCalculados]);
@@ -65,11 +76,11 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                                 type="number"
                                 step="0.05"
                                 className="w-16 bg-slate-950 text-white text-xs rounded border border-slate-700 p-1 text-right"
-                                value={project.datosVivienda?.coefSimultaneidadManual || factorSimultaneidadGrado}
-                                min={factorSimultaneidadGrado}
+                                value={factorSimultaneidadVisible}
+                                min={factorSimultaneidadNormativo}
                                 onChange={(e) => {
                                     const val = parseFloat(e.target.value);
-                                    if (!isNaN(val) && val >= factorSimultaneidadGrado) {
+                                    if (!isNaN(val) && val >= factorSimultaneidadNormativo) {
                                         onChange({ ...project, datosVivienda: { ...datos, coefSimultaneidadManual: val } });
                                     }
                                 }}
@@ -83,11 +94,14 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                     {circuitos.map((c, i) => {
                         // Calcular potencia nominal base si no está definida
                         let nominalVA = c.potencia || 0;
+                        console.log(`DEBUG: Circuito ${c.nombre} (tipo: ${c.tipo}) - Potencia definida: ${c.potencia}, Puntos IUG: ${c.puntosIUG}`);
+
                         if (!c.esEspecifico && nominalVA === 0) {
                             if (c.tipo === 'iluminacion_usos_generales') nominalVA = (c.puntosIUG || 0) * 60;
                             else if (c.tipo === 'tomacorrientes_usos_generales') nominalVA = 2200;
                             else if (c.tipo === 'usos_especiales') nominalVA = 3300;
                         }
+                        console.log(`DEBUG: Circuito ${c.nombre} - Nominal VA calculado: ${nominalVA}`);
 
                         const potenciaNominalVA = c.unidadPotencia === 'W' ? nominalVA / cosPhi : nominalVA;
                         const demandaVA = potenciaNominalVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
