@@ -1,11 +1,23 @@
 import { DatosVivienda } from '../../../types/vivienda';
 import { calcularPotencias } from './normas770';
+import { FACTORES_SIMULTANEIDAD_VIVIENDA } from '../../../data/vivienda/factoresSimultaneidad';
+import { obtenerCircuitosMinimos } from './normas770';
 
 // Cláusulas 770.8.2 y 770.8.3
 
 export const calcularDPMS = (datos: DatosVivienda) => {
-    // 1. DPMS_Grado (Reutilizamos la lógica original existente)
-    const { potenciaMaximaSimultanea: DPMS_Grado } = calcularPotencias(datos);
+    // 1. DPMS_Grado
+    const { potenciaMaximaSimultanea: DPMS_Grado_Original } = calcularPotencias(datos);
+    
+    // Obtener factor normativo para ajustar el grado
+    const minimos = obtenerCircuitosMinimos(datos.gradoElectrificacion || 'Minimo');
+    const factorSimultaneidadGradoNormativo = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimos] || 0.6;
+    
+    // Aplicar factor manual si existe y es mayor
+    const factorSimultaneidadFinal = Math.max(factorSimultaneidadGradoNormativo, datos.coefSimultaneidadManual || 0);
+    
+    // Recalcular DPMS_Grado con el factor ajustado (asumiendo que DPMS_Grado_Original usaba factorSimultaneidadGradoNormativo)
+    const DPMS_Grado = (DPMS_Grado_Original / factorSimultaneidadGradoNormativo) * factorSimultaneidadFinal;
 
     // 2. DPMS_Específicas
     const circuitosEspecificos = datos.circuitosCalculados.filter(c => c.esEspecifico);
@@ -31,7 +43,6 @@ export const calcularDPMS = (datos: DatosVivienda) => {
         const potenciaNominalVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.85 : (c.potencia || 0); // Convert W to VA using 0.85
         const corrienteNominal = potenciaNominalVA / (supplyType === 'trifasic' ? 380 : 220); // Ajuste básico por tensión
         
-        // La validación original era > 8A. En trifásica, este límite podría variar, pero mantendremos el umbral con el ajuste de tensión.
         if (corrienteNominal > 8) {
             advertencias.push(`El circuito específico "${c.nombre}" consume más de 8A. Requiere canalización independiente.`);
         }

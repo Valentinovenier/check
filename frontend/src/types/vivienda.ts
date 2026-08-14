@@ -86,6 +86,7 @@ export interface DatosVivienda {
   potenciaMaximaSimultanea?: number;
   ikDistribuidora?: number; // kA
   supplyType?: 'monophasic' | 'trifasic';
+  coefSimultaneidadManual?: number;
 }
 
 export interface CondicionesTramoResidencial {

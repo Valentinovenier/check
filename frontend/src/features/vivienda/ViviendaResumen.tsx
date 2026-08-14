@@ -57,7 +57,21 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                     <tr className="bg-slate-800/20">
                         <td className="p-3 font-semibold">Grado Electrificación (AEA)</td>
                         <td className="p-3 text-right font-mono">-</td>
-                        <td className="p-3 text-right font-mono">{factorSimultaneidadGrado.toFixed(2)}</td>
+                        <td className="p-3 text-right font-mono">
+                            <input 
+                                type="number"
+                                step="0.05"
+                                className="w-16 bg-slate-950 text-white text-xs rounded border border-slate-700 p-1 text-right"
+                                value={project.datosVivienda?.coefSimultaneidadManual || factorSimultaneidadGrado}
+                                min={factorSimultaneidadGrado}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    if (!isNaN(val) && val >= factorSimultaneidadGrado) {
+                                        onChange({ ...project, datosVivienda: { ...datos, coefSimultaneidadManual: val } });
+                                    }
+                                }}
+                            />
+                        </td>
                         <td className="p-3 text-right font-mono">{dpmsData.DPMS_Grado.toFixed(0)}</td>
                         <td className="p-3 text-right font-mono">{(dpmsData.DPMS_Grado * cosPhi).toFixed(0)}</td>
                     </tr>
