@@ -24,36 +24,38 @@ import {
 import { calcularDPMS } from '../engine/strategies/vivienda/calculoPotencia';
 import { FACTORES_SIMULTANEIDAD_VIVIENDA } from '../data/vivienda/factoresSimultaneidad';
 
-// Colores institucionales formales (hex sin almohadilla para docx)
+// Ancho útil estándar A4 con márgenes de 20mm (11906 - 2268 = ~9600 twips / DXA)
+const TOTAL_TABLE_WIDTH_DXA = 9600;
+
+// Paleta institucional (hex sin #)
 const DOCX_COLORS = {
-  primaryNavy: '1E3A8A',     // Azul Marino Institucional
+  primaryNavy: '1E3A8A',     // Azul Marino
   primaryEmerald: '047857',  // Verde Técnico
   darkSlate: '1E293B',       // Pizarra Oscuro
-  textSlate: '334155',       // Texto Principal
+  textSlate: '334155',       // Texto Slate 700
   lightBg: 'F8FAFC',         // Fondo Gris Claro
   borderSlate: 'CBD5E1',     // Bordes de tabla
   white: 'FFFFFF',
 };
 
-const BORDER_STYLE = {
+const BORDER_DEF = {
   style: BorderStyle.SINGLE,
   size: 4,
   color: DOCX_COLORS.borderSlate,
 };
 
 const TABLE_BORDERS = {
-  top: BORDER_STYLE,
-  bottom: BORDER_STYLE,
-  left: BORDER_STYLE,
-  right: BORDER_STYLE,
-  insideHorizontal: BORDER_STYLE,
-  insideVertical: BORDER_STYLE,
+  top: BORDER_DEF,
+  bottom: BORDER_DEF,
+  left: BORDER_DEF,
+  right: BORDER_DEF,
+  insideHorizontal: BORDER_DEF,
+  insideVertical: BORDER_DEF,
 };
 
 /**
- * Genera y descarga un documento editable en formato Word (.docx)
- * 100% compatible con Google Docs y Microsoft Word, manteniendo
- * TODAS las tablas estructuradas como objetos de tabla nativos editables.
+ * Genera un archivo Word (.docx) con ancho de columnas explícito en DXA,
+ * garantizando que Google Docs renderice las tablas perfectamente como cuadrículas nativas editables.
  */
 export const generateDocxMemoriaCalculoBasico = async (
   project: Project,
@@ -84,7 +86,7 @@ export const generateDocxMemoriaCalculoBasico = async (
           properties: {
             page: {
               margin: {
-                top: 1134, // ~2cm
+                top: 1134, // ~20mm
                 right: 1134,
                 bottom: 1134,
                 left: 1134,
@@ -112,14 +114,14 @@ export const generateDocxMemoriaCalculoBasico = async (
 };
 
 /**
- * Crea las celdas de encabezado de tabla con estilo institucional
+ * Crea una celda de encabezado con ancho exacto en DXA
  */
-function createHeaderCell(text: string, widthPercent: number, bgColor = DOCX_COLORS.primaryNavy): TableCell {
+function createHeaderCellDxa(text: string, widthDxa: number, bgColor = DOCX_COLORS.primaryNavy): TableCell {
   return new TableCell({
-    width: { size: widthPercent, type: WidthType.PERCENTAGE },
+    width: { size: widthDxa, type: WidthType.DXA },
     shading: { fill: bgColor, type: ShadingType.CLEAR },
     verticalAlign: VerticalAlign.CENTER,
-    margins: { top: 120, bottom: 120, left: 120, right: 120 },
+    margins: { top: 120, bottom: 120, left: 100, right: 100 },
     children: [
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -138,20 +140,20 @@ function createHeaderCell(text: string, widthPercent: number, bgColor = DOCX_COL
 }
 
 /**
- * Crea una celda de datos regular para la tabla
+ * Crea una celda de datos con ancho exacto en DXA
  */
-function createDataCell(
+function createDataCellDxa(
   text: string,
-  widthPercent: number,
+  widthDxa: number,
   align: (typeof AlignmentType)[keyof typeof AlignmentType] = AlignmentType.LEFT,
   bold = false,
   isAlternate = false
 ): TableCell {
   return new TableCell({
-    width: { size: widthPercent, type: WidthType.PERCENTAGE },
+    width: { size: widthDxa, type: WidthType.DXA },
     shading: isAlternate ? { fill: DOCX_COLORS.lightBg, type: ShadingType.CLEAR } : undefined,
     verticalAlign: VerticalAlign.CENTER,
-    margins: { top: 100, bottom: 100, left: 120, right: 120 },
+    margins: { top: 100, bottom: 100, left: 100, right: 100 },
     children: [
       new Paragraph({
         alignment: align,
@@ -221,7 +223,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
   const factorSimultaneidadAdoptado = Math.max(factorSimultaneidadGrado, datosV.coefSimultaneidadManual || 0);
 
   // ==========================================
-  // 1. TÍTULO Y CARÁTULA FORMAL
+  // 1. TÍTULO Y PORTADA FORMAL
   // ==========================================
   elements.push(
     new Paragraph({
@@ -248,19 +250,20 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           bold: true,
         }),
       ],
-      spacing: { after: 300 },
+      spacing: { after: 250 },
     })
   );
 
-  // Tabla Cuadro de Obra y Datos de Portada
+  // Cuadro de Portada (Table 1 col, width 9600 DXA)
   const coverTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: [TOTAL_TABLE_WIDTH_DXA],
     borders: TABLE_BORDERS,
     rows: [
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
             shading: { fill: DOCX_COLORS.lightBg, type: ShadingType.CLEAR },
             margins: { top: 150, bottom: 150, left: 150, right: 150 },
             children: [
@@ -276,7 +279,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
                 children: [
                   new TextRun({ text: `Destino: Vivienda Unifamiliar  |  Fecha: ${new Date().toLocaleDateString('es-AR')}`, size: 18, color: DOCX_COLORS.textSlate }),
                 ],
-                spacing: { before: 100 },
+                spacing: { before: 80 },
               }),
             ],
           }),
@@ -285,7 +288,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
             margins: { top: 150, bottom: 150, left: 150, right: 150 },
             children: [
               new Paragraph({
@@ -295,12 +298,24 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
               }),
               new Paragraph({
                 children: [
-                  new TextRun({ text: `• Titular / Comitente: ${caratula.propietario}\n`, size: 18 }),
-                  new TextRun({ text: `• Ubicación / Dirección: ${caratula.direccion}, ${caratula.ciudad}${caratula.provincia !== 'No especificada' ? ', ' + caratula.provincia : ''}\n`, size: 18 }),
-                  new TextRun({ text: `• Profesional Responsable: ${caratula.instaladorNombre} (Matrícula: ${caratula.instaladorMatricula} - ${caratula.instaladorCategoria})\n`, size: 18 }),
+                  new TextRun({ text: `• Titular / Comitente: ${caratula.propietario}`, size: 18 }),
+                ],
+                spacing: { before: 60 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Ubicación / Dirección: ${caratula.direccion}, ${caratula.ciudad}${caratula.provincia !== 'No especificada' ? ', ' + caratula.provincia : ''}`, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Profesional Responsable: ${caratula.instaladorNombre} (Matrícula: ${caratula.instaladorMatricula} - ${caratula.instaladorCategoria})`, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
                   new TextRun({ text: `• Contacto: Tel: ${caratula.instaladorTelefono} | Email: ${caratula.instaladorEmail}`, size: 18 }),
                 ],
-                spacing: { before: 80, after: 100 },
               }),
             ],
           }),
@@ -309,7 +324,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
             shading: { fill: DOCX_COLORS.lightBg, type: ShadingType.CLEAR },
             margins: { top: 150, bottom: 150, left: 150, right: 150 },
             children: [
@@ -320,12 +335,24 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
               }),
               new Paragraph({
                 children: [
-                  new TextRun({ text: `• Superficie Computable Total: ${supTotal.toFixed(2)} m² (Cub: ${supCub} m² | Semicub: ${supSemi} m²)\n`, size: 18 }),
-                  new TextRun({ text: `• Grado de Electrificación: ${grado.toUpperCase()} (Tabla AEA 770.7.I)\n`, size: 18 }),
-                  new TextRun({ text: `• Demanda de Potencia Máxima Simultánea (DPMS): ${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)\n`, size: 18, bold: true }),
+                  new TextRun({ text: `• Superficie Computable Total: ${supTotal.toFixed(2)} m² (Cubierta: ${supCub} m² | Semicubierta: ${supSemi} m²)`, size: 18 }),
+                ],
+                spacing: { before: 60 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Grado de Electrificación: ${grado.toUpperCase()} (Tabla AEA 770.7.I)`, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Demanda de Potencia Máxima Simultánea (DPMS): ${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)`, size: 18, bold: true }),
+                ],
+              }),
+              new Paragraph({
+                children: [
                   new TextRun({ text: `• Corriente Nominal de Acometida: IB = ${ibTotal} A  |  Suministro: ${esTrifasico ? 'Trifásica (3x380/220V)' : 'Monofásica (220V)'}`, size: 18 }),
                 ],
-                spacing: { before: 80 },
               }),
             ],
           }),
@@ -335,7 +362,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
   });
 
   elements.push(coverTable);
-  elements.push(new Paragraph({ spacing: { before: 400 } }));
+  elements.push(new Paragraph({ spacing: { before: 300 } }));
 
   // ==========================================
   // 2. PROCEDIMIENTO 1: SUPERFICIES Y GRADO
@@ -351,27 +378,44 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: `• Superficie Cubierta (Scub): ${supCub.toFixed(2)} m²`, size: 18 }),
+      ],
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: `• Superficie Semicubierta (Ssemi): ${supSemi.toFixed(2)} m² (ponderada al 50%)`, size: 18 }),
+      ],
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: `• Fórmula AEA: Stotal = Scub + 0.5 * Ssemi = ${supCub.toFixed(2)} + 0.5 * ${supSemi.toFixed(2)} = ${supTotal.toFixed(2)} m².`, size: 18, bold: true }),
+      ],
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({ text: `• Grado de Electrificación determinado: ${grado.toUpperCase()} (Conforme Tabla 770.7.I).`, size: 18 }),
+      ],
     }),
     new Paragraph({
       children: [
         new TextRun({
-          text: `• Superficie Cubierta (Scub): ${supCub.toFixed(2)} m²\n` +
-            `• Superficie Semicubierta (Ssemi): ${supSemi.toFixed(2)} m² (ponderada al 50%)\n` +
-            `• Fórmula AEA: Stotal = Scub + 0.5 * Ssemi = ${supCub.toFixed(2)} + 0.5 * ${supSemi.toFixed(2)} = ${supTotal.toFixed(2)} m².\n` +
-            `• Grado de Electrificación determinado: ${grado.toUpperCase()} (Conforme Tabla 770.7.I).\n` +
-            `• Cantidad Mínima Reglamentaria de Circuitos (Tabla 770.7.II - Variante ${variante}): ` +
-            `${configNormativa.IUG} IUG + ${configNormativa.TUG} TUG ${configNormativa.CLE ? '+ 1 Especial' : ''} (Mínimo: ${minimosReq} circuitos | Proyectados: ${circuitos.length} circuitos).`,
+          text: `• Cantidad Mínima Reglamentaria de Circuitos (Tabla 770.7.II - Variante ${variante}): ` +
+            `${configNormativa.IUG} IUG + ${configNormativa.TUG} TUG ${configNormativa.CLE ? '+ 1 Especial' : ''} ` +
+            `(Mínimo: ${minimosReq} circuitos | Proyectados: ${circuitos.length} circuitos).`,
           size: 18,
-          color: DOCX_COLORS.textSlate,
         }),
       ],
-      spacing: { after: 300 },
+      spacing: { after: 250 },
     })
   );
 
   // ==========================================
-  // 3. PROCEDIMIENTO 2: AMBIENTES Y BOCAS (TABLA NATIVA EDITABLE)
+  // 3. PROCEDIMIENTO 2: AMBIENTES Y BOCAS (TABLA NATIVA EDITABLE EN DXA)
+  // Anchos: 2200 + 1400 + 2500 + 1100 + 800 + 800 + 800 = 9600 DXA
   // ==========================================
   elements.push(
     new Paragraph({
@@ -384,10 +428,11 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
     })
   );
 
+  const ambColWidths = [2200, 1400, 2500, 1100, 800, 800, 800];
   let totalIUG = 0;
   let totalTUG = 0;
   let totalTUE = 0;
@@ -396,13 +441,13 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
     new TableRow({
       tableHeader: true,
       children: [
-        createHeaderCell('AMBIENTE / LOCAL', 25),
-        createHeaderCell('DIMENSIONES', 15),
-        createHeaderCell('CRITERIO AEA 770.7.III', 28),
-        createHeaderCell('MIN. NORMA', 10),
-        createHeaderCell('IUG PROY.', 8),
-        createHeaderCell('TUG PROY.', 8),
-        createHeaderCell('TUE PROY.', 6),
+        createHeaderCellDxa('AMBIENTE / LOCAL', ambColWidths[0]),
+        createHeaderCellDxa('DIMENSIONES', ambColWidths[1]),
+        createHeaderCellDxa('CRITERIO AEA 770.7.III', ambColWidths[2]),
+        createHeaderCellDxa('MÍN. NORMA', ambColWidths[3]),
+        createHeaderCellDxa('IUG PROY.', ambColWidths[4]),
+        createHeaderCellDxa('TUG PROY.', ambColWidths[5]),
+        createHeaderCellDxa('TUE PROY.', ambColWidths[6]),
       ],
     }),
   ];
@@ -431,13 +476,13 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
     tableAmbientesRows.push(
       new TableRow({
         children: [
-          createDataCell(amb.nombre, 25, AlignmentType.LEFT, true, isAlt),
-          createDataCell(dimStr, 15, AlignmentType.CENTER, false, isAlt),
-          createDataCell(criterio, 28, AlignmentType.LEFT, false, isAlt),
-          createDataCell(`${pmu.iug} / ${pmu.tug}`, 10, AlignmentType.CENTER, false, isAlt),
-          createDataCell(`${amb.puntosIUG || pmu.iug}`, 8, AlignmentType.CENTER, true, isAlt),
-          createDataCell(`${amb.puntosTUG || pmu.tug}`, 8, AlignmentType.CENTER, true, isAlt),
-          createDataCell(`${amb.puntosTUE || 0}`, 6, AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(amb.nombre, ambColWidths[0], AlignmentType.LEFT, true, isAlt),
+          createDataCellDxa(dimStr, ambColWidths[1], AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(criterio, ambColWidths[2], AlignmentType.LEFT, false, isAlt),
+          createDataCellDxa(`${pmu.iug} / ${pmu.tug}`, ambColWidths[3], AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(`${amb.puntosIUG || pmu.iug}`, ambColWidths[4], AlignmentType.CENTER, true, isAlt),
+          createDataCellDxa(`${amb.puntosTUG || pmu.tug}`, ambColWidths[5], AlignmentType.CENTER, true, isAlt),
+          createDataCellDxa(`${amb.puntosTUE || 0}`, ambColWidths[6], AlignmentType.CENTER, false, isAlt),
         ],
       })
     );
@@ -447,28 +492,30 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
   tableAmbientesRows.push(
     new TableRow({
       children: [
-        createDataCell('TOTALES INSTALACIÓN', 25, AlignmentType.LEFT, true, true),
-        createDataCell(`${supTotal.toFixed(2)} m²`, 15, AlignmentType.CENTER, true, true),
-        createDataCell('Sumatoria Puntos de Utilización', 28, AlignmentType.LEFT, false, true),
-        createDataCell('-', 10, AlignmentType.CENTER, false, true),
-        createDataCell(`${totalIUG}`, 8, AlignmentType.CENTER, true, true),
-        createDataCell(`${totalTUG}`, 8, AlignmentType.CENTER, true, true),
-        createDataCell(`${totalTUE}`, 6, AlignmentType.CENTER, true, true),
+        createDataCellDxa('TOTALES INSTALACIÓN', ambColWidths[0], AlignmentType.LEFT, true, true),
+        createDataCellDxa(`${supTotal.toFixed(2)} m²`, ambColWidths[1], AlignmentType.CENTER, true, true),
+        createDataCellDxa('Sumatoria Puntos de Utilización', ambColWidths[2], AlignmentType.LEFT, false, true),
+        createDataCellDxa('-', ambColWidths[3], AlignmentType.CENTER, false, true),
+        createDataCellDxa(`${totalIUG}`, ambColWidths[4], AlignmentType.CENTER, true, true),
+        createDataCellDxa(`${totalTUG}`, ambColWidths[5], AlignmentType.CENTER, true, true),
+        createDataCellDxa(`${totalTUE}`, ambColWidths[6], AlignmentType.CENTER, true, true),
       ],
     })
   );
 
   elements.push(
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+      columnWidths: ambColWidths,
       borders: TABLE_BORDERS,
       rows: tableAmbientesRows,
     }),
-    new Paragraph({ spacing: { before: 300 } })
+    new Paragraph({ spacing: { before: 250 } })
   );
 
   // ==========================================
-  // 4. PROCEDIMIENTO 3: SÍNTESIS DE CIRCUITOS (TABLA NATIVA EDITABLE)
+  // 4. PROCEDIMIENTO 3: SÍNTESIS DE CIRCUITOS (TABLA NATIVA EDITABLE EN DXA)
+  // Anchos: 800 + 2600 + 1800 + 1100 + 1100 + 500 + 500 + 1200 = 9600 DXA
   // ==========================================
   elements.push(
     new Paragraph({
@@ -481,22 +528,23 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
     })
   );
 
+  const circColWidths = [800, 2600, 1800, 1100, 1100, 500, 500, 1200];
   const tableCircuitosRows: TableRow[] = [
     new TableRow({
       tableHeader: true,
       children: [
-        createHeaderCell('ID', 8, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('DENOMINACIÓN CIRCUITO', 28, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('TIPO / DESTINO', 20, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('BOCAS / LÍM.', 12, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('POT. NOM.', 12, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('c_u', 5, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('c_s', 5, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('DEMANDA (VA)', 10, DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('ID', circColWidths[0], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('DENOMINACIÓN CIRCUITO', circColWidths[1], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('TIPO / DESTINO', circColWidths[2], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('BOCAS / LÍM.', circColWidths[3], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('POT. NOM.', circColWidths[4], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('c_u', circColWidths[5], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('c_s', circColWidths[6], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('DEMANDA (VA)', circColWidths[7], DOCX_COLORS.primaryEmerald),
       ],
     }),
   ];
@@ -511,7 +559,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
         potNominalBase = 2200;
       } else {
         let bocasIUG = 0;
-        Object.values(tomasPorAmbiente).forEach((amb) => {
+        Object.values(tomasPorAmbiente).forEach((amb: any) => {
           bocasIUG += amb[c.id]?.IUG || 0;
         });
         potNominalBase = bocasIUG > 0 ? (2 / 3) * bocasIUG * 60 : 660;
@@ -531,7 +579,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
     }
 
     let bocasTotales = 0;
-    Object.values(tomasPorAmbiente).forEach((amb) => {
+    Object.values(tomasPorAmbiente).forEach((amb: any) => {
       const t = amb[c.id];
       if (t) bocasTotales += (t.IUG || 0) + (t.TUG || 0) + (t.TUE || 0);
     });
@@ -546,14 +594,14 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
     tableCircuitosRows.push(
       new TableRow({
         children: [
-          createDataCell(`Cto ${idx + 1}`, 8, AlignmentType.CENTER, true, isAlt),
-          createDataCell(c.nombre, 28, AlignmentType.LEFT, true, isAlt),
-          createDataCell(tipoNom, 20, AlignmentType.LEFT, false, isAlt),
-          createDataCell(`${bocasTotales} / ${maxBocasStr}`, 12, AlignmentType.CENTER, false, isAlt),
-          createDataCell(`${potNominalBase.toFixed(0)} VA`, 12, AlignmentType.RIGHT, false, isAlt),
-          createDataCell(`${cu.toFixed(2)}`, 5, AlignmentType.CENTER, false, isAlt),
-          createDataCell(`${cs.toFixed(2)}`, 5, AlignmentType.CENTER, false, isAlt),
-          createDataCell(`${demandaCircuitoVA.toFixed(0)} VA`, 10, AlignmentType.RIGHT, true, isAlt),
+          createDataCellDxa(`Cto ${idx + 1}`, circColWidths[0], AlignmentType.CENTER, true, isAlt),
+          createDataCellDxa(c.nombre, circColWidths[1], AlignmentType.LEFT, true, isAlt),
+          createDataCellDxa(tipoNom, circColWidths[2], AlignmentType.LEFT, false, isAlt),
+          createDataCellDxa(`${bocasTotales} / ${maxBocasStr}`, circColWidths[3], AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(`${potNominalBase.toFixed(0)} VA`, circColWidths[4], AlignmentType.RIGHT, false, isAlt),
+          createDataCellDxa(`${cu.toFixed(2)}`, circColWidths[5], AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(`${cs.toFixed(2)}`, circColWidths[6], AlignmentType.CENTER, false, isAlt),
+          createDataCellDxa(`${demandaCircuitoVA.toFixed(0)} VA`, circColWidths[7], AlignmentType.RIGHT, true, isAlt),
         ],
       })
     );
@@ -561,15 +609,17 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
 
   elements.push(
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+      columnWidths: circColWidths,
       borders: TABLE_BORDERS,
       rows: tableCircuitosRows,
     }),
-    new Paragraph({ spacing: { before: 300 } })
+    new Paragraph({ spacing: { before: 250 } })
   );
 
   // ==========================================
-  // 5. PROCEDIMIENTO 5: MEMORIA ANALÍTICA DPMS (TABLA NATIVA EDITABLE)
+  // 5. PROCEDIMIENTO 5: MEMORIA ANALÍTICA DPMS (TABLA NATIVA EDITABLE EN DXA)
+  // Anchos: 3800 + 1500 + 1500 + 1400 + 1400 = 9600 DXA
   // ==========================================
   elements.push(
     new Paragraph({
@@ -582,42 +632,39 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
     }),
     new Paragraph({
       children: [
-        new TextRun({
-          text: `• Potencia Instalada Total (PI): ${potInstaladaTotalVA.toFixed(0)} VA\n` +
-            `• Coeficiente de Simultaneidad adoptado (ks): ${factorSimultaneidadAdoptado.toFixed(2)} (Normativo: ${factorSimultaneidadGrado.toFixed(2)} para ${minimosReq} circuitos mínimos)\n` +
-            `• DPMS Cargas Generales: DPMS_Grado = PI_Generales * ks = ${dpmsData.DPMS_Grado.toFixed(0)} VA\n` +
-            `• DPMS Cargas Específicas / Especiales: ${dpmsData.DPMS_Específicas.toFixed(0)} VA\n` +
-            `• DPMS Total Instalación: DPMS_Total = ${dpmsVA.toFixed(0)} VA  -->  Potencia Activa: P = ${dpmsVA.toFixed(0)} * ${cosPhi.toFixed(2)} = ${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)`,
-          size: 18,
-          color: DOCX_COLORS.textSlate,
-        }),
+        new TextRun({ text: `• Potencia Instalada Total (PI): ${potInstaladaTotalVA.toFixed(0)} VA\n`, size: 18 }),
+        new TextRun({ text: `• Coeficiente de Simultaneidad adoptado (ks): ${factorSimultaneidadAdoptado.toFixed(2)} (Normativo: ${factorSimultaneidadGrado.toFixed(2)} para ${minimosReq} circuitos mínimos)\n`, size: 18 }),
+        new TextRun({ text: `• DPMS Cargas Generales: DPMS_Grado = PI_Generales * ks = ${dpmsData.DPMS_Grado.toFixed(0)} VA\n`, size: 18 }),
+        new TextRun({ text: `• DPMS Cargas Específicas / Especiales: ${dpmsData.DPMS_Específicas.toFixed(0)} VA\n`, size: 18 }),
+        new TextRun({ text: `• DPMS Total Instalación: DPMS_Total = ${dpmsVA.toFixed(0)} VA  -->  Potencia Activa: P = ${dpmsVA.toFixed(0)} * ${cosPhi.toFixed(2)} = ${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)`, size: 18, bold: true }),
       ],
-      spacing: { after: 200 },
+      spacing: { after: 150 },
     })
   );
 
+  const dpmsColWidths = [3800, 1500, 1500, 1400, 1400];
   const tableDpmsRows: TableRow[] = [
     new TableRow({
       tableHeader: true,
       children: [
-        createHeaderCell('CATEGORÍA / CONCEPTO', 40, DOCX_COLORS.darkSlate),
-        createHeaderCell('COEF. UTILIZACIÓN (c_u)', 18, DOCX_COLORS.darkSlate),
-        createHeaderCell('COEF. SIMULTANEIDAD (c_s)', 18, DOCX_COLORS.darkSlate),
-        createHeaderCell('DEMANDA (VA)', 12, DOCX_COLORS.darkSlate),
-        createHeaderCell('DEMANDA (W)', 12, DOCX_COLORS.darkSlate),
+        createHeaderCellDxa('CATEGORÍA / CONCEPTO', dpmsColWidths[0], DOCX_COLORS.darkSlate),
+        createHeaderCellDxa('COEF. UTILIZACIÓN (c_u)', dpmsColWidths[1], DOCX_COLORS.darkSlate),
+        createHeaderCellDxa('COEF. SIMULTANEIDAD (c_s)', dpmsColWidths[2], DOCX_COLORS.darkSlate),
+        createHeaderCellDxa('DEMANDA (VA)', dpmsColWidths[3], DOCX_COLORS.darkSlate),
+        createHeaderCellDxa('DEMANDA (W)', dpmsColWidths[4], DOCX_COLORS.darkSlate),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Cargas Generales (Grado Electrificación AEA)', 40, AlignmentType.LEFT, true),
-        createDataCell('-', 18, AlignmentType.CENTER),
-        createDataCell(`${factorSimultaneidadAdoptado.toFixed(2)}`, 18, AlignmentType.CENTER),
-        createDataCell(`${dpmsData.DPMS_Grado.toFixed(0)} VA`, 12, AlignmentType.RIGHT, true),
-        createDataCell(`${(dpmsData.DPMS_Grado * cosPhi).toFixed(0)} W`, 12, AlignmentType.RIGHT, true),
+        createDataCellDxa('Cargas Generales (Grado Electrificación AEA)', dpmsColWidths[0], AlignmentType.LEFT, true),
+        createDataCellDxa('-', dpmsColWidths[1], AlignmentType.CENTER),
+        createDataCellDxa(`${factorSimultaneidadAdoptado.toFixed(2)}`, dpmsColWidths[2], AlignmentType.CENTER),
+        createDataCellDxa(`${dpmsData.DPMS_Grado.toFixed(0)} VA`, dpmsColWidths[3], AlignmentType.RIGHT, true),
+        createDataCellDxa(`${(dpmsData.DPMS_Grado * cosPhi).toFixed(0)} W`, dpmsColWidths[4], AlignmentType.RIGHT, true),
       ],
     }),
   ];
@@ -625,18 +672,18 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
   circuitos
     .filter((c) => c.esEspecifico)
     .forEach((c, i) => {
-      const potVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / cosPhi : c.potencia || 0;
+      const potVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / cosPhi : (c.potencia || 0);
       const demVA = potVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
       const isAlt = i % 2 === 1;
 
       tableDpmsRows.push(
         new TableRow({
           children: [
-            createDataCell(`Cto Específico: ${c.nombre} (${c.siglaEspecifica || 'Esp.'})`, 40, AlignmentType.LEFT, false, isAlt),
-            createDataCell(`${(c.coefUtilizacion || 1).toFixed(2)}`, 18, AlignmentType.CENTER, false, isAlt),
-            createDataCell(`${(c.coefSimultaneidad || 1).toFixed(2)}`, 18, AlignmentType.CENTER, false, isAlt),
-            createDataCell(`${demVA.toFixed(0)} VA`, 12, AlignmentType.RIGHT, false, isAlt),
-            createDataCell(`${(demVA * cosPhi).toFixed(0)} W`, 12, AlignmentType.RIGHT, false, isAlt),
+            createDataCellDxa(`Cto Específico: ${c.nombre} (${c.siglaEspecifica || 'Esp.'})`, dpmsColWidths[0], AlignmentType.LEFT, false, isAlt),
+            createDataCellDxa(`${(c.coefUtilizacion || 1).toFixed(2)}`, dpmsColWidths[1], AlignmentType.CENTER, false, isAlt),
+            createDataCellDxa(`${(c.coefSimultaneidad || 1).toFixed(2)}`, dpmsColWidths[2], AlignmentType.CENTER, false, isAlt),
+            createDataCellDxa(`${demVA.toFixed(0)} VA`, dpmsColWidths[3], AlignmentType.RIGHT, false, isAlt),
+            createDataCellDxa(`${(demVA * cosPhi).toFixed(0)} W`, dpmsColWidths[4], AlignmentType.RIGHT, false, isAlt),
           ],
         })
       );
@@ -646,22 +693,23 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
   tableDpmsRows.push(
     new TableRow({
       children: [
-        createDataCell('TOTAL DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA (DPMS)', 40, AlignmentType.LEFT, true, true),
-        createDataCell('-', 18, AlignmentType.CENTER, false, true),
-        createDataCell('-', 18, AlignmentType.CENTER, false, true),
-        createDataCell(`${dpmsVA.toFixed(0)} VA`, 12, AlignmentType.RIGHT, true, true),
-        createDataCell(`${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)`, 12, AlignmentType.RIGHT, true, true),
+        createDataCellDxa('TOTAL DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA (DPMS)', dpmsColWidths[0], AlignmentType.LEFT, true, true),
+        createDataCellDxa('-', dpmsColWidths[1], AlignmentType.CENTER, false, true),
+        createDataCellDxa('-', dpmsColWidths[2], AlignmentType.CENTER, false, true),
+        createDataCellDxa(`${dpmsVA.toFixed(0)} VA`, dpmsColWidths[3], AlignmentType.RIGHT, true, true),
+        createDataCellDxa(`${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)`, dpmsColWidths[4], AlignmentType.RIGHT, true, true),
       ],
     })
   );
 
   elements.push(
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+      columnWidths: dpmsColWidths,
       borders: TABLE_BORDERS,
       rows: tableDpmsRows,
     }),
-    new Paragraph({ spacing: { before: 300 } })
+    new Paragraph({ spacing: { before: 250 } })
   );
 
   // ==========================================
@@ -678,7 +726,7 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
     }),
     new Paragraph({
       children: [
@@ -692,12 +740,13 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.textSlate,
         }),
       ],
-      spacing: { after: 300 },
+      spacing: { after: 250 },
     })
   );
 
   // ==========================================
-  // 7. PROCEDIMIENTO 7: VALIDACIONES NORMATIVAS Y CUADRO DE FIRMAS
+  // 7. PROCEDIMIENTO 7: VALIDACIONES NORMATIVAS (TABLA EN DXA)
+  // Anchos: 3200 + 4800 + 1600 = 9600 DXA
   // ==========================================
   elements.push(
     new Paragraph({
@@ -710,97 +759,133 @@ function construirContenidoVivienda(project: Project, caratula: DatosCaratula): 
           color: DOCX_COLORS.primaryNavy,
         }),
       ],
-      spacing: { before: 200, after: 150 },
+      spacing: { before: 200, after: 120 },
     })
   );
 
+  const valColWidths = [3200, 4800, 1600];
   const tableValidacionesRows: TableRow[] = [
     new TableRow({
       tableHeader: true,
       children: [
-        createHeaderCell('CRITERIO TÉCNICO NORMATIVO', 35, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('CONDICIÓN / VERIFICACIÓN EN PROYECTO', 50, DOCX_COLORS.primaryEmerald),
-        createHeaderCell('ESTADO REGLAMENTARIO', 15, DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('CRITERIO TÉCNICO NORMATIVO', valColWidths[0], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('CONDICIÓN / VERIFICACIÓN EN PROYECTO', valColWidths[1], DOCX_COLORS.primaryEmerald),
+        createHeaderCellDxa('ESTADO REGLAMENTARIO', valColWidths[2], DOCX_COLORS.primaryEmerald),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Límite de Suministro Monofásico', 35, AlignmentType.LEFT, true),
-        createDataCell(esTrifasico ? 'Suministro Trifásico (Correcto)' : dpmsVA > 7000 ? `Supera 7 kVA (${(dpmsVA / 1000).toFixed(2)} kVA)` : `Dentro de límite (${(dpmsVA / 1000).toFixed(2)} kVA <= 7 kVA)`, 50),
-        createDataCell(dpmsVA > 7000 && !esTrifasico ? 'RECOMENDAR TRIFÁSICA' : 'CUMPLE', 15, AlignmentType.CENTER, true),
+        createDataCellDxa('Límite de Suministro Monofásico', valColWidths[0], AlignmentType.LEFT, true),
+        createDataCellDxa(esTrifasico ? 'Suministro Trifásico (Correcto)' : dpmsVA > 7000 ? `Supera 7 kVA (${(dpmsVA / 1000).toFixed(2)} kVA)` : `Dentro de límite (${(dpmsVA / 1000).toFixed(2)} kVA <= 7 kVA)`, valColWidths[1]),
+        createDataCellDxa(dpmsVA > 7000 && !esTrifasico ? 'RECOMENDAR TRIFÁSICA' : 'CUMPLE', valColWidths[2], AlignmentType.CENTER, true),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Cantidad Mínima de Circuitos', 35, AlignmentType.LEFT, true, true),
-        createDataCell(`Proyectados: ${circuitos.length} circuitos >= Mínimo Normativo: ${minimosReq} circuitos (Grado ${grado})`, 50, AlignmentType.LEFT, false, true),
-        createDataCell(circuitos.length >= minimosReq ? 'CUMPLE' : 'VERIFICAR', 15, AlignmentType.CENTER, true, true),
+        createDataCellDxa('Cantidad Mínima de Circuitos', valColWidths[0], AlignmentType.LEFT, true, true),
+        createDataCellDxa(`Proyectados: ${circuitos.length} circuitos >= Mínimo Normativo: ${minimosReq} circuitos (Grado ${grado})`, valColWidths[1], AlignmentType.LEFT, false, true),
+        createDataCellDxa(circuitos.length >= minimosReq ? 'CUMPLE' : 'VERIFICAR', valColWidths[2], AlignmentType.CENTER, true, true),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Límite de Bocas por Circuito General', 35, AlignmentType.LEFT, true),
-        createDataCell('Máximo 15 bocas por circuito de usos generales (AEA 770.7.VI)', 50),
-        createDataCell('CUMPLE', 15, AlignmentType.CENTER, true),
+        createDataCellDxa('Límite de Bocas por Circuito General', valColWidths[0], AlignmentType.LEFT, true),
+        createDataCellDxa('Máximo 15 bocas por circuito de usos generales (AEA 770.7.VI)', valColWidths[1]),
+        createDataCellDxa('CUMPLE', valColWidths[2], AlignmentType.CENTER, true),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Circuitos Específicos > 8 A', 35, AlignmentType.LEFT, true, true),
-        createDataCell('Canalización independiente y protecciones dedicadas para consumos mayores a 8A', 50, AlignmentType.LEFT, false, true),
-        createDataCell('CUMPLE', 15, AlignmentType.CENTER, true, true),
+        createDataCellDxa('Circuitos Específicos > 8 A', valColWidths[0], AlignmentType.LEFT, true, true),
+        createDataCellDxa('Canalización independiente y protecciones dedicadas para consumos mayores a 8A', valColWidths[1], AlignmentType.LEFT, false, true),
+        createDataCellDxa('CUMPLE', valColWidths[2], AlignmentType.CENTER, true, true),
       ],
     }),
     new TableRow({
       children: [
-        createDataCell('Puntos Mínimos de Utilización', 35, AlignmentType.LEFT, true),
-        createDataCell('Cumplimiento de dotación mínima de bocas por local (Tabla AEA 770.7.III)', 50),
-        createDataCell('CUMPLE', 15, AlignmentType.CENTER, true),
+        createDataCellDxa('Puntos Mínimos de Utilización', valColWidths[0], AlignmentType.LEFT, true),
+        createDataCellDxa('Cumplimiento de dotación mínima de bocas por local (Tabla AEA 770.7.III)', valColWidths[1]),
+        createDataCellDxa('CUMPLE', valColWidths[2], AlignmentType.CENTER, true),
       ],
     }),
   ];
 
   elements.push(
     new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+      columnWidths: valColWidths,
       borders: TABLE_BORDERS,
       rows: tableValidacionesRows,
     }),
-    new Paragraph({ spacing: { before: 400 } })
+    new Paragraph({ spacing: { before: 300 } })
   );
 
-  // Cuadro de Firmas
+  // Cuadro de Firmas (4800 + 4800 = 9600 DXA)
+  const firmasColWidths = [4800, 4800];
   const tableFirmas = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: firmasColWidths,
     borders: TABLE_BORDERS,
     rows: [
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 50, type: WidthType.PERCENTAGE },
-            margins: { top: 300, bottom: 200, left: 150, right: 150 },
+            width: { size: firmasColWidths[0], type: WidthType.DXA },
+            margins: { top: 250, bottom: 150, left: 100, right: 100 },
             children: [
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: '__________________________________\n', size: 18 }),
-                  new TextRun({ text: `${(caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase()}\n`, bold: true, size: 18 }),
-                  new TextRun({ text: `Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}\n`, size: 16, color: DOCX_COLORS.textSlate }),
+                  new TextRun({ text: '__________________________________', size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: (caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase(), bold: true, size: 18 }),
+                ],
+                spacing: { before: 50 },
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: `Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}`, size: 16, color: DOCX_COLORS.textSlate }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
                   new TextRun({ text: 'Firma y Sello del Profesional Responsable', size: 14, color: DOCX_COLORS.textSlate }),
                 ],
               }),
             ],
           }),
           new TableCell({
-            width: { size: 50, type: WidthType.PERCENTAGE },
-            margins: { top: 300, bottom: 200, left: 150, right: 150 },
+            width: { size: firmasColWidths[1], type: WidthType.DXA },
+            margins: { top: 250, bottom: 150, left: 100, right: 100 },
             children: [
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: '__________________________________\n', size: 18 }),
-                  new TextRun({ text: `${(caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase()}\n`, bold: true, size: 18 }),
-                  new TextRun({ text: 'Propietario / Comitente\n', size: 16, color: DOCX_COLORS.textSlate }),
+                  new TextRun({ text: '__________________________________', size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: (caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase(), bold: true, size: 18 }),
+                ],
+                spacing: { before: 50 },
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: 'Propietario / Comitente', size: 16, color: DOCX_COLORS.textSlate }),
+                ],
+              }),
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
                   new TextRun({ text: 'Conformidad de Proyecto', size: 14, color: DOCX_COLORS.textSlate }),
                 ],
               }),
@@ -847,18 +932,19 @@ function construirContenidoGeneral(project: Project, caratula: DatosCaratula): (
           bold: true,
         }),
       ],
-      spacing: { after: 300 },
+      spacing: { after: 250 },
     })
   );
 
   const tableGeneral = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
+    columnWidths: [TOTAL_TABLE_WIDTH_DXA],
     borders: TABLE_BORDERS,
     rows: [
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
             shading: { fill: DOCX_COLORS.lightBg, type: ShadingType.CLEAR },
             margins: { top: 150, bottom: 150, left: 150, right: 150 },
             children: [
@@ -874,7 +960,7 @@ function construirContenidoGeneral(project: Project, caratula: DatosCaratula): (
                 children: [
                   new TextRun({ text: `Propietario: ${caratula.propietario}  |  Fecha: ${new Date().toLocaleDateString('es-AR')}`, size: 18 }),
                 ],
-                spacing: { before: 100 },
+                spacing: { before: 80 },
               }),
             ],
           }),
@@ -883,16 +969,33 @@ function construirContenidoGeneral(project: Project, caratula: DatosCaratula): (
       new TableRow({
         children: [
           new TableCell({
-            width: { size: 100, type: WidthType.PERCENTAGE },
+            width: { size: TOTAL_TABLE_WIDTH_DXA, type: WidthType.DXA },
             margins: { top: 150, bottom: 150, left: 150, right: 150 },
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({ text: 'PARÁMETROS GENERALES DE LA INSTALACIÓN:\n', bold: true, size: 20, color: DOCX_COLORS.primaryNavy }),
-                  new TextRun({ text: `• Tipo de Instalación: ${project.tipoInstalacion || 'Trifásica'}\n`, size: 18 }),
-                  new TextRun({ text: `• Temperatura Ambiente: ${project.tempAmbiente || 30} °C\n`, size: 18 }),
-                  new TextRun({ text: `• Factor de Potencia (cos phi): ${project.cosPhi || 0.95}\n`, size: 18 }),
-                  new TextRun({ text: `• Coeficiente de Simultaneidad: ${project.coefSimultaneidad || 1.0}\n`, size: 18 }),
+                  new TextRun({ text: 'PARÁMETROS GENERALES DE LA INSTALACIÓN:', bold: true, size: 20, color: DOCX_COLORS.primaryNavy }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Tipo de Instalación: ${project.tipoInstalacion || 'Trifásica'}`, size: 18 }),
+                ],
+                spacing: { before: 60 },
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Temperatura Ambiente: ${project.tempAmbiente || 30} °C`, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Factor de Potencia (cos phi): ${project.cosPhi || 0.95}`, size: 18 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `• Coeficiente de Simultaneidad: ${project.coefSimultaneidad || 1.0}`, size: 18 }),
                 ],
               }),
             ],

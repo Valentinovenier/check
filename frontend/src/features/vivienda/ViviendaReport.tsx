@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Project } from '../../types/project';
 import { ViviendaMemoriaDescriptiva } from './ViviendaMemoriaDescriptiva';
 import { ViviendaMemoriaCalculo } from './ViviendaMemoriaCalculo';
-import { ShieldCheck, Calculator, FileDown, FileText } from 'lucide-react';
+import { ShieldCheck, Calculator, FileDown, FileText, ClipboardCopy } from 'lucide-react';
 import { usePlanAccess } from '../../hooks/usePlanAccess';
 import { generatePdfMemoriaDescriptiva } from '../../utils/generatePdfMemoriaDescriptiva';
 import { generatePdfMemoriaCalculo } from '../../utils/generatePdfMemoriaCalculo';
 import { generateDocxMemoriaCalculoBasico } from '../../utils/generateDocxMemoriaCalculoBasico';
+import { copyReportToClipboard } from '../../utils/copyReportToClipboard';
 
 export const ViviendaReport = ({ project }: { project: Project }) => {
   const [activeTab, setActiveTab] = useState<'descriptiva' | 'calculo'>('descriptiva');
@@ -44,7 +45,15 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
         </div>
 
         {isPro && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center flex-wrap">
+            <button
+              onClick={() => copyReportToClipboard(project)}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-3 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
+              title="Copiar informe con tablas nativas para pegar directo en Google Docs con Ctrl+V"
+            >
+              <ClipboardCopy size={16} />
+              <span>Copiar para Docs (Ctrl+V)</span>
+            </button>
             <button
               onClick={() => generateDocxMemoriaCalculoBasico(project)}
               className="bg-blue-900 hover:bg-blue-800 text-blue-100 border border-blue-600 px-3 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
