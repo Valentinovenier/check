@@ -41,6 +41,7 @@ export const DashboardLayout = ({
         ]
       : [
           { icon: Zap, label: 'Calculadora DPMS', id: 'parametros' },
+          { icon: FileText, label: 'Informe', id: 'informe' },
         ]
     : [];
 
