@@ -43,13 +43,22 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
         </div>
 
         {isPro && (
+          <div className="flex gap-2">
             <button
-                onClick={() => activeTab === 'descriptiva' ? generatePdfMemoriaDescriptiva(project) : generatePdfMemoriaCalculo(project)}
-                className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+              onClick={() => generatePdfMemoriaDescriptiva(project)}
+              className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
             >
-                <FileDown size={16} />
-                <span>Descargar PDF</span>
+              <FileDown size={16} />
+              <span>Memoria Descriptiva</span>
             </button>
+            <button
+              onClick={() => generatePdfMemoriaCalculo(project)}
+              className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+            >
+              <FileDown size={16} />
+              <span>Memoria de Cálculo</span>
+            </button>
+          </div>
         )}
       </div>
 
