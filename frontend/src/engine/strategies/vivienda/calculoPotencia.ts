@@ -21,13 +21,17 @@ export const calcularDPMS = (datos: DatosVivienda) => {
 
     // 4. Validaciones Técnicas
     const advertencias: string[] = [];
-    if (cargaTotal > 7000) {
-        advertencias.push('La Carga Total supera los 7 kVA. Se recomienda suministro trifásico.');
+    const supplyType = datos.supplyType || 'monophasic';
+
+    if (supplyType === 'monophasic' && cargaTotal > 7000) {
+        advertencias.push('La Carga Total supera los 7 kVA. Se recomienda cambiar a suministro trifásico.');
     }
     
     circuitosEspecificos.forEach(c => {
         const potenciaNominalVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / 0.85 : (c.potencia || 0); // Convert W to VA using 0.85
-        const corrienteNominal = potenciaNominalVA / 220;
+        const corrienteNominal = potenciaNominalVA / (supplyType === 'trifasic' ? 380 : 220); // Ajuste básico por tensión
+        
+        // La validación original era > 8A. En trifásica, este límite podría variar, pero mantendremos el umbral con el ajuste de tensión.
         if (corrienteNominal > 8) {
             advertencias.push(`El circuito específico "${c.nombre}" consume más de 8A. Requiere canalización independiente.`);
         }

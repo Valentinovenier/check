@@ -78,6 +78,32 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <p className="text-lg font-bold text-white">{circuitosMinimos}</p>
         </div>
       </div>
+
+      <div className="mt-4">
+        <label className="block text-[13px] font-semibold uppercase text-slate-500 mb-2">Tipo de Suministro</label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 cursor-pointer text-white">
+            <input
+              type="radio"
+              name="supplyType"
+              value="monophasic"
+              checked={datos.supplyType !== 'trifasic'}
+              onChange={() => handleUpdate({ supplyType: 'monophasic' })}
+            />
+            Monofásico
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer text-white">
+            <input
+              type="radio"
+              name="supplyType"
+              value="trifasic"
+              checked={datos.supplyType === 'trifasic'}
+              onChange={() => handleUpdate({ supplyType: 'trifasic' })}
+            />
+            Trifásico
+          </label>
+        </div>
+      </div>
     </div>
   );
 };
