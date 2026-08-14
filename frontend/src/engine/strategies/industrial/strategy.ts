@@ -17,7 +17,7 @@ export class IndustrialStrategy implements BaseProjectStrategy {
     return IndustrialConductorForm;
   }
 
-  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }> {
+  getInformeComponente(): React.ComponentType<any> {
     return IndustrialReport;
   }
 }

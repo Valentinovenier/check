@@ -18,7 +18,7 @@ export class ComercialStrategy implements BaseProjectStrategy {
     return ComercialConductorForm;
   }
 
-  getInformeComponente(): React.ComponentType<{ project: Project, isPro: boolean, caratula: DatosCaratula }> {
+  getInformeComponente(): React.ComponentType<any> {
     return ComercialReport;
   }
 }
