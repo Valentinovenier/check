@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Project, DatosCaratula } from '../types/project';
-import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
-import { generateDocxMemoriaCalculoBasico } from '../utils/generateDocxMemoriaCalculoBasico';
+
+
 import { copyReportToClipboard } from '../utils/copyReportToClipboard';
-import { FileDown, FileText, ClipboardCopy, Check } from 'lucide-react';
+import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
+import { FileDown, ClipboardCopy, Check } from 'lucide-react';
 
 export const InformeBasicoSection = ({ project, caratula }: { project: Project, caratula: DatosCaratula }) => {
   const [copied, setCopied] = useState(false);
@@ -33,16 +34,6 @@ export const InformeBasicoSection = ({ project, caratula }: { project: Project, 
         >
           <FileDown size={18} />
           <span>Descargar Informe Básico (PDF)</span>
-        </button>
-
-        {/* Botón Descargar DOCX */}
-        <button
-          onClick={() => generateDocxMemoriaCalculoBasico(project, caratula)}
-          className="bg-blue-900 hover:bg-blue-800 text-blue-100 border border-blue-600 px-4 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2 shadow"
-          title="Descarga archivo .docx con columnas y tablas nativas listas para Google Docs y Word"
-        >
-          <FileText size={18} />
-          <span>Descargar Word / Docs (.docx)</span>
         </button>
 
         {/* Botón Copiar Directo para Google Docs */}

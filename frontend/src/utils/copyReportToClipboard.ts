@@ -82,21 +82,30 @@ export const copyReportToClipboard = async (
 <head>
 <meta charset="utf-8">
 <style>
-  body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.4; }
-  h1 { color: #1e3a8a; font-size: 18pt; text-align: center; margin-bottom: 4px; }
-  h2 { color: #1e3a8a; font-size: 13pt; margin-top: 20px; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px; }
-  .subtitle { text-align: center; font-size: 11pt; font-weight: bold; color: #334155; margin-bottom: 20px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 16px; font-size: 10pt; }
-  th, td { border: 1px solid #cbd5e1; padding: 6px 8px; }
-  th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; text-align: center; }
-  th.accent { background-color: #047857; }
-  th.dark { background-color: #1e293b; }
-  tr:nth-child(even) td { background-color: #f8fafc; }
-  .text-center { text-align: center; }
-  .text-right { text-align: right; }
-  .font-bold { font-weight: bold; }
-  .box { background-color: #f8fafc; border: 1px solid #94a3b8; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
-  .tag { font-weight: bold; color: #047857; }
+:root {
+  --color-primary: #1e3a8a;
+  --color-primary-accent: #047857;
+  --color-dark: #1e293b;
+  --color-text: #334155;
+  --color-subtext: #64748b;
+  --color-light-bg: #f8fafc;
+  --color-border: #e2e8f0;
+}
+body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: var(--color-dark); line-height: 1.4; margin:0; }
+h1 { color: var(--color-primary); font-size: 18pt; text-align: center; margin-bottom: 4px; }
+h2 { color: var(--color-primary); font-size: 13pt; margin-top: 20px; margin-bottom: 8px; border-bottom: 2px solid var(--color-primary); padding-bottom: 4px; }
+.subtitle { text-align: center; font-size: 11pt; font-weight: bold; color: var(--color-text); margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 16px; font-size: 10pt; }
+th, td { border: 1px solid var(--color-border); padding: 6px 8px; }
+th { background-color: var(--color-primary); color: #fff; font-weight: bold; text-align: center; }
+th.accent { background-color: var(--color-primary-accent); }
+th.dark { background-color: var(--color-dark); }
+tr:nth-child(even) td { background-color: var(--color-light-bg); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.font-bold { font-weight: bold; }
+.box { background-color: var(--color-light-bg); border: 1px solid var(--color-text); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+.tag { font-weight: bold; color: var(--color-primary-accent); }
 </style>
 </head>
 <body>
