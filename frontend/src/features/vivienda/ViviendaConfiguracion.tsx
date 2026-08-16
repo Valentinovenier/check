@@ -49,7 +49,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-            value={datos.superficieCubierta}
+            value={datos.superficieCubierta || ''}
             onChange={(e) => handleUpdate({ superficieCubierta: parseFloat(e.target.value) || 0 })}
           />
         </div>
@@ -58,7 +58,7 @@ export const ViviendaConfiguracion = ({ project, onChange }: Props) => {
           <input 
             type="number" 
             className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-            value={datos.superficieSemicubierta}
+            value={datos.superficieSemicubierta || ''}
             onChange={(e) => handleUpdate({ superficieSemicubierta: parseFloat(e.target.value) || 0 })}
           />
         </div>

@@ -72,19 +72,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                         <td className="p-3 font-semibold">Grado Electrificación (AEA)</td>
                         <td className="p-3 text-right font-mono">-</td>
                         <td className="p-3 text-right font-mono">
-                            <input 
-                                type="number"
-                                step="0.05"
-                                className="w-16 bg-slate-950 text-white text-xs rounded border border-slate-700 p-1 text-right"
-                                value={factorSimultaneidadVisible}
-                                min={factorSimultaneidadNormativo}
-                                onChange={(e) => {
-                                    const val = parseFloat(e.target.value);
-                                    if (!isNaN(val) && val >= factorSimultaneidadNormativo) {
-                                        onChange({ ...project, datosVivienda: { ...datos, coefSimultaneidadManual: val } });
-                                    }
-                                }}
-                            />
+                            {factorSimultaneidadNormativo.toFixed(2)}
                         </td>
                         <td className="p-3 text-right font-mono">{dpmsData.DPMS_Grado.toFixed(0)}</td>
                         <td className="p-3 text-right font-mono">{(dpmsData.DPMS_Grado * cosPhi).toFixed(0)}</td>
