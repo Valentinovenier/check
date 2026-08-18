@@ -183,7 +183,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     <div className="flex gap-4 text-[10px] font-bold bg-slate-900 p-2 rounded border border-slate-800">
                         <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
                         <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
-                        <span className={asignadoTUE >= ambiente.puntosTUE ? 'text-emerald-400' : 'text-amber-400'}>TUE: {asignadoTUE}/{ambiente.puntosTUE}</span>
+                        <span className="text-emerald-400">TUE: {asignadoTUE}</span>
                     </div>
                 </div>
                 
