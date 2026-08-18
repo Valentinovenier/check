@@ -65,7 +65,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
         } else if (maxBocas === '12 por fase' && bocas > 12) {
             alert(`La cantidad de bocas excede el máximo permitido (12 por fase) para este tipo de circuito.`);
             return;
-        } else if (maxBocas === 'N/A') {
+        } else if (maxBocas === 'N/A' && bocas > 0) {
             alert(`Este circuito no admite bocas.`);
             return;
         }
@@ -96,6 +96,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
     onChange({ ...project, datosVivienda: { ...datos, circuitosCalculados: [...datos.circuitosCalculados, nuevoCircuito] } });
     setNuevoNombre('');
     setPotencia(0);
+    setBocas(0);
     setCoefUtilizacion(1);
     setCoefSimultaneidad(1);
   };
