@@ -70,6 +70,7 @@ export interface TomasCircuito {
   IUG: number;
   TUG: number;
   TUE: number;
+  bocas?: number;
 }
 
 export interface DatosVivienda {
