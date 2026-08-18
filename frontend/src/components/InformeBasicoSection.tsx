@@ -1,7 +1,6 @@
 import { Project, DatosCaratula } from '../types/project';
 import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
-import { exportProjectToExcel } from '../utils/exportProjectToExcel';
-import { FileDown, FileSpreadsheet } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 
 export const InformeBasicoSection = ({ project, caratula }: { project: Project, caratula: DatosCaratula }) => {
   return (
@@ -22,16 +21,6 @@ export const InformeBasicoSection = ({ project, caratula }: { project: Project, 
         >
           <FileDown size={18} />
           <span>Descargar Informe Básico (PDF)</span>
-        </button>
-
-        {/* Botón Exportar a Excel */}
-        <button
-          onClick={() => exportProjectToExcel(project, false, caratula)}
-          className="bg-emerald-800 hover:bg-emerald-700 text-white border border-emerald-500 px-4 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2 shadow"
-          title="Exportar planilla de cálculo en Excel (.xlsx) estructurada en 4 pestañas independientes"
-        >
-          <FileSpreadsheet size={18} />
-          <span>Exportar a Excel / Sheets (.xlsx)</span>
         </button>
       </div>
     </div>

@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { Project } from '../../types/project';
 import { ViviendaMemoriaDescriptiva } from './ViviendaMemoriaDescriptiva';
 import { ViviendaMemoriaCalculo } from './ViviendaMemoriaCalculo';
-import { ShieldCheck, Calculator, FileDown, FileSpreadsheet } from 'lucide-react';
+import { ShieldCheck, Calculator, FileDown } from 'lucide-react';
 import { usePlanAccess } from '../../hooks/usePlanAccess';
 import { generatePdfMemoriaCalculoBasico } from '../../utils/generatePdfMemoriaCalculoBasico';
-import { exportProjectToExcel } from '../../utils/exportProjectToExcel';
 
 export const ViviendaReport = ({ project }: { project: Project }) => {
   const [activeTab, setActiveTab] = useState<'descriptiva' | 'calculo'>('descriptiva');
@@ -52,16 +51,6 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
             >
               <FileDown size={16} />
               <span>Descargar Legajo Técnico (PDF)</span>
-            </button>
-
-            {/* Botón Exportar Legajo a Excel */}
-            <button
-              onClick={() => exportProjectToExcel(project, true)}
-              className="bg-emerald-800 hover:bg-emerald-700 text-white border border-emerald-500 px-4 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
-              title="Exportar libro Excel (.xlsx) estructurado en 4 pestañas independientes con datos numéricos listos para cálculo"
-            >
-              <FileSpreadsheet size={16} />
-              <span>Exportar Legajo a Excel / Sheets (.xlsx)</span>
             </button>
           </div>
         )}

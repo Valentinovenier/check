@@ -554,10 +554,9 @@ function generarInformeDpmsVivienda(
 
   // Si es Plan Pro, agregamos la sección de Conductores y Protecciones Dimensionadas
   if (isPro) {
-    if (cursorY > pageHeight - 85) {
-      doc.addPage();
-      cursorY = 20;
-    }
+    // Salto de página dedicado para la sección Pro de conductores y protecciones
+    doc.addPage();
+    cursorY = 20;
 
     doc.setFont(PDF_FONTS.family, 'bold');
     doc.setFontSize(PDF_FONTS.sectionHeadingSize);
@@ -631,6 +630,9 @@ function generarInformeDpmsVivienda(
       },
       margin: { left: marginLeft, right: marginRight },
     });
+
+    // Actualizamos cursorY inmediatamente después de la tabla de conductores
+    cursorY = (doc as any).lastAutoTable.finalY + 10;
 
     // Tabla de Tableros y Protecciones de Cabecera / Diferenciales (Plan Pro)
     const tableros = datosV.tableros || [];
@@ -740,8 +742,16 @@ function generarInformeDpmsVivienda(
         margin: { left: marginLeft, right: marginRight },
       });
 
-      cursorY = (doc as any).lastAutoTable.finalY + 8;
+      cursorY = (doc as any).lastAutoTable.finalY + 10;
     }
+  }
+
+  // ====================================================
+  // VALIDACIONES NORMATIVAS Y CUADRO DE FIRMAS
+  // ====================================================
+  if (cursorY > pageHeight - 75) {
+    doc.addPage();
+    cursorY = 20;
   }
 
   // PROCEDIMIENTO DE VALIDACIONES Y ADVERTENCIAS TÉCNICAS
@@ -796,7 +806,7 @@ function generarInformeDpmsVivienda(
     margin: { left: marginLeft, right: marginRight },
   });
 
-  cursorY = (doc as any).lastAutoTable.finalY + 12;
+  cursorY = (doc as any).lastAutoTable.finalY + 8;
 
   // Advertencias normativas si existen
   if (dpmsData.advertencias && dpmsData.advertencias.length > 0) {
@@ -822,39 +832,39 @@ function generarInformeDpmsVivienda(
   }
 
   // Cuadro de Firmas y Responsabilidad Profesional
-  if (cursorY > pageHeight - 45) {
+  if (cursorY > pageHeight - 48) {
     doc.addPage();
     cursorY = 20;
   }
 
-  cursorY = Math.max(cursorY, pageHeight - 48);
+  const firmaY = Math.max(cursorY + 6, pageHeight - 45);
 
   doc.setLineWidth(0.3);
   doc.setDrawColor(PDF_COLORS.border[0], PDF_COLORS.border[1], PDF_COLORS.border[2]);
 
   // Firma Instalador
-  doc.line(marginLeft + 10, cursorY + 18, marginLeft + 75, cursorY + 18);
+  doc.line(marginLeft + 10, firmaY + 18, marginLeft + 75, firmaY + 18);
   doc.setFont(PDF_FONTS.family, 'bold');
   doc.setFontSize(PDF_FONTS.smallSize);
   doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
-  doc.text((caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase(), marginLeft + 42.5, cursorY + 22, { align: 'center' });
+  doc.text((caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase(), marginLeft + 42.5, firmaY + 22, { align: 'center' });
   doc.setFont(PDF_FONTS.family, 'normal');
   doc.setFontSize(PDF_FONTS.footerSize);
   doc.setTextColor(PDF_COLORS.subtext[0], PDF_COLORS.subtext[1], PDF_COLORS.subtext[2]);
-  doc.text(`Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}`, marginLeft + 42.5, cursorY + 26, { align: 'center' });
-  doc.text('Firma y Sello del Profesional Responsable', marginLeft + 42.5, cursorY + 30, { align: 'center' });
+  doc.text(`Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}`, marginLeft + 42.5, firmaY + 26, { align: 'center' });
+  doc.text('Firma y Sello del Profesional Responsable', marginLeft + 42.5, firmaY + 30, { align: 'center' });
 
   // Firma Propietario
-  doc.line(pageWidth - marginRight - 75, cursorY + 18, pageWidth - marginRight - 10, cursorY + 18);
+  doc.line(pageWidth - marginRight - 75, firmaY + 18, pageWidth - marginRight - 10, firmaY + 18);
   doc.setFont(PDF_FONTS.family, 'bold');
   doc.setFontSize(PDF_FONTS.smallSize);
   doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
-  doc.text((caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase(), pageWidth - marginRight - 42.5, cursorY + 22, { align: 'center' });
+  doc.text((caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase(), pageWidth - marginRight - 42.5, firmaY + 22, { align: 'center' });
   doc.setFont(PDF_FONTS.family, 'normal');
   doc.setFontSize(PDF_FONTS.footerSize);
   doc.setTextColor(PDF_COLORS.subtext[0], PDF_COLORS.subtext[1], PDF_COLORS.subtext[2]);
-  doc.text('Propietario / Comitente', pageWidth - marginRight - 42.5, cursorY + 26, { align: 'center' });
-  doc.text('Conformidad de Proyecto', pageWidth - marginRight - 42.5, cursorY + 30, { align: 'center' });
+  doc.text('Propietario / Comitente', pageWidth - marginRight - 42.5, firmaY + 26, { align: 'center' });
+  doc.text('Conformidad de Proyecto', pageWidth - marginRight - 42.5, firmaY + 30, { align: 'center' });
 }
 
 /**
