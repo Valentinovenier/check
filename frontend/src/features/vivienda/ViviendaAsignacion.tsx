@@ -169,7 +169,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                 }
 
                 const totalTomas = getCircuitoTotalTomas(c);
-                const maxBocas = c.maximoBocas !== undefined ? c.maximoBocas : (c.tipo === 'usos_especiales' ? 12 : 15);
+                const maxBocas = c.maximoBocas !== undefined ? c.maximoBocas : 15;
                 const limiteNumerico = typeof maxBocas === 'number' ? maxBocas : (maxBocas === '12 por fase' ? 12 : 9999);
                 const superaLimite = maxBocas !== 'Sin límite' && maxBocas !== 'N/A' && totalTomas > limiteNumerico;
                 
@@ -243,7 +243,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                         const tomasAsignadas = datos.tomasPorAmbiente?.[ambiente.id]?.[circuito.id] || { IUG: 0, TUG: 0, TUE: 0, bocas: 0 };
                         const totalCircuito = getCircuitoTotalTomas(circuito);
                         
-                        const maxBocas = circuito.maximoBocas !== undefined ? circuito.maximoBocas : (circuito.tipo === 'usos_especiales' ? 12 : 15);
+                        const maxBocas = circuito.maximoBocas !== undefined ? circuito.maximoBocas : 15;
                         const limiteCircuito = typeof maxBocas === 'number' ? maxBocas : (maxBocas === '12 por fase' ? 12 : 9999);
                         const circuitoLleno = maxBocas !== 'Sin límite' && maxBocas !== 'N/A' && totalCircuito >= limiteCircuito;
 
