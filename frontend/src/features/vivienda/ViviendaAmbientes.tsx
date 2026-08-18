@@ -50,7 +50,16 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
   };
 
   const removeAmbiente = (id: string) => {
-    onChange({ ...project, datosVivienda: { ...datos, ambientes: datos.ambientes.filter(amb => amb.id !== id) } });
+    const nuevasTomas = { ...datos.tomasPorAmbiente };
+    delete nuevasTomas[id];
+    onChange({ 
+        ...project, 
+        datosVivienda: { 
+            ...datos, 
+            ambientes: datos.ambientes.filter(amb => amb.id !== id),
+            tomasPorAmbiente: nuevasTomas
+        } 
+    });
   };
 
   const autocompletarMinimos = () => {
