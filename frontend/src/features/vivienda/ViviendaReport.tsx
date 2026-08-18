@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { Project } from '../../types/project';
 import { ViviendaMemoriaDescriptiva } from './ViviendaMemoriaDescriptiva';
 import { ViviendaMemoriaCalculo } from './ViviendaMemoriaCalculo';
-import { ShieldCheck, Calculator, FileDown, FileText, ClipboardCopy } from 'lucide-react';
+import { ShieldCheck, Calculator, FileDown, FileSpreadsheet } from 'lucide-react';
 import { usePlanAccess } from '../../hooks/usePlanAccess';
-import { generatePdfMemoriaDescriptiva } from '../../utils/generatePdfMemoriaDescriptiva';
-import { generatePdfMemoriaCalculo } from '../../utils/generatePdfMemoriaCalculo';
-import { generateDocxMemoriaCalculoBasico } from '../../utils/generateDocxMemoriaCalculoBasico';
-import { copyReportToClipboard } from '../../utils/copyReportToClipboard';
+import { generatePdfMemoriaCalculoBasico } from '../../utils/generatePdfMemoriaCalculoBasico';
+import { exportProjectToExcel } from '../../utils/exportProjectToExcel';
 
 export const ViviendaReport = ({ project }: { project: Project }) => {
   const [activeTab, setActiveTab] = useState<'descriptiva' | 'calculo'>('descriptiva');
@@ -17,7 +15,7 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
   return (
     <div className="space-y-6">
       {/* Navegación por Pestañas */}
-      <div className="flex gap-2 border-b border-slate-800 pb-3 print:hidden justify-between items-center">
+      <div className="flex gap-2 border-b border-slate-800 pb-3 print:hidden justify-between items-center flex-wrap">
         <div className='flex gap-2'>
             <button
             onClick={() => setActiveTab('descriptiva')}
@@ -46,35 +44,24 @@ export const ViviendaReport = ({ project }: { project: Project }) => {
 
         {isPro && (
           <div className="flex gap-2 items-center flex-wrap">
+            {/* Botón Descargar Legajo Técnico PDF */}
             <button
-              onClick={() => copyReportToClipboard(project)}
-              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-3 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-              title="Copiar informe con tablas nativas para pegar directo en Google Docs con Ctrl+V"
-            >
-              <ClipboardCopy size={16} />
-              <span>Copiar para Docs (Ctrl+V)</span>
-            </button>
-            <button
-              onClick={() => generateDocxMemoriaCalculoBasico(project)}
-              className="bg-blue-900 hover:bg-blue-800 text-blue-100 border border-blue-600 px-3 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5 shadow"
-              title="Descargar versión editable compatible con Google Docs y Microsoft Word"
-            >
-              <FileText size={16} />
-              <span>Google Docs (.docx)</span>
-            </button>
-            <button
-              onClick={() => generatePdfMemoriaDescriptiva(project)}
-              className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+              onClick={() => generatePdfMemoriaCalculoBasico(project, undefined, true)}
+              className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+              title="Descargar Legajo Técnico Oficial y Memoria de Cálculo completa en PDF"
             >
               <FileDown size={16} />
-              <span>Memoria Descriptiva</span>
+              <span>Descargar Legajo Técnico (PDF)</span>
             </button>
+
+            {/* Botón Exportar Legajo a Excel */}
             <button
-              onClick={() => generatePdfMemoriaCalculo(project)}
-              className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+              onClick={() => exportProjectToExcel(project, true)}
+              className="bg-emerald-800 hover:bg-emerald-700 text-white border border-emerald-500 px-4 py-2.5 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 shadow"
+              title="Exportar libro Excel (.xlsx) estructurado en 4 pestañas independientes con datos numéricos listos para cálculo"
             >
-              <FileDown size={16} />
-              <span>Memoria de Cálculo</span>
+              <FileSpreadsheet size={16} />
+              <span>Exportar Legajo a Excel / Sheets (.xlsx)</span>
             </button>
           </div>
         )}

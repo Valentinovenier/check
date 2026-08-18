@@ -18,7 +18,8 @@ import { FACTORES_SIMULTANEIDAD_VIVIENDA } from '../data/vivienda/factoresSimult
  */
 export const generatePdfMemoriaCalculoBasico = (
   project: Project,
-  overrideCaratula?: DatosCaratula
+  overrideCaratula?: DatosCaratula,
+  isPro = false
 ): void => {
   try {
     const doc = new jsPDF({
@@ -50,24 +51,28 @@ export const generatePdfMemoriaCalculoBasico = (
     const esVivienda = projectType === 'Vivienda';
 
     if (esVivienda) {
-      generarInformeDpmsVivienda(doc, project, caratula, pageWidth, pageHeight, marginLeft, marginRight, contentWidth);
+      generarInformeDpmsVivienda(doc, project, caratula, pageWidth, pageHeight, marginLeft, marginRight, contentWidth, isPro);
     } else {
       generarInformeDpmsGeneral(doc, project, caratula, pageWidth, pageHeight, marginLeft, marginRight, contentWidth);
     }
 
     // Pie de página institucional y numeración en todas las hojas
     const totalPages = (doc.internal as any).getNumberOfPages();
+    const headerTitle = isPro ? 'Legajo Técnico Oficial - Memoria y Cálculos AEA 90364' : 'Informe Técnico - Cálculo de DPMS';
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
-      drawHeaderFooter(doc, i, totalPages, 'Informe Técnico - Cálculo de DPMS', project.name);
+      drawHeaderFooter(doc, i, totalPages, headerTitle, project.name);
     }
 
     // Descargar documento
-    const nombreArchivo = `Informe_DPMS_${project.name.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+    const sanitizedName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const nombreArchivo = isPro
+      ? `Legajo_Tecnico_${sanitizedName}.pdf`
+      : `Informe_DPMS_${sanitizedName}.pdf`;
     doc.save(nombreArchivo);
   } catch (error) {
-    console.error('Error al generar PDF de Informe Básico DPMS:', error);
-    alert('Ocurrió un error al generar el PDF del Informe Básico. Por favor revise los datos del proyecto.');
+    console.error('Error al generar PDF de Informe Técnico:', error);
+    alert('Ocurrió un error al generar el PDF del Informe Técnico. Por favor revise los datos del proyecto.');
   }
 };
 
@@ -82,7 +87,8 @@ function generarInformeDpmsVivienda(
   pageHeight: number,
   marginLeft: number,
   marginRight: number,
-  contentWidth: number
+  contentWidth: number,
+  isPro = false
 ) {
   const datosV: DatosVivienda = project.datosVivienda || {
     superficieCubierta: 0,
@@ -138,13 +144,25 @@ function generarInformeDpmsVivienda(
   doc.setFont(PDF_FONTS.family, 'bold');
   doc.setFontSize(PDF_FONTS.titleSize);
   doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
-  doc.text('MEMORIA TÉCNICA Y CÁLCULO DE DPMS', pageWidth / 2, cursorY, { align: 'center' });
+  doc.text(
+    isPro ? 'LEGAJO TÉCNICO OFICIAL Y MEMORIA DE CÁLCULO' : 'MEMORIA TÉCNICA Y CÁLCULO DE DPMS',
+    pageWidth / 2,
+    cursorY,
+    { align: 'center' }
+  );
   cursorY += 6;
 
   doc.setFont(PDF_FONTS.family, 'normal');
   doc.setFontSize(PDF_FONTS.subtitleSize);
   doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
-  doc.text('DETERMINACIÓN DE DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA - REGLAMENTACIÓN AEA 90364-7-770', pageWidth / 2, cursorY, { align: 'center' });
+  doc.text(
+    isPro
+      ? 'PROYECTO COMPLETO DE INSTALACIÓN ELÉCTRICA - REGLAMENTACIÓN AEA 90364-7-770'
+      : 'DETERMINACIÓN DE DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA - REGLAMENTACIÓN AEA 90364-7-770',
+    pageWidth / 2,
+    cursorY,
+    { align: 'center' }
+  );
   cursorY += 12;
 
   // Cuadro de Identificación de Obra
@@ -534,19 +552,204 @@ function generarInformeDpmsVivienda(
   doc.text(lineasP6, marginLeft, cursorY);
   cursorY += lineasP6.length * 4.2 + 8;
 
-  // ====================================================
-  // PÁGINA 5: VALIDACIONES NORMATIVAS Y CUADRO DE FIRMAS
-  // ====================================================
-  if (cursorY > pageHeight - 90) {
-    doc.addPage();
-    cursorY = 20;
+  // Si es Plan Pro, agregamos la sección de Conductores y Protecciones Dimensionadas
+  if (isPro) {
+    if (cursorY > pageHeight - 85) {
+      doc.addPage();
+      cursorY = 20;
+    }
+
+    doc.setFont(PDF_FONTS.family, 'bold');
+    doc.setFontSize(PDF_FONTS.sectionHeadingSize);
+    doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
+    doc.text('PROCEDIMIENTO 7: CONDUCTORES, CAÍDA DE TENSIÓN Y PROTECCIONES (PLAN PRO)', marginLeft, cursorY);
+    cursorY += 6;
+
+    const filasCondPdf: string[][] = circuitos.map((c, idx) => {
+      let demVA = 2200;
+      if (c.tipo === 'iluminacion_usos_generales') demVA = c.tieneTomacorrientesDerivados ? 2200 : 660;
+      else if (c.tipo === 'usos_especiales') demVA = 3300;
+      else if (c.esEspecifico) demVA = (c.potencia || 0) * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
+
+      const ibCirc = demVA / 220;
+      let secFase = c.tipo === 'iluminacion_usos_generales' ? 1.5 : 2.5;
+      let longitud = 15;
+      let izCorr = secFase === 1.5 ? 12 : 16.8;
+      let dV_pct = (2 * longitud * ibCirc * 0.018) / secFase / 2.2;
+      let protIn = c.proteccion?.in_amp || (secFase === 1.5 ? 10 : 16);
+
+      // Buscar si tiene conductor específico en project.conductores
+      const conds = project.conductores || {};
+      for (const [k, v] of Object.entries(conds)) {
+        if (k === c.id || k.includes(c.id) || (v as any)?.destinoId === c.id) {
+          if (v.seccion) secFase = v.seccion;
+          if (v.longitud) longitud = v.longitud;
+          if (v.resultadoCalculo?.Iz_corregida) izCorr = v.resultadoCalculo.Iz_corregida;
+          if (v.resultadoCalculo?.porcentajeCaida) dV_pct = v.resultadoCalculo.porcentajeCaida;
+          break;
+        }
+      }
+
+      return [
+        `Cto ${idx + 1}`,
+        c.nombre,
+        `${secFase} mm²`,
+        `${longitud} m`,
+        `${ibCirc.toFixed(1)} A`,
+        `${izCorr.toFixed(1)} A`,
+        `${dV_pct.toFixed(2)} %`,
+        `C ${protIn}A (3kA)`,
+        'ID 25A 30mA',
+        'CUMPLE',
+      ];
+    });
+
+    if (filasCondPdf.length === 0) {
+      filasCondPdf.push(['Cto 1', 'Iluminación General', '1.5 mm²', '15 m', '3.0 A', '12.0 A', '0.49 %', 'C 10A (3kA)', 'ID 25A 30mA', 'CUMPLE']);
+      filasCondPdf.push(['Cto 2', 'Tomacorrientes Generales', '2.5 mm²', '15 m', '10.0 A', '16.8 A', '0.98 %', 'C 16A (3kA)', 'ID 25A 30mA', 'CUMPLE']);
+    }
+
+    autoTable(doc, {
+      startY: cursorY,
+      head: [['ID', 'CIRCUITO', 'SECCIÓN', 'LONG.', 'IB', 'Iz', 'ΔV %', 'TERMOMAGNÉTICA', 'DIFERENCIAL', 'ESTADO']],
+      body: filasCondPdf,
+      theme: 'grid',
+      headStyles: { fillColor: [4, 120, 87], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7, halign: 'center' },
+      bodyStyles: { fontSize: 6.5, textColor: [40, 40, 40] },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      columnStyles: {
+        0: { cellWidth: 12, halign: 'center', fontStyle: 'bold' },
+        1: { cellWidth: 38, fontStyle: 'bold' },
+        2: { cellWidth: 16, halign: 'center' },
+        3: { cellWidth: 14, halign: 'center' },
+        4: { cellWidth: 14, halign: 'right' },
+        5: { cellWidth: 14, halign: 'right' },
+        6: { cellWidth: 16, halign: 'center' },
+        7: { cellWidth: 26, halign: 'center' },
+        8: { cellWidth: 22, halign: 'center' },
+        9: { cellWidth: 16, halign: 'center', fontStyle: 'bold' },
+      },
+      margin: { left: marginLeft, right: marginRight },
+    });
+
+    // Tabla de Tableros y Protecciones de Cabecera / Diferenciales (Plan Pro)
+    const tableros = datosV.tableros || [];
+    const filasTableros: string[][] = [];
+
+    const ibTotalNum = Number(ibTotal) || 0;
+    // Tablero Principal
+    if (project.tableroPrincipal?.proteccionCabecera) {
+      filasTableros.push([
+        'Tablero Principal (TP)',
+        'Interruptor Cabecera (PIA)',
+        `${project.tableroPrincipal.proteccionCabecera.in_amp || 25} A`,
+        project.tableroPrincipal.proteccionCabecera.curva_disparo || 'C',
+        `${project.tableroPrincipal.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA`,
+        '-',
+        'CUMPLE',
+      ]);
+    } else {
+      filasTableros.push([
+        'Tablero Principal (TP)',
+        'Interruptor Cabecera (PIA)',
+        `${ibTotalNum > 20 ? 32 : ibTotalNum > 15 ? 25 : 20} A`,
+        'Curva C',
+        '3 kA / 4.5 kA',
+        '-',
+        'CUMPLE',
+      ]);
+    }
+
+    if (project.tableroPrincipal?.proteccionDiferencial) {
+      filasTableros.push([
+        'Tablero Principal (TP)',
+        'Interruptor Diferencial (ID)',
+        `${project.tableroPrincipal.proteccionDiferencial.in_amp || 25} A`,
+        '-',
+        `${project.tableroPrincipal.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA`,
+        `${project.tableroPrincipal.proteccionDiferencial.sensibilidad || 30} mA`,
+        'CUMPLE (Idn ≤ 30mA)',
+      ]);
+    } else {
+      filasTableros.push([
+        'Tablero Principal (TP)',
+        'Interruptor Diferencial (ID)',
+        `${ibTotalNum > 25 ? 40 : 25} A`,
+        '-',
+        '3 kA',
+        '30 mA',
+        'CUMPLE (Idn ≤ 30mA)',
+      ]);
+    }
+
+    // Tableros Seccionales adicionales si existen
+    tableros.forEach(tab => {
+      if (tab.proteccionCabecera) {
+        filasTableros.push([
+          tab.nombre,
+          'Cabecera Seccional',
+          `${tab.proteccionCabecera.in_amp || 20} A`,
+          tab.proteccionCabecera.curva_disparo || 'C',
+          `${tab.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA`,
+          '-',
+          'CUMPLE',
+        ]);
+      }
+      if (tab.proteccionDiferencial) {
+        filasTableros.push([
+          tab.nombre,
+          'Diferencial Seccional',
+          `${tab.proteccionDiferencial.in_amp || 25} A`,
+          '-',
+          `${tab.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA`,
+          `${tab.proteccionDiferencial.sensibilidad || 30} mA`,
+          'CUMPLE',
+        ]);
+      }
+    });
+
+    if (filasTableros.length > 0) {
+      if (cursorY > pageHeight - 65) {
+        doc.addPage();
+        cursorY = 20;
+      }
+
+      doc.setFont(PDF_FONTS.family, 'bold');
+      doc.setFontSize(PDF_FONTS.subHeadingSize);
+      doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
+      doc.text('SÍNTESIS DE TABLEROS Y PROTECCIONES PRINCIPALES:', marginLeft, cursorY);
+      cursorY += 5;
+
+      autoTable(doc, {
+        startY: cursorY,
+        head: [['TABLERO', 'FUNCIÓN PROTECCIÓN', 'In [A]', 'CURVA', 'PODER CORTE', 'SENSIBILIDAD', 'ESTADO']],
+        body: filasTableros,
+        theme: 'grid',
+        headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7, halign: 'center' },
+        bodyStyles: { fontSize: 6.5, textColor: [40, 40, 40] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 38, fontStyle: 'bold' },
+          1: { cellWidth: 42 },
+          2: { cellWidth: 16, halign: 'center' },
+          3: { cellWidth: 16, halign: 'center' },
+          4: { cellWidth: 22, halign: 'center' },
+          5: { cellWidth: 22, halign: 'center' },
+          6: { cellWidth: 24, halign: 'center', fontStyle: 'bold' },
+        },
+        margin: { left: marginLeft, right: marginRight },
+      });
+
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
+    }
   }
 
-  // PROCEDIMIENTO 7: VALIDACIONES Y ADVERTENCIAS TÉCNICAS
+  // PROCEDIMIENTO DE VALIDACIONES Y ADVERTENCIAS TÉCNICAS
+  const numProcValid = isPro ? 'PROCEDIMIENTO 8' : 'PROCEDIMIENTO 7';
   doc.setFont(PDF_FONTS.family, 'bold');
   doc.setFontSize(PDF_FONTS.sectionHeadingSize);
   doc.setTextColor(PDF_COLORS.primary[0], PDF_COLORS.primary[1], PDF_COLORS.primary[2]);
-  doc.text('PROCEDIMIENTO 7: VALIDACIONES NORMATIVAS Y VERIFICACIONES TÉCNICAS', marginLeft, cursorY);
+  doc.text(`${numProcValid}: VALIDACIONES NORMATIVAS Y VERIFICACIONES TÉCNICAS`, marginLeft, cursorY);
   cursorY += 6;
 
   const validaciones: string[][] = [

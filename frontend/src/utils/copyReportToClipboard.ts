@@ -120,19 +120,18 @@ export const copyReportToClipboard = async (
       </td></tr>
     </table>
     <hr style="border:0;border-top:1px solid #cbd5e1;margin:8px 0;" />
-    <div><strong>SÍNTESIS EJECUTIVA DE PARÁMETROS:</strong></div>
+    <div><strong>SÍNTESIS EJECUTIVA DE RESULTADOS DE CÁLCULO (DPMS):</strong></div>
     <div>• Superficie Computable: <strong style="${S.fontBold}">${supTotal.toFixed(2)} m²</strong> (Cubierta: ${supCub} m² | Semicubierta: ${supSemi} m²)</div>
     <div>• Grado de Electrificación: <strong style="${S.fontBold}">${grado.toUpperCase()}</strong> (Tabla AEA 770.7.I)</div>
     <div>• Demanda Máxima Simultánea (DPMS): <strong style="color:#047857;${S.fontBold}">${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)</strong></div>
     <div>• Corriente de Alimentación: <strong style="${S.fontBold}">IB = ${ibTotal} A</strong> | Suministro: ${esTrifasico ? 'Trifásica (3x380/220V)' : 'Monofásica (220V)'}</div>
   </div>
 
-  <h2 style="${S.h2}">PROCEDIMIENTO 1: SUPERFICIE Y GRADO DE ELECTRIFICACIÓN (AEA 770.7.I / II)</h2>
+  <h2 style="${S.h2}">PROCEDIMIENTO 1: SUPERFICIES Y GRADO DE ELECTRIFICACIÓN</h2>
   <p>
     • Superficie Cubierta: ${supCub.toFixed(2)} m² | Superficie Semicubierta (50%): ${(supSemi * 0.5).toFixed(2)} m²<br>
-    • Superficie Total Computable: <strong style="${S.fontBold}">Stotal = Scub + 0.5 * Ssemi = ${supTotal.toFixed(2)} m²</strong><br>
-    • Grado de Electrificación asignado: <strong style="${S.fontBold}">${grado.toUpperCase()}</strong><br>
-    • Cantidad Mínima Reglamentaria de Circuitos (Tabla 770.7.II - Variante ${variante}): <strong style="${S.fontBold}">${configNormativa.IUG} IUG + ${configNormativa.TUG} TUG ${configNormativa.CLE ? '+ 1 Especial' : ''}</strong> (Mínimo: ${minimosReq} circuitos | Proyectados: ${circuitos.length} circuitos).
+    • Fórmula AEA: Stotal = Scub + 0.5 * Ssemi = ${supCub.toFixed(2)} + 0.5 * ${supSemi.toFixed(2)} = ${supTotal.toFixed(2)} m².<br>
+    • Conforme la Tabla 770.7.I, para Stotal = ${supTotal.toFixed(2)} m² corresponde el Grado de Electrificación: <strong>${grado.toUpperCase()}</strong>.
   </p>
 
   <h2 style="${S.h2}">PROCEDIMIENTO 2: RELEVAMIENTO DE AMBIENTES Y PUNTOS MÍNIMOS DE UTILIZACIÓN (PMU)</h2>

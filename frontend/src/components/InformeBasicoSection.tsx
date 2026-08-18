@@ -1,22 +1,9 @@
-import { useState } from 'react';
 import { Project, DatosCaratula } from '../types/project';
-
-
-import { copyReportToClipboard } from '../utils/copyReportToClipboard';
 import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
-import { FileDown, ClipboardCopy, Check } from 'lucide-react';
+import { exportProjectToExcel } from '../utils/exportProjectToExcel';
+import { FileDown, FileSpreadsheet } from 'lucide-react';
 
 export const InformeBasicoSection = ({ project, caratula }: { project: Project, caratula: DatosCaratula }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    const success = await copyReportToClipboard(project, caratula);
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    }
-  };
-
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-2xl border border-slate-700 space-y-4">
       <div>
@@ -29,33 +16,24 @@ export const InformeBasicoSection = ({ project, caratula }: { project: Project, 
       <div className="flex flex-wrap gap-3 pt-2">
         {/* Botón Descargar PDF */}
         <button
-          onClick={() => generatePdfMemoriaCalculoBasico(project, caratula)}
+          onClick={() => generatePdfMemoriaCalculoBasico(project, caratula, false)}
           className="bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-600 px-4 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2 shadow"
+          title="Descargar memoria técnica oficial en formato PDF"
         >
           <FileDown size={18} />
           <span>Descargar Informe Básico (PDF)</span>
         </button>
 
-        {/* Botón Copiar Directo para Google Docs */}
+        {/* Botón Exportar a Excel */}
         <button
-          onClick={handleCopy}
-          className={`px-4 py-3 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 border shadow ${
-            copied
-              ? 'bg-emerald-700 border-emerald-500 text-white'
-              : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-600'
-          }`}
-          title="Copia el informe con tablas completas. Abre Google Docs y pega directamente con Ctrl + V"
+          onClick={() => exportProjectToExcel(project, false, caratula)}
+          className="bg-emerald-800 hover:bg-emerald-700 text-white border border-emerald-500 px-4 py-3 rounded-xl font-semibold text-sm transition-colors flex items-center gap-2 shadow"
+          title="Exportar planilla de cálculo en Excel (.xlsx) estructurada en 4 pestañas independientes"
         >
-          {copied ? <Check size={18} className="text-emerald-300" /> : <ClipboardCopy size={18} />}
-          <span>{copied ? '¡Copiado! Pega con Ctrl + V en Docs' : 'Copiar para Google Docs (Ctrl+V)'}</span>
+          <FileSpreadsheet size={18} />
+          <span>Exportar a Excel / Sheets (.xlsx)</span>
         </button>
       </div>
-
-      {copied && (
-        <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-xs px-4 py-2.5 rounded-xl animate-fade-in">
-          ✓ <strong>Informe copiado con tablas nativas:</strong> Ve a tu documento de Google Docs y presiona <strong>Ctrl + V</strong> (o Cmd + V en Mac) para pegar todas las tablas formateadas.
-        </div>
-      )}
     </div>
   );
 };
