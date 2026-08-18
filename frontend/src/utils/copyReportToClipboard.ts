@@ -75,93 +75,78 @@ export const copyReportToClipboard = async (
     const factorSimultaneidadGrado = (FACTORES_SIMULTANEIDAD_VIVIENDA.cantidadCircuitos as any)[minimosReq] || 0.6;
     const factorSimultaneidadAdoptado = Math.max(factorSimultaneidadGrado, datosV.coefSimultaneidadManual || 0);
 
-    // Generación de HTML con tablas nativas estructuradas
+    const S = {
+        table: "width:100%;border-collapse:collapse;margin-top:10px;margin-bottom:16px;font-size:10pt;",
+        th: "border:1px solid #e2e8f0;padding:6px 8px;background-color:#1e3a8a;color:#fff;font-weight:bold;text-align:center;",
+        thAccent: "border:1px solid #e2e8f0;padding:6px 8px;background-color:#047857;color:#fff;font-weight:bold;text-align:center;",
+        thDark: "border:1px solid #e2e8f0;padding:6px 8px;background-color:#1e293b;color:#fff;font-weight:bold;text-align:center;",
+        td: "border:1px solid #e2e8f0;padding:6px 8px;text-align:left;",
+        textCenter: "text-align:center;",
+        textRight: "text-align:right;",
+        fontBold: "font-weight:bold;",
+        box: "background-color:#f8fafc;border:1px solid #334155;border-radius:6px;padding:12px;margin-bottom:16px;",
+        h1: "color:#1e3a8a;font-size:18pt;text-align:center;margin-bottom:4px;",
+        h2: "color:#1e3a8a;font-size:13pt;margin-top:20px;margin-bottom:8px;border-bottom:2px solid #1e3a8a;padding-bottom:4px;",
+        subtitle: "text-align:center;font-size:11pt;font-weight:bold;color:#334155;margin-bottom:20px;"
+    };
+
     const htmlContent = `
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<style>
-:root {
-  --color-primary: #1e3a8a;
-  --color-primary-accent: #047857;
-  --color-dark: #1e293b;
-  --color-text: #334155;
-  --color-subtext: #64748b;
-  --color-light-bg: #f8fafc;
-  --color-border: #e2e8f0;
-}
-body { font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: var(--color-dark); line-height: 1.4; margin:0; }
-h1 { color: var(--color-primary); font-size: 18pt; text-align: center; margin-bottom: 4px; }
-h2 { color: var(--color-primary); font-size: 13pt; margin-top: 20px; margin-bottom: 8px; border-bottom: 2px solid var(--color-primary); padding-bottom: 4px; }
-.subtitle { text-align: center; font-size: 11pt; font-weight: bold; color: var(--color-text); margin-bottom: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 16px; font-size: 10pt; }
-th, td { border: 1px solid var(--color-border); padding: 6px 8px; }
-th { background-color: var(--color-primary); color: #fff; font-weight: bold; text-align: center; }
-th.accent { background-color: var(--color-primary-accent); }
-th.dark { background-color: var(--color-dark); }
-tr:nth-child(even) td { background-color: var(--color-light-bg); }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.font-bold { font-weight: bold; }
-.box { background-color: var(--color-light-bg); border: 1px solid var(--color-text); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
-.tag { font-weight: bold; color: var(--color-primary-accent); }
-</style>
-</head>
-<body>
+<body style="font-family:Helvetica,Arial,sans-serif;font-size:11pt;color:#334155;line-height:1.4;margin:0;">
 
-  <h1>MEMORIA TÉCNICA Y CÁLCULO DE DPMS</h1>
-  <div class="subtitle">DETERMINACIÓN DE DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA - REGLAMENTACIÓN AEA 90364-7-770</div>
+  <h1 style="${S.h1}">MEMORIA TÉCNICA Y CÁLCULO DE DPMS</h1>
+  <div style="${S.subtitle}">DETERMINACIÓN DE DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA - REGLAMENTACIÓN AEA 90364-7-770</div>
 
-  <div class="box">
-    <div style="text-align: center; font-size: 13pt; font-weight: bold; color: #1e3a8a; margin-bottom: 6px;">
+  <div style="${S.box}">
+    <div style="text-align:center;font-size:13pt;font-weight:bold;color:#1e3a8a;margin-bottom:6px;">
       PROYECTO: ${project.name.toUpperCase()}
     </div>
-    <div style="text-align: center; font-size: 10pt; color: #64748b; margin-bottom: 10px;">
+    <div style="text-align:center;font-size:10pt;color:#64748b;margin-bottom:10px;">
       Destino: Vivienda Unifamiliar | Fecha: ${new Date().toLocaleDateString('es-AR')}
     </div>
-    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 8px 0;" />
-    <table style="border: none; margin: 0;">
-      <tr style="background: transparent;"><td style="border: none; width: 50%;">
+    <hr style="border:0;border-top:1px solid #cbd5e1;margin:8px 0;" />
+    <table style="border:none;margin:0;width:100%;">
+      <tr style="background:transparent;"><td style="border:none;width:50%;">
         <strong>DATOS DEL PROPIETARIO:</strong><br>
         • Titular: ${caratula.propietario}<br>
         • Ubicación: ${caratula.direccion}, ${caratula.ciudad}${caratula.provincia !== 'No especificada' ? ', ' + caratula.provincia : ''}
       </td>
-      <td style="border: none; width: 50%;">
+      <td style="border:none;width:50%;">
         <strong>PROFESIONAL RESPONSABLE:</strong><br>
         • Instalador: ${caratula.instaladorNombre}<br>
         • Matrícula: ${caratula.instaladorMatricula} (${caratula.instaladorCategoria})<br>
         • Contacto: Tel: ${caratula.instaladorTelefono} | Email: ${caratula.instaladorEmail}
       </td></tr>
     </table>
-    <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 8px 0;" />
+    <hr style="border:0;border-top:1px solid #cbd5e1;margin:8px 0;" />
     <div><strong>SÍNTESIS EJECUTIVA DE PARÁMETROS:</strong></div>
-    <div>• Superficie Computable: <strong>${supTotal.toFixed(2)} m²</strong> (Cubierta: ${supCub} m² | Semicubierta: ${supSemi} m²)</div>
-    <div>• Grado de Electrificación: <strong>${grado.toUpperCase()}</strong> (Tabla AEA 770.7.I)</div>
-    <div>• Demanda Máxima Simultánea (DPMS): <strong style="color:#047857;">${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)</strong></div>
-    <div>• Corriente de Alimentación: <strong>IB = ${ibTotal} A</strong> | Suministro: ${esTrifasico ? 'Trifásica (3x380/220V)' : 'Monofásica (220V)'}</div>
+    <div>• Superficie Computable: <strong style="${S.fontBold}">${supTotal.toFixed(2)} m²</strong> (Cubierta: ${supCub} m² | Semicubierta: ${supSemi} m²)</div>
+    <div>• Grado de Electrificación: <strong style="${S.fontBold}">${grado.toUpperCase()}</strong> (Tabla AEA 770.7.I)</div>
+    <div>• Demanda Máxima Simultánea (DPMS): <strong style="color:#047857;${S.fontBold}">${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)</strong></div>
+    <div>• Corriente de Alimentación: <strong style="${S.fontBold}">IB = ${ibTotal} A</strong> | Suministro: ${esTrifasico ? 'Trifásica (3x380/220V)' : 'Monofásica (220V)'}</div>
   </div>
 
-  <h2>PROCEDIMIENTO 1: SUPERFICIE Y GRADO DE ELECTRIFICACIÓN (AEA 770.7.I / II)</h2>
+  <h2 style="${S.h2}">PROCEDIMIENTO 1: SUPERFICIE Y GRADO DE ELECTRIFICACIÓN (AEA 770.7.I / II)</h2>
   <p>
     • Superficie Cubierta: ${supCub.toFixed(2)} m² | Superficie Semicubierta (50%): ${(supSemi * 0.5).toFixed(2)} m²<br>
-    • Superficie Total Computable: <strong>Stotal = Scub + 0.5 * Ssemi = ${supTotal.toFixed(2)} m²</strong><br>
-    • Grado de Electrificación asignado: <strong>${grado.toUpperCase()}</strong><br>
-    • Cantidad Mínima Reglamentaria de Circuitos (Tabla 770.7.II - Variante ${variante}): <strong>${configNormativa.IUG} IUG + ${configNormativa.TUG} TUG ${configNormativa.CLE ? '+ 1 Especial' : ''}</strong> (Mínimo: ${minimosReq} circuitos | Proyectados: ${circuitos.length} circuitos).
+    • Superficie Total Computable: <strong style="${S.fontBold}">Stotal = Scub + 0.5 * Ssemi = ${supTotal.toFixed(2)} m²</strong><br>
+    • Grado de Electrificación asignado: <strong style="${S.fontBold}">${grado.toUpperCase()}</strong><br>
+    • Cantidad Mínima Reglamentaria de Circuitos (Tabla 770.7.II - Variante ${variante}): <strong style="${S.fontBold}">${configNormativa.IUG} IUG + ${configNormativa.TUG} TUG ${configNormativa.CLE ? '+ 1 Especial' : ''}</strong> (Mínimo: ${minimosReq} circuitos | Proyectados: ${circuitos.length} circuitos).
   </p>
 
-  <h2>PROCEDIMIENTO 2: RELEVAMIENTO DE AMBIENTES Y PUNTOS MÍNIMOS DE UTILIZACIÓN (PMU)</h2>
-  <table>
+  <h2 style="${S.h2}">PROCEDIMIENTO 2: RELEVAMIENTO DE AMBIENTES Y PUNTOS MÍNIMOS DE UTILIZACIÓN (PMU)</h2>
+  <table style="${S.table}">
     <thead>
       <tr>
-        <th>AMBIENTE / LOCAL</th>
-        <th>DIMENSIONES</th>
-        <th>CRITERIO AEA 770.7.III</th>
-        <th>MÍN. NORMA</th>
-        <th>IUG PROY.</th>
-        <th>TUG PROY.</th>
-        <th>TUE PROY.</th>
-        <th>ESTADO</th>
+        <th style="${S.th}">AMBIENTE / LOCAL</th>
+        <th style="${S.th}">DIMENSIONES</th>
+        <th style="${S.th}">CRITERIO AEA 770.7.III</th>
+        <th style="${S.th}">MÍN. NORMA</th>
+        <th style="${S.th}">IUG PROY.</th>
+        <th style="${S.th}">TUG PROY.</th>
+        <th style="${S.th}">TUE PROY.</th>
+        <th style="${S.th}">ESTADO</th>
       </tr>
     </thead>
     <tbody>
@@ -182,33 +167,33 @@ tr:nth-child(even) td { background-color: var(--color-light-bg); }
 
         return `
           <tr>
-            <td><strong>${amb.nombre}</strong></td>
-            <td class="text-center">${dimStr}</td>
-            <td>${criterio}</td>
-            <td class="text-center">${pmu.iug} / ${pmu.tug}</td>
-            <td class="text-center font-bold">${amb.puntosIUG || pmu.iug}</td>
-            <td class="text-center font-bold">${amb.puntosTUG || pmu.tug}</td>
-            <td class="text-center">${amb.puntosTUE || 0}</td>
-            <td class="text-center font-bold" style="color:#047857;">CUMPLE</td>
+            <td style="${S.td}"><strong style="${S.fontBold}">${amb.nombre}</strong></td>
+            <td style="${S.td}${S.textCenter}">${dimStr}</td>
+            <td style="${S.td}">${criterio}</td>
+            <td style="${S.td}${S.textCenter}">${pmu.iug} / ${pmu.tug}</td>
+            <td style="${S.td}${S.textCenter}${S.fontBold}">${amb.puntosIUG || pmu.iug}</td>
+            <td style="${S.td}${S.textCenter}${S.fontBold}">${amb.puntosTUG || pmu.tug}</td>
+            <td style="${S.td}${S.textCenter}">${amb.puntosTUE || 0}</td>
+            <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">CUMPLE</td>
           </tr>
         `;
       }).join('')}
     </tbody>
   </table>
 
-  <h2>PROCEDIMIENTO 3: SÍNTESIS Y CONFIGURACIÓN DE CIRCUITOS PROYECTADOS</h2>
-  <table>
+  <h2 style="${S.h2}">PROCEDIMIENTO 3: SÍNTESIS Y CONFIGURACIÓN DE CIRCUITOS PROYECTADOS</h2>
+  <table style="${S.table}">
     <thead>
       <tr>
-        <th class="accent">ID</th>
-        <th class="accent">DENOMINACIÓN CIRCUITO</th>
-        <th class="accent">TIPO / DESTINO</th>
-        <th class="accent">BOCAS / LÍM.</th>
-        <th class="accent">POT. NOM.</th>
-        <th class="accent">c_u</th>
-        <th class="accent">c_s</th>
-        <th class="accent">DEMANDA (VA)</th>
-        <th class="accent">DEMANDA (W)</th>
+        <th style="${S.thAccent}">ID</th>
+        <th style="${S.thAccent}">DENOMINACIÓN CIRCUITO</th>
+        <th style="${S.thAccent}">TIPO / DESTINO</th>
+        <th style="${S.thAccent}">BOCAS / LÍM.</th>
+        <th style="${S.thAccent}">POT. NOM.</th>
+        <th style="${S.thAccent}">c_u</th>
+        <th style="${S.thAccent}">c_s</th>
+        <th style="${S.thAccent}">DEMANDA (VA)</th>
+        <th style="${S.thAccent}">DEMANDA (W)</th>
       </tr>
     </thead>
     <tbody>
@@ -253,129 +238,129 @@ tr:nth-child(even) td { background-color: var(--color-light-bg); }
 
         return `
           <tr>
-            <td class="text-center font-bold">Cto ${idx + 1}</td>
-            <td><strong>${c.nombre}</strong></td>
-            <td>${tipoNom}</td>
-            <td class="text-center">${bocasTotales} / ${maxBocasStr}</td>
-            <td class="text-right">${potNominalBase.toFixed(0)} VA</td>
-            <td class="text-center">${cu.toFixed(2)}</td>
-            <td class="text-center">${cs.toFixed(2)}</td>
-            <td class="text-right font-bold">${demVA.toFixed(0)} VA</td>
-            <td class="text-right font-bold">${demW.toFixed(0)} W</td>
+            <td style="${S.td}${S.textCenter}${S.fontBold}">Cto ${idx + 1}</td>
+            <td style="${S.td}"><strong style="${S.fontBold}">${c.nombre}</strong></td>
+            <td style="${S.td}">${tipoNom}</td>
+            <td style="${S.td}${S.textCenter}">${bocasTotales} / ${maxBocasStr}</td>
+            <td style="${S.td}${S.textRight}">${potNominalBase.toFixed(0)} VA</td>
+            <td style="${S.td}${S.textCenter}">${cu.toFixed(2)}</td>
+            <td style="${S.td}${S.textCenter}">${cs.toFixed(2)}</td>
+            <td style="${S.td}${S.textRight}${S.fontBold}">${demVA.toFixed(0)} VA</td>
+            <td style="${S.td}${S.textRight}${S.fontBold}">${demW.toFixed(0)} W</td>
           </tr>
         `;
       }).join('')}
     </tbody>
   </table>
 
-  <h2>PROCEDIMIENTO 5: MEMORIA ANALÍTICA DE CÁLCULO DE DPMS (AEA 770.8.2 / 770.8.3)</h2>
+  <h2 style="${S.h2}">PROCEDIMIENTO 5: MEMORIA ANALÍTICA DE CÁLCULO DE DPMS (AEA 770.8.2 / 770.8.3)</h2>
   <p>
-    • Potencia Instalada Total (PI): <strong>${potInstaladaTotalVA.toFixed(0)} VA</strong><br>
-    • Coeficiente de Simultaneidad adoptado (ks): <strong>${factorSimultaneidadAdoptado.toFixed(2)}</strong> (Normativo: ${factorSimultaneidadGrado.toFixed(2)} para ${minimosReq} circuitos mínimos)<br>
-    • DPMS Cargas Generales: <strong>DPMS_Grado = PI_Generales * ks = ${dpmsData.DPMS_Grado.toFixed(0)} VA</strong><br>
-    • DPMS Cargas Específicas: <strong>${dpmsData.DPMS_Específicas.toFixed(0)} VA</strong><br>
-    • DPMS Total Instalación: <strong style="color:#047857; font-size:12pt;">DPMS_Total = ${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)</strong>
+    • Potencia Instalada Total (PI): <strong style="${S.fontBold}">${potInstaladaTotalVA.toFixed(0)} VA</strong><br>
+    • Coeficiente de Simultaneidad adoptado (ks): <strong style="${S.fontBold}">${factorSimultaneidadAdoptado.toFixed(2)}</strong> (Normativo: ${factorSimultaneidadGrado.toFixed(2)} para ${minimosReq} circuitos mínimos)<br>
+    • DPMS Cargas Generales: <strong style="${S.fontBold}">DPMS_Grado = PI_Generales * ks = ${dpmsData.DPMS_Grado.toFixed(0)} VA</strong><br>
+    • DPMS Cargas Específicas: <strong style="${S.fontBold}">${dpmsData.DPMS_Específicas.toFixed(0)} VA</strong><br>
+    • DPMS Total Instalación: <strong style="color:#047857;font-size:12pt;${S.fontBold}">DPMS_Total = ${dpmsVA.toFixed(0)} VA (${dpmsKW.toFixed(2)} kW)</strong>
   </p>
 
-  <table>
+  <table style="${S.table}">
     <thead>
       <tr>
-        <th class="dark">CATEGORÍA / CONCEPTO</th>
-        <th class="dark">COEF. UTILIZACIÓN (c_u)</th>
-        <th class="dark">COEF. SIMULTANEIDAD (c_s)</th>
-        <th class="dark">DEMANDA (VA)</th>
-        <th class="dark">DEMANDA (W)</th>
+        <th style="${S.thDark}">CATEGORÍA / CONCEPTO</th>
+        <th style="${S.thDark}">COEF. UTILIZACIÓN (c_u)</th>
+        <th style="${S.thDark}">COEF. SIMULTANEIDAD (c_s)</th>
+        <th style="${S.thDark}">DEMANDA (VA)</th>
+        <th style="${S.thDark}">DEMANDA (W)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Cargas Generales (Grado Electrificación AEA)</strong></td>
-        <td class="text-center">-</td>
-        <td class="text-center">${factorSimultaneidadAdoptado.toFixed(2)}</td>
-        <td class="text-right font-bold">${dpmsData.DPMS_Grado.toFixed(0)} VA</td>
-        <td class="text-right font-bold">${(dpmsData.DPMS_Grado * cosPhi).toFixed(0)} W</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Cargas Generales (Grado Electrificación AEA)</strong></td>
+        <td style="${S.td}${S.textCenter}">-</td>
+        <td style="${S.td}${S.textCenter}">${factorSimultaneidadAdoptado.toFixed(2)}</td>
+        <td style="${S.td}${S.textRight}${S.fontBold}">${dpmsData.DPMS_Grado.toFixed(0)} VA</td>
+        <td style="${S.td}${S.textRight}${S.fontBold}">${(dpmsData.DPMS_Grado * cosPhi).toFixed(0)} W</td>
       </tr>
       ${circuitos.filter(c => c.esEspecifico).map(c => {
         const potVA = c.unidadPotencia === 'W' ? (c.potencia || 0) / cosPhi : (c.potencia || 0);
         const demVA = potVA * (c.coefUtilizacion || 1) * (c.coefSimultaneidad || 1);
         return `
           <tr>
-            <td>Cto Específico: ${c.nombre} (${c.siglaEspecifica || 'Esp.'})</td>
-            <td class="text-center">${(c.coefUtilizacion || 1).toFixed(2)}</td>
-            <td class="text-center">${(c.coefSimultaneidad || 1).toFixed(2)}</td>
-            <td class="text-right font-bold">${demVA.toFixed(0)} VA</td>
-            <td class="text-right font-bold">${(demVA * cosPhi).toFixed(0)} W</td>
+            <td style="${S.td}">Cto Específico: ${c.nombre} (${c.siglaEspecifica || 'Esp.'})</td>
+            <td style="${S.td}${S.textCenter}">${(c.coefUtilizacion || 1).toFixed(2)}</td>
+            <td style="${S.td}${S.textCenter}">${(c.coefSimultaneidad || 1).toFixed(2)}</td>
+            <td style="${S.td}${S.textRight}${S.fontBold}">${demVA.toFixed(0)} VA</td>
+            <td style="${S.td}${S.textRight}${S.fontBold}">${(demVA * cosPhi).toFixed(0)} W</td>
           </tr>
         `;
       }).join('')}
-      <tr style="background-color:#f1f5f9; font-weight:bold;">
-        <td>TOTAL DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA (DPMS)</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-right" style="color:#047857; font-size:11pt;">${dpmsVA.toFixed(0)} VA</td>
-        <td class="text-right" style="color:#047857; font-size:11pt;">${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)</td>
+      <tr style="background-color:#f1f5f9;${S.fontBold}">
+        <td style="${S.td}">TOTAL DEMANDA DE POTENCIA MÁXIMA SIMULTÁNEA (DPMS)</td>
+        <td style="${S.td}${S.textCenter}">-</td>
+        <td style="${S.td}${S.textCenter}">-</td>
+        <td style="${S.td}${S.textRight}" style="color:#047857;font-size:11pt;">${dpmsVA.toFixed(0)} VA</td>
+        <td style="${S.td}${S.textRight}" style="color:#047857;font-size:11pt;">${(dpmsVA * cosPhi).toFixed(0)} W (${dpmsKW.toFixed(2)} kW)</td>
       </tr>
     </tbody>
   </table>
 
-  <h2>PROCEDIMIENTO 6: CORRIENTES NOMINALES DE PROYECTO (IB)</h2>
+  <h2 style="${S.h2}">PROCEDIMIENTO 6: CORRIENTES NOMINALES DE PROYECTO (IB)</h2>
   <p>
     ${esTrifasico
-      ? `• Fórmula de Acometida Trifásica: <strong>IB = DPMS / (√3 * U) = ${dpmsVA.toFixed(0)} VA / (1.732 * 380 V) = ${ibTotal} A</strong><br>• Tensión de Alimentación: 3 x 380 / 220 V (50 Hz) | cos(φ) = ${cosPhi.toFixed(2)}`
-      : `• Fórmula de Acometida Monofásica: <strong>IB = DPMS / U = ${dpmsVA.toFixed(0)} VA / 220 V = ${ibTotal} A</strong><br>• Tensión de Alimentación: 1 x 220 V (50 Hz) | cos(φ) = ${cosPhi.toFixed(2)}`
+      ? `• Fórmula de Acometida Trifásica: <strong style="${S.fontBold}">IB = DPMS / (√3 * U) = ${dpmsVA.toFixed(0)} VA / (1.732 * 380 V) = ${ibTotal} A</strong><br>• Tensión de Alimentación: 3 x 380 / 220 V (50 Hz) | cos(φ) = ${cosPhi.toFixed(2)}`
+      : `• Fórmula de Acometida Monofásica: <strong style="${S.fontBold}">IB = DPMS / U = ${dpmsVA.toFixed(0)} VA / 220 V = ${ibTotal} A</strong><br>• Tensión de Alimentación: 1 x 220 V (50 Hz) | cos(φ) = ${cosPhi.toFixed(2)}`
     }
   </p>
 
-  <h2>PROCEDIMIENTO 7: VALIDACIONES NORMATIVAS Y VERIFICACIONES TÉCNICAS</h2>
-  <table>
+  <h2 style="${S.h2}">PROCEDIMIENTO 7: VALIDACIONES NORMATIVAS Y VERIFICACIONES TÉCNICAS</h2>
+  <table style="${S.table}">
     <thead>
       <tr>
-        <th class="accent">CRITERIO TÉCNICO NORMATIVO</th>
-        <th class="accent">CONDICIÓN / VERIFICACIÓN EN PROYECTO</th>
-        <th class="accent">ESTADO REGLAMENTARIO</th>
+        <th style="${S.thAccent}">CRITERIO TÉCNICO NORMATIVO</th>
+        <th style="${S.thAccent}">CONDICIÓN / VERIFICACIÓN EN PROYECTO</th>
+        <th style="${S.thAccent}">ESTADO REGLAMENTARIO</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Límite de Suministro Monofásico</strong></td>
-        <td>${esTrifasico ? 'Suministro Trifásico (Correcto)' : dpmsVA > 7000 ? `Supera 7 kVA (${(dpmsVA / 1000).toFixed(2)} kVA)` : `Dentro de límite (${(dpmsVA / 1000).toFixed(2)} kVA <= 7 kVA)`}</td>
-        <td class="text-center font-bold" style="color:#047857;">${dpmsVA > 7000 && !esTrifasico ? 'RECOMENDAR TRIFÁSICA' : 'CUMPLE'}</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Límite de Suministro Monofásico</strong></td>
+        <td style="${S.td}">${esTrifasico ? 'Suministro Trifásico (Correcto)' : dpmsVA > 7000 ? `Supera 7 kVA (${(dpmsVA / 1000).toFixed(2)} kVA)` : `Dentro de límite (${(dpmsVA / 1000).toFixed(2)} kVA <= 7 kVA)`}</td>
+        <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">${dpmsVA > 7000 && !esTrifasico ? 'RECOMENDAR TRIFÁSICA' : 'CUMPLE'}</td>
       </tr>
       <tr>
-        <td><strong>Cantidad Mínima de Circuitos</strong></td>
-        <td>Proyectados: ${circuitos.length} circuitos >= Mínimo Normativo: ${minimosReq} circuitos (Grado ${grado})</td>
-        <td class="text-center font-bold" style="color:#047857;">${circuitos.length >= minimosReq ? 'CUMPLE' : 'VERIFICAR'}</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Cantidad Mínima de Circuitos</strong></td>
+        <td style="${S.td}">Proyectados: ${circuitos.length} circuitos >= Mínimo Normativo: ${minimosReq} circuitos (Grado ${grado})</td>
+        <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">${circuitos.length >= minimosReq ? 'CUMPLE' : 'VERIFICAR'}</td>
       </tr>
       <tr>
-        <td><strong>Límite de Bocas por Circuito General</strong></td>
-        <td>Máximo 15 bocas por circuito de usos generales (AEA 770.7.VI)</td>
-        <td class="text-center font-bold" style="color:#047857;">CUMPLE</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Límite de Bocas por Circuito General</strong></td>
+        <td style="${S.td}">Máximo 15 bocas por circuito de usos generales (AEA 770.7.VI)</td>
+        <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">CUMPLE</td>
       </tr>
       <tr>
-        <td><strong>Circuitos Específicos > 8 A</strong></td>
-        <td>Canalización independiente y protecciones dedicadas para consumos mayores a 8A</td>
-        <td class="text-center font-bold" style="color:#047857;">CUMPLE</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Circuitos Específicos > 8 A</strong></td>
+        <td style="${S.td}">Canalización independiente y protecciones dedicadas para consumos mayores a 8A</td>
+        <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">CUMPLE</td>
       </tr>
       <tr>
-        <td><strong>Puntos Mínimos de Utilización</strong></td>
-        <td>Cumplimiento de dotación mínima de bocas por local (Tabla AEA 770.7.III)</td>
-        <td class="text-center font-bold" style="color:#047857;">CUMPLE</td>
+        <td style="${S.td}"><strong style="${S.fontBold}">Puntos Mínimos de Utilización</strong></td>
+        <td style="${S.td}">Cumplimiento de dotación mínima de bocas por local (Tabla AEA 770.7.III)</td>
+        <td style="${S.td}${S.textCenter}${S.fontBold}" style="color:#047857;">CUMPLE</td>
       </tr>
     </tbody>
   </table>
 
   <br><br>
-  <table style="border:none; margin-top:30px;">
+  <table style="border:none;margin-top:30px;width:100%;">
     <tr style="background:transparent;">
-      <td style="border:none; text-align:center; width:50%;">
+      <td style="border:none;text-align:center;width:50%;">
         __________________________________________<br>
-        <strong>${(caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase()}</strong><br>
-        <span style="color:#64748b; font-size:9pt;">Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}<br>Firma y Sello del Profesional Responsable</span>
+        <strong style="${S.fontBold}">${(caratula.instaladorNombre || 'PROFESIONAL RESPONSABLE').toUpperCase()}</strong><br>
+        <span style="color:#64748b;font-size:9pt;">Mat. N°: ${caratula.instaladorMatricula || 'Pendiente'} - ${caratula.instaladorCategoria || 'Instalador'}<br>Firma y Sello del Profesional Responsable</span>
       </td>
-      <td style="border:none; text-align:center; width:50%;">
+      <td style="border:none;text-align:center;width:50%;">
         __________________________________________<br>
-        <strong>${(caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase()}</strong><br>
-        <span style="color:#64748b; font-size:9pt;">Propietario / Comitente<br>Conformidad de Proyecto</span>
+        <strong style="${S.fontBold}">${(caratula.propietario || 'PROPIETARIO / COMITENTE').toUpperCase()}</strong><br>
+        <span style="color:#64748b;font-size:9pt;">Propietario / Comitente<br>Conformidad de Proyecto</span>
       </td>
     </tr>
   </table>
