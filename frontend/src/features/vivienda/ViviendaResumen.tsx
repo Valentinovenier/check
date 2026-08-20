@@ -107,7 +107,7 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                                 <td className="p-3 pl-6 text-slate-400">
                                     {c.nombre} {c.esEspecifico ? '(Específico)' : '(General)'}
                                 </td>
-                                <td className="p-3 text-right font-mono">{c.coefUtilizacion || 1}</td>
+                                <td className="p-3 text-right font-mono">{c.esEspecifico ? (c.coefUtilizacion || 1).toFixed(2) : '-'}</td>
                                 <td className="p-3 text-right font-mono">{c.coefSimultaneidad || 1}</td>
                                 <td className="p-3 text-right font-mono">{demandaVA.toFixed(0)}</td>
                                 <td className="p-3 text-right font-mono">{(demandaVA * cosPhi).toFixed(0)}</td>

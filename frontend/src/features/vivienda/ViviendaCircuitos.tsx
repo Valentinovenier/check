@@ -37,12 +37,28 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   useEffect(() => {
     // 1. Mantener circuitos manuales
     const manuales = datos.circuitosCalculados.filter(c => !c.id.startsWith('auto-'));
+    const anteriores = datos.circuitosCalculados.filter(c => c.id.startsWith('auto-'));
     
     // 2. Generar circuitos normativos según la variante
     const automaticos: CircuitoCalculado[] = [];
-    for (let i = 0; i < configActual.IUG; i++) automaticos.push({ id: `auto-iug-${i}`, nombre: `Circuito IUG ${i + 1}`, tipo: 'iluminacion_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
-    for (let i = 0; i < configActual.TUG; i++) automaticos.push({ id: `auto-tug-${i}`, nombre: `Circuito TUG ${i + 1}`, tipo: 'tomacorrientes_usos_generales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
-    if (configActual.CLE) automaticos.push({ id: 'auto-cle', nombre: 'Circuito Especial 1', tipo: 'usos_especiales', puntosIUG: 0, puntosTUG: 0, puntosTUE: 0, ambientesIds: [] });
+    
+    const crearOActualizar = (id: string, nombre: string, tipo: CircuitoCalculado['tipo']): CircuitoCalculado => {
+        const existente = anteriores.find(c => c.id === id);
+        return {
+            id,
+            nombre,
+            tipo,
+            puntosIUG: existente?.puntosIUG || 0,
+            puntosTUG: existente?.puntosTUG || 0,
+            puntosTUE: existente?.puntosTUE || 0,
+            ambientesIds: existente?.ambientesIds || [],
+            tieneTomacorrientesDerivados: existente?.tieneTomacorrientesDerivados
+        };
+    };
+
+    for (let i = 0; i < configActual.IUG; i++) automaticos.push(crearOActualizar(`auto-iug-${i}`, `Circuito IUG ${i + 1}`, 'iluminacion_usos_generales'));
+    for (let i = 0; i < configActual.TUG; i++) automaticos.push(crearOActualizar(`auto-tug-${i}`, `Circuito TUG ${i + 1}`, 'tomacorrientes_usos_generales'));
+    if (configActual.CLE) automaticos.push(crearOActualizar('auto-cle', 'Circuito Especial 1', 'usos_especiales'));
 
     const nuevosCircuitos = [...automaticos, ...manuales];
     
