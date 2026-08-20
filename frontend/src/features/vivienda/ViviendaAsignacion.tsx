@@ -278,19 +278,39 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                                         <span>Carga Única ({circuito.potencia || 0} {circuito.unidadPotencia || 'VA'})</span>
                                     </div>
                                 ) : circuito.tipo === 'iluminacion_usos_generales' ? (
-                                    <div className="flex items-center gap-1">
-                                        <button 
-                                            className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold"
-                                            onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(0, tomasAsignadas.IUG - 1))}
-                                        >-</button>
-                                        <input type="number" className="w-14 bg-slate-800 p-1 rounded text-center text-white font-bold" 
-                                            value={tomasAsignadas.IUG}
-                                            onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, 0))} />
-                                        <button 
-                                            className={`w-6 h-6 rounded flex items-center justify-center font-bold ${disabledIUG ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
-                                            onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', tomasAsignadas.IUG + 1)}
-                                            disabled={disabledIUG}
-                                        >+</button>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase">IUG</span>
+                                            <button 
+                                                className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold"
+                                                onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(0, tomasAsignadas.IUG - 1))}
+                                            >-</button>
+                                            <input type="number" className="w-12 bg-slate-800 p-1 rounded text-center text-white font-bold" 
+                                                value={tomasAsignadas.IUG}
+                                                onChange={(e) => updateTomas(ambiente.id, circuito.id, 'IUG', Math.max(parseInt(e.target.value) || 0, 0))} />
+                                            <button 
+                                                className={`w-6 h-6 rounded flex items-center justify-center font-bold ${disabledIUG ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+                                                onClick={() => updateTomas(ambiente.id, circuito.id, 'IUG', tomasAsignadas.IUG + 1)}
+                                                disabled={disabledIUG}
+                                            >+</button>
+                                        </div>
+                                        {circuito.tieneTomacorrientesDerivados && (
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[10px] text-slate-400 font-bold uppercase">TUG</span>
+                                                <button 
+                                                    className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center font-bold"
+                                                    onClick={() => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(0, tomasAsignadas.TUG - 1))}
+                                                >-</button>
+                                                <input type="number" className="w-12 bg-slate-800 p-1 rounded text-center text-white font-bold" 
+                                                    value={tomasAsignadas.TUG || 0}
+                                                    onChange={(e) => updateTomas(ambiente.id, circuito.id, 'TUG', Math.max(parseInt(e.target.value) || 0, 0))} />
+                                                <button 
+                                                    className={`w-6 h-6 rounded flex items-center justify-center font-bold ${disabledTUG ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}
+                                                    onClick={() => updateTomas(ambiente.id, circuito.id, 'TUG', (tomasAsignadas.TUG || 0) + 1)}
+                                                    disabled={disabledTUG}
+                                                >+</button>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : circuito.tipo === 'tomacorrientes_usos_generales' ? (
                                     <div className="flex items-center gap-1">
