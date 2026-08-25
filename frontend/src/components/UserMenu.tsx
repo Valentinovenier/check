@@ -19,20 +19,31 @@ export const UserMenu = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleVerPlanes = () => {
+    if (window.location.pathname === '/') {
+      const el = document.getElementById('precio');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+    navigate('/#precio');
+  };
+
   if (!isAuthenticated) {
     return (
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3">
         <button 
           onClick={() => navigate('/login')} 
-          className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-semibold border border-slate-700"
+          className="flex items-center gap-2 text-slate-300 hover:text-white px-3.5 py-2 rounded-lg transition-colors text-sm font-semibold"
         >
           <LogIn className="w-4 h-4" /> Iniciar sesión
         </button>
         <button 
-          onClick={() => navigate('/register')} 
-          className="flex items-center gap-2 text-slate-950 font-bold bg-emerald-400 hover:bg-emerald-300 px-4 py-2 rounded-lg transition-colors text-sm"
+          onClick={handleVerPlanes} 
+          className="flex items-center gap-2 text-slate-950 font-bold bg-gradient-to-r from-emerald-400 to-teal-400 hover:brightness-110 px-4 py-2 rounded-lg transition-all text-sm shadow-md shadow-emerald-500/20"
         >
-          <UserPlus className="w-4 h-4" /> Registrarse
+          <Zap className="w-4 h-4" /> Ver Planes
         </button>
       </div>
     );

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS projects (
   name TEXT NOT NULL,
   data TEXT NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS protecciones (
   polos INTEGER,
   specs_tecnicas JSONB,
   user_id TEXT,
-  FOREIGN KEY (marca_id) REFERENCES marcas(id)
+  FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE CASCADE
 );
 
 -- 3. Tabla de Parámetros Operativos (Dependientes de la tensión Ue)
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS capacidades_corte (
   tension_v NUMERIC NOT NULL,
   icn_ka NUMERIC,
   clase_limitacion INTEGER,
-  FOREIGN KEY (proteccion_id) REFERENCES protecciones(id)
+  FOREIGN KEY (proteccion_id) REFERENCES protecciones(id) ON DELETE CASCADE
 );
 
 -- Índices para optimizar
