@@ -517,10 +517,12 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             </div>
 
             {/* Links */}
-            <nav className="flex items-center gap-6 text-sm text-slate-500">
+            <nav className="flex flex-wrap items-center gap-5 text-sm text-slate-500">
               <a href="#funcionalidades" className="hover:text-slate-300 transition-colors">Funcionalidades</a>
               <a href="#beneficios" className="hover:text-slate-300 transition-colors">Beneficios</a>
               <a href="#faq" className="hover:text-slate-300 transition-colors">FAQ</a>
+              <a href="/terminos" className="hover:text-slate-300 transition-colors">Términos de Servicio</a>
+              <a href="/privacidad" className="hover:text-slate-300 transition-colors">Privacidad</a>
               <button onClick={onLoginClick} className="hover:text-emerald-400 transition-colors flex items-center gap-1">
                 <LogIn className="w-3.5 h-3.5" />
                 Iniciar Sesión

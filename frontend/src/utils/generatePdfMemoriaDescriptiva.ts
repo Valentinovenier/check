@@ -489,6 +489,50 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
       margin: { left: marginLeft, right: marginRight },
     });
 
+    // ----------------------------------------------------
+    // NOTA LEGAL Y CUADRO DE RESPONSABILIDAD PROFESIONAL
+    // ----------------------------------------------------
+    let lastY = (doc as any).lastAutoTable?.finalY || 40;
+    if (lastY + 45 > pageHeight - 25) {
+      doc.addPage();
+      lastY = 25;
+    } else {
+      lastY += 6;
+    }
+
+    // Cuadro de Disclaimer Técnico
+    doc.setLineWidth(0.3);
+    doc.setDrawColor(200, 200, 200);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(marginLeft, lastY, contentWidth, 18, 1.5, 1.5, 'FD');
+
+    doc.setFont(PDF_FONTS.family, 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(70, 70, 70);
+    doc.text('DECLARACIÓN DE CUMPLIMIENTO REGLAMENTARIO Y RESPONSABILIDAD:', marginLeft + 3, lastY + 5);
+
+    doc.setFont(PDF_FONTS.family, 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(100, 100, 100);
+    const disclaimerText = 'La presente carpeta técnica ha sido elaborada de acuerdo a las prescripciones de la Reglamentación para la Ejecución de Instalaciones Eléctricas en Inmuebles de la Asociación Electrotécnica Argentina (AEA 90364) y normas IRAM pertinentes. La validez formal del proyecto queda supeditada a la verificación y suscripción del profesional matriculado competente.';
+    const splitDisclaimer = doc.splitTextToSize(disclaimerText, contentWidth - 6);
+    doc.text(splitDisclaimer, marginLeft + 3, lastY + 9);
+
+    // Cuadro de Firma Profesional
+    lastY += 21;
+    const signBoxWidth = 80;
+    const signBoxX = pageWidth - marginRight - signBoxWidth;
+    doc.setDrawColor(160, 160, 160);
+    doc.line(signBoxX, lastY + 12, signBoxX + signBoxWidth, lastY + 12);
+    doc.setFont(PDF_FONTS.family, 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(PDF_COLORS.dark[0], PDF_COLORS.dark[1], PDF_COLORS.dark[2]);
+    doc.text('Firma y Sello del Profesional Matriculado', signBoxX + signBoxWidth / 2, lastY + 16, { align: 'center' });
+    doc.setFont(PDF_FONTS.family, 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
+    doc.text(`Instalador: ${caratula.instaladorNombre || '-'} | Mat: ${caratula.instaladorMatricula || '-'}`, signBoxX + signBoxWidth / 2, lastY + 20, { align: 'center' });
+
     // Pie de página en todas las páginas
     const totalPages = (doc.internal as any).getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
@@ -496,7 +540,7 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
       drawHeaderFooter(doc, i, totalPages, 'Memoria Descriptiva', project.name);
     }
 
-    doc.save(`Memoria_Descriptiva_${project.name.replace(/\\s+/g, '_')}.pdf`);
+    doc.save(`Memoria_Descriptiva_${project.name.replace(/\s+/g, '_')}.pdf`);
   } catch (error) {
     console.error('Error al generar PDF Memoria Descriptiva:', error);
     alert('Ocurrió un error al generar el PDF. Por favor, revisa la consola para más detalles.');

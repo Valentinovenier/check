@@ -8,11 +8,31 @@ async function verifyAuth(request, env) {
   
   const token = authHeader.split(' ')[1];
   const SECRET = env.SECRET_KEY || 'super_secret_jwt_key_please_change_me';
+  let decoded: any;
   try {
-    return jwt.verify(token, SECRET) as any;
+    decoded = jwt.verify(token, SECRET);
   } catch (e: any) {
     throw new Error(`Token inválido o expirado: ${e.message}`);
   }
+
+  // Validar estado de suscripción o rol admin en DB
+  if (env.DB && decoded?.userId) {
+    const dbUser = await env.DB.prepare('SELECT id, role, subscription_status FROM users WHERE id = ?')
+      .bind(decoded.userId)
+      .first();
+
+    if (!dbUser) {
+      throw new Error('Usuario no encontrado en la base de datos');
+    }
+
+    if (dbUser.role !== 'admin' && dbUser.subscription_status !== 'active') {
+      const error: any = new Error('Se requiere una suscripción activa para gestionar proyectos.');
+      error.statusCode = 403;
+      throw error;
+    }
+  }
+
+  return decoded;
 }
 
 export async function onRequestGet(context) {
@@ -24,7 +44,7 @@ export async function onRequestGet(context) {
       .all();
     return new Response(JSON.stringify(results), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (e: any) {
-    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    const status = e.statusCode || (e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500);
     return new Response(JSON.stringify({ error: e.message }), { status, headers: { 'Content-Type': 'application/json' } });
   }
 }
@@ -55,16 +75,17 @@ export async function onRequestPost(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: `Error detallado en Servidor: ${e.message}`, stack: e.stack }), { 
-        status: 500, 
-        headers: { 'Content-Type': 'application/json' } 
-      });
-    }
-    }
+    const status = e.statusCode || (e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500);
+    return new Response(JSON.stringify({ error: e.message }), { 
+      status, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
+  }
+}
 
-    export async function onRequestDelete(context) {
-    const { request, env } = context;
-    try {
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  try {
     const user = await verifyAuth(request, env);
     const url = new URL(request.url);
     const projectId = url.searchParams.get('id');
@@ -91,14 +112,14 @@ export async function onRequestPost(context) {
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });
-    } catch (e: any) {
-    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+  } catch (e: any) {
+    const status = e.statusCode || (e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500);
     return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
       status, 
       headers: { 'Content-Type': 'application/json' } 
     });
-    }
-    }
+  }
+}
 
 export async function onRequestPut(context) {
   const { request, env } = context;
@@ -122,7 +143,7 @@ export async function onRequestPut(context) {
       headers: { 'Content-Type': 'application/json' } 
     });
   } catch (e: any) {
-    const status = e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500;
+    const status = e.statusCode || (e.message.includes('autorización') || e.message.includes('Token') ? 401 : 500);
     return new Response(JSON.stringify({ error: `Error en Servidor: ${e.message}` }), { 
       status, 
       headers: { 'Content-Type': 'application/json' } 

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { id: string; username: string; subscriptionStatus: string; planType: string } | null;
+  user: { id: string; username: string; role: string; subscriptionStatus: string; planType: string } | null;
   login: (token: string) => void;
   logout: () => void;
   updateUserSubscription: (newStatus: string, newToken?: string, newPlanType?: string) => void;
@@ -23,15 +23,14 @@ const decodeToken = (token: string) => {
     );
     const payload = JSON.parse(jsonPayload);
     const cleanPlanType = (rawPlanType: string) => {
-      // Si la cadena empieza exactamente con 'pro', asumimos que es 'pro'.
-      // Si contiene 'basic', o cualquier otra cosa que no sea 'pro', es 'basic'.
-      if (rawPlanType.startsWith('pro')) return 'pro';
+      if (rawPlanType && rawPlanType.startsWith('pro')) return 'pro';
       return 'basic';
     };
 
     return {
       userId: payload.userId,
       username: payload.username,
+      role: payload.role || 'user',
       subscription_status: payload.subscription_status,
       plan_type: cleanPlanType(payload.plan_type || 'basic')
     };
@@ -43,7 +42,7 @@ const decodeToken = (token: string) => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<{ id: string; username: string; subscriptionStatus: string; planType: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; username: string; role: string; subscriptionStatus: string; planType: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -52,10 +51,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const decoded = decodeToken(token);
       if (decoded && decoded.userId) {
         setIsAuthenticated(true);
-        setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status, planType: decoded.plan_type });
+        setUser({ 
+          id: decoded.userId, 
+          username: decoded.username, 
+          role: decoded.role, 
+          subscriptionStatus: decoded.subscription_status, 
+          planType: decoded.plan_type 
+        });
 
-        // Si el estado en el token no es 'active', verificar en segundo plano contra el backend D1 por si el Webhook ya lo activó
-        if (decoded.subscription_status !== 'active' && decoded.username !== 'vale07venier@gmail.com') {
+        // Si no es admin y el estado en el token no es 'active', verificar en segundo plano
+        if (decoded.role !== 'admin' && decoded.subscription_status !== 'active') {
           fetch('/api/check-subscription', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
@@ -65,7 +70,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (data.token) {
                 localStorage.setItem('token', data.token);
               }
-              setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: 'active', planType: data.plan_type || decoded.plan_type || 'basic' });
+              setUser({ 
+                id: decoded.userId, 
+                username: decoded.username, 
+                role: decoded.role, 
+                subscriptionStatus: 'active', 
+                planType: data.plan_type || decoded.plan_type || 'basic' 
+              });
             }
           })
           .catch(err => console.error("Error validando suscripción inicial en AuthContext:", err));
@@ -82,7 +93,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const decoded = decodeToken(token);
     if (decoded && decoded.userId) {
       setIsAuthenticated(true);
-      setUser({ id: decoded.userId, username: decoded.username, subscriptionStatus: decoded.subscription_status, planType: decoded.plan_type });
+      setUser({ 
+        id: decoded.userId, 
+        username: decoded.username, 
+        role: decoded.role, 
+        subscriptionStatus: decoded.subscription_status, 
+        planType: decoded.plan_type 
+      });
     }
   };
 

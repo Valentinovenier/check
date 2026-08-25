@@ -77,41 +77,43 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
             <div>
-              <label className="block text-white" htmlFor="username">Nombre de Usuario</label>
+              <label className="block text-white text-sm" htmlFor="username">Correo Electrónico</label>
               <input 
-                type="text" 
-                placeholder="Nombre de Usuario"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                type="email" 
+                placeholder="tu@email.com"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-gray-700 text-white"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
               />
             </div>
             <div className="mt-4">
-              <label className="block text-white" htmlFor="password">Contraseña</label>
+              <label className="block text-white text-sm" htmlFor="password">Contraseña</label>
               <input 
                 type="password" 
-                placeholder="Contraseña"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600 bg-gray-700 text-white"
+                placeholder="Tu contraseña"
+                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-gray-700 text-white"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-center justify-between mt-6">
               <button 
                 type="submit" 
-                className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
+                className="px-6 py-2 text-slate-950 font-bold bg-emerald-400 rounded-lg hover:bg-emerald-300 transition-colors"
               >
                 Iniciar Sesión
               </button>
               <a 
                 href="#" 
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-emerald-400 hover:underline"
                 onClick={onRegisterClick}
               >
-                Registrarse
+                Crear una cuenta
               </a>
             </div>
           </div>

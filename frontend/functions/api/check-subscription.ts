@@ -18,35 +18,17 @@ export async function onRequest(context: any) {
     const queryPaymentId = url.searchParams.get('payment_id') || url.searchParams.get('collection_id');
     const queryStatus = url.searchParams.get('status') || url.searchParams.get('collection_status');
 
-    let decoded: { userId: string; username: string } | null = null;
+    let decoded: { userId: string; username: string; role?: string } | null = null;
     const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
 
     try {
-        decoded = jwt.verify(token, secret) as { userId: string; username: string };
-    } catch (err) {
-        try {
-            decoded = jwt.decode(token) as { userId: string; username: string };
-        } catch (e) {
-            decoded = null;
-        }
+        decoded = jwt.verify(token, secret) as { userId: string; username: string; role?: string };
+    } catch (err: any) {
+        return new Response(JSON.stringify({ error: 'Token inválido o expirado' }), { status: 401 });
     }
 
     if (!decoded || !decoded.userId) {
         return new Response(JSON.stringify({ error: 'Token inválido o expirado' }), { status: 401 });
-    }
-
-    // Bypass para el administrador
-    if (decoded.username === 'vale07venier@gmail.com') {
-        const adminToken = jwt.sign({ 
-            userId: decoded.userId, 
-            username: decoded.username,
-            subscription_status: 'active',
-            plan_type: 'pro'
-        }, secret, { expiresIn: '7d' });
-
-        return new Response(JSON.stringify({ status: 'active', plan_type: 'pro', token: adminToken }), {
-            headers: { 'Content-Type': 'application/json' },
-        });
     }
 
     if (!env.DB) {
@@ -54,8 +36,8 @@ export async function onRequest(context: any) {
     }
 
     try {
-        const targetUserId = decoded.userId || queryUserId;
-        const user = await env.DB.prepare('SELECT id, username, subscription_status, plan_type, mp_subscription_id FROM users WHERE id = ?')
+        const targetUserId = decoded.userId;
+        const user = await env.DB.prepare('SELECT id, username, role, subscription_status, plan_type, mp_subscription_id FROM users WHERE id = ?')
             .bind(targetUserId)
             .first();
 
@@ -63,19 +45,28 @@ export async function onRequest(context: any) {
             return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
         }
 
+        // Bypass exclusivo por rol de Administrador en Base de Datos
+        if (user.role === 'admin') {
+            const adminToken = jwt.sign({ 
+                userId: user.id, 
+                username: user.username,
+                role: 'admin',
+                subscription_status: 'active',
+                plan_type: 'pro'
+            }, secret, { expiresIn: '7d' });
+
+            return new Response(JSON.stringify({ status: 'active', plan_type: 'pro', role: 'admin', token: adminToken }), {
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         let userStatus = user.subscription_status || 'pending';
-        let userPlanType = queryPlanType || user.plan_type || 'basic';
+        let userPlanType = user.plan_type || queryPlanType || 'basic';
         const targetPreapprovalId = queryPreapprovalId || user.mp_subscription_id;
 
         let isVerifiedActive = userStatus === 'active';
 
-        // 1. Verificar por status enviado en la URL de retorno de MercadoPago
-        if (!isVerifiedActive && queryStatus && ['authorized', 'approved', 'active'].includes(queryStatus.toLowerCase())) {
-            console.log(`Activación por Query Status '${queryStatus}' para usuario ${targetUserId}`);
-            isVerifiedActive = true;
-        }
-
-        // 2. Verificar en vivo consultando la API de Suscripciones (Preapproval) de MercadoPago
+        // 1. Verificar en vivo consultando la API de Suscripciones (Preapproval) de MercadoPago
         if (!isVerifiedActive && targetPreapprovalId && env.MP_ACCESS_TOKEN) {
             try {
                 console.log(`Verificando suscripción en vivo en MP para preapprovalId: ${targetPreapprovalId}`);
@@ -84,7 +75,6 @@ export async function onRequest(context: any) {
                 });
                 if (subRes.ok) {
                     const subData: any = await subRes.json();
-                    console.log('Respuesta MP en vivo:', JSON.stringify(subData));
                     if (subData.status === 'authorized' || subData.status === 'active') {
                         isVerifiedActive = true;
 
@@ -102,7 +92,7 @@ export async function onRequest(context: any) {
             }
         }
 
-        // 3. Verificar en vivo consultando la API de Pagos si vino un payment_id
+        // 2. Verificar en vivo consultando la API de Pagos si vino un payment_id
         if (!isVerifiedActive && queryPaymentId && env.MP_ACCESS_TOKEN) {
             try {
                 console.log(`Verificando pago en vivo en MP para paymentId: ${queryPaymentId}`);
@@ -120,14 +110,8 @@ export async function onRequest(context: any) {
             }
         }
 
-        // 4. Fallback: Si retornó de MercadoPago con un preapproval_id o parámetros de suscripción válidos
-        if (!isVerifiedActive && (queryPreapprovalId || queryPaymentId || (queryUserId && queryPlanType))) {
-            console.log('Fallback: Activando usuario debido a redirección válida con identificadores de suscripción.');
-            isVerifiedActive = true;
-        }
-
-        // Actualizar la base de datos si fue verificado como activo
-        if (isVerifiedActive) {
+        // Actualizar la base de datos si fue verificado legítimamente como activo
+        if (isVerifiedActive && userStatus !== 'active') {
             userStatus = 'active';
             try {
                 await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = COALESCE(?, mp_subscription_id), plan_type = COALESCE(?, plan_type) WHERE id = ?')
@@ -142,7 +126,8 @@ export async function onRequest(context: any) {
         // Generar un nuevo token JWT actualizado con el estado y plan verificado
         const updatedToken = jwt.sign({ 
             userId: targetUserId, 
-            username: user.username || decoded.username,
+            username: user.username,
+            role: user.role || 'user',
             subscription_status: userStatus,
             plan_type: userPlanType
         }, secret, { expiresIn: '7d' });

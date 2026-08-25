@@ -1,30 +1,30 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import App from './App';
 import { LandingPage } from './components/LandingPage';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
-import { AppEntry } from './components/AppEntry'; // Importamos el nuevo componente
+import { AppEntry } from './components/AppEntry';
+import { TermsPage } from './components/TermsPage';
+import { PrivacyPage } from './components/PrivacyPage';
 import { useAuth } from './context/AuthContext';
 
-// Este componente servirá de guardia para proteger las rutas de la app
+// Este componente sirve de guardia para proteger las rutas de la app
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, user, loading } = useAuth();
   
-  if (loading) return <div>Cargando...</div>;
+  if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
   
-  // 1. Permitir acceso al usuario bypass
-  if (user?.username === 'vale07venier@gmail.com') return children;
+  // 1. Si el usuario es administrador, permitir acceso total
+  if (user?.role === 'admin') return children;
 
-  // 2. Si el estado es 'active', permitir acceso
+  // 2. Si la suscripción está activa, permitir acceso
   if (user?.subscriptionStatus === 'active') return children;
   
-  // 3. Si el estado no es 'active', redirigir a AppEntry para forzar verificación real contra el servidor
+  // 3. Si el estado no es 'active', redirigir a AppEntry para verificación/pago
   return <Navigate to="/app-entry" replace />;
 };
 
-// Ya no necesitamos AuthRedirect aquí, la lógica pasa al flujo de login/entry
 const LoginPageWrapper = () => {
     const navigate = useNavigate();
     const search = window.location.search;
@@ -50,6 +50,8 @@ export const AppRouter = () => {
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/login" element={<LoginPageWrapper />} />
         <Route path="/register" element={<RegisterPageWrapper />} />
+        <Route path="/terminos" element={<TermsPage />} />
+        <Route path="/privacidad" element={<PrivacyPage />} />
         
         {/* Ruta intermedia de entrada segura */}
         <Route path="/app-entry" element={<AppEntry />} />

@@ -7,35 +7,30 @@ export async function onRequestPost(context) {
   try {
     const { username, password } = await request.json();
 
-    // Validación de entrada
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    // Validación de entrada (correo universal)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!username || !password) {
-      return new Response(JSON.stringify({ error: 'Username and password are required' }), {
+      return new Response(JSON.stringify({ error: 'El correo y la contraseña son requeridos' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    if (!emailRegex.test(username)) {
-      return new Response(JSON.stringify({ error: 'Invalid email format (must be a gmail account)' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    const cleanUsername = username.trim().toLowerCase();
 
-    if (password.length <= 7) {
-      return new Response(JSON.stringify({ error: 'Password must be longer than 7 characters' }), {
+    if (!emailRegex.test(cleanUsername)) {
+      return new Response(JSON.stringify({ error: 'Formato de correo electrónico inválido' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const user = await env.DB.prepare('SELECT * FROM users WHERE username = ?')
-      .bind(username)
+      .bind(cleanUsername)
       .first();
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+      return new Response(JSON.stringify({ error: 'Credenciales inválidas' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -43,7 +38,7 @@ export async function onRequestPost(context) {
 
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {
-      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+      return new Response(JSON.stringify({ error: 'Credenciales inválidas' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -53,7 +48,8 @@ export async function onRequestPost(context) {
     const token = jwt.sign({ 
       userId: user.id, 
       username: user.username,
-      subscription_status: user.subscription_status || 'inactive',
+      role: user.role || 'user',
+      subscription_status: user.subscription_status || 'pending',
       plan_type: user.plan_type || 'basic'
     }, secret, { expiresIn: '7d' });
 

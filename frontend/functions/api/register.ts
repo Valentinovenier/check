@@ -7,24 +7,26 @@ export async function onRequestPost(context) {
   try {
     const { username, password, planType } = await request.json();
 
-    // Validación de entrada
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    // Validación de entrada (correo universal)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!username || !password) {
-      return new Response(JSON.stringify({ error: 'Username and password are required' }), {
+      return new Response(JSON.stringify({ error: 'El correo y la contraseña son requeridos' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    if (!emailRegex.test(username)) {
-      return new Response(JSON.stringify({ error: 'Invalid email format (must be a gmail account)' }), {
+    const cleanUsername = username.trim().toLowerCase();
+
+    if (!emailRegex.test(cleanUsername)) {
+      return new Response(JSON.stringify({ error: 'Formato de correo electrónico inválido' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (password.length <= 7) {
-      return new Response(JSON.stringify({ error: 'Password must be longer than 7 characters' }), {
+      return new Response(JSON.stringify({ error: 'La contraseña debe tener al menos 8 caracteres' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -33,27 +35,28 @@ export async function onRequestPost(context) {
     const targetPlanType = (planType === 'basic' || planType === 'pro') ? planType : 'pro';
 
     const existingUser = await env.DB.prepare('SELECT id FROM users WHERE username = ?')
-      .bind(username)
+      .bind(cleanUsername)
       .first();
 
     if (existingUser) {
-      return new Response(JSON.stringify({ error: 'User already exists' }), {
+      return new Response(JSON.stringify({ error: 'El usuario ya existe con ese correo electrónico' }), {
         status: 409,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const userId = Date.now().toString();
+    const userId = crypto.randomUUID();
 
-    await env.DB.prepare('INSERT INTO users (id, username, password_hash, subscription_status, plan_type) VALUES (?, ?, ?, ?, ?)')
-      .bind(userId, username, passwordHash, 'pending', targetPlanType)
+    await env.DB.prepare('INSERT INTO users (id, username, password_hash, role, subscription_status, plan_type) VALUES (?, ?, ?, ?, ?, ?)')
+      .bind(userId, cleanUsername, passwordHash, 'user', 'pending', targetPlanType)
       .run();
 
     const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
     const token = jwt.sign({ 
       userId, 
-      username,
+      username: cleanUsername,
+      role: 'user',
       subscription_status: 'pending',
       plan_type: targetPlanType
     }, secret, { expiresIn: '1h' });
