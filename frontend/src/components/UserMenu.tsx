@@ -45,20 +45,32 @@ export const UserMenu = () => {
         className="flex items-center gap-2 text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors text-sm border border-slate-700"
       >
         <User className="w-4 h-4 text-emerald-400" />
-        <span>{user?.username}</span>
+        <span className="max-w-[150px] truncate">{user?.username}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-lg shadow-xl py-1 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+          <div className="px-4 py-2 border-b border-slate-800">
+            <p className="text-xs text-slate-400">Sesión iniciada como</p>
+            <p className="text-sm font-semibold text-white truncate">{user?.username}</p>
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">
+                {user?.role === 'admin' ? 'Administrador' : user?.planType === 'pro' ? 'Plan Pro' : 'Plan Básico'}
+              </span>
+            </div>
+          </div>
+
           <button 
             onClick={() => { setIsOpen(false); navigate('/app'); }} 
-            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 transition-colors"
+            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors"
           >
             <Zap className="w-4 h-4 text-emerald-400" /> Ir a la Aplicación
           </button>
+          
           <button 
             onClick={() => { logout(); setIsOpen(false); navigate('/'); }} 
-            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors border-t border-slate-800"
+            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors border-t border-slate-800 mt-1"
           >
             <LogOut className="w-4 h-4" /> Cerrar sesión
           </button>

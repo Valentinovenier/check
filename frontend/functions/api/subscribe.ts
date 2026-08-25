@@ -18,15 +18,14 @@ export async function onRequestPost(context: any) {
     try {
       decoded = jwt.verify(token, secret) as { userId: string; username?: string };
     } catch (err) {
-      try {
-        decoded = jwt.decode(token) as { userId: string; username?: string };
-      } catch (e) {
-        decoded = null;
-      }
+      return new Response(JSON.stringify({ error: 'Token inválido o expirado' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (!decoded || !decoded.userId) {
-      return new Response(JSON.stringify({ error: 'Invalid Token' }), {
+      return new Response(JSON.stringify({ error: 'Token inválido o expirado' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
       });
