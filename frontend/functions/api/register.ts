@@ -32,7 +32,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    const targetPlanType = (planType === 'basic' || planType === 'pro') ? planType : 'pro';
+    const targetPlanType = (planType === 'basic' || planType === 'pro') ? planType : 'basic';
 
     const existingUser = await env.DB.prepare('SELECT id FROM users WHERE username = ?')
       .bind(cleanUsername)

@@ -40,7 +40,7 @@ export async function onRequestPost(context: any) {
         bodyReq = {};
     }
 
-    const planType: 'basic' | 'pro' = (bodyReq.planType === 'basic' || bodyReq.planType === 'pro') ? bodyReq.planType : 'pro';
+    const planType: 'basic' | 'pro' = (bodyReq.planType === 'basic' || bodyReq.planType === 'pro') ? bodyReq.planType : 'basic';
 
     const PLAN_ID_PRO = env.PLAN_ID_PRO || 'f60b996e809848a482e25b74b1c44128';
     const PLAN_ID_BASIC = env.PLAN_ID_BASIC || '53c1ba35b5fd4219b09b5be4d9585262';
@@ -51,35 +51,36 @@ export async function onRequestPost(context: any) {
     const planAmount = planType === 'pro' ? PLAN_PRICE_PRO : PLAN_PRICE_BASIC;
     const planReason = planType === 'pro' ? 'Suscripción ElectroCheck Pro' : 'Suscripción ElectroCheck Basic';
 
-    // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API a
+    // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API
     if (env.MP_ACCESS_TOKEN) {
         try {
-            const TEST_PAYER_EMAIL = 'test_user_3754759241978375765@testuser.com';
-            const payerEmail = env.MP_TEST_PAYER_EMAIL
-                || (decoded.username && decoded.username.includes('@') ? decoded.username : null)
-                || TEST_PAYER_EMAIL;
+            const payerEmail = (decoded.username && decoded.username.includes('@'))
+                ? decoded.username
+                : (env.MP_TEST_PAYER_EMAIL || null);
+
+            const backUrl = `${appBaseUrl}/app-entry?user_id=${decoded.userId}&plan_type=${planType}`;
+            const notificationUrl = `${appBaseUrl}/api/webhooks/mercadopago?user_id=${decoded.userId}&plan_type=${planType}`;
+
+            // Se construye el preapproval dinámico sin preapproval_plan_id para generar la URL init_point de Hosted Checkout
+            const bodyPayload: any = {
+                reason: planReason,
+                external_reference: decoded.userId,
+                auto_recurring: {
+                    frequency: 1,
+                    frequency_type: 'months',
+                    transaction_amount: planAmount,
+                    currency_id: 'ARS'
+                },
+                back_url: backUrl,
+                notification_url: notificationUrl,
+                status: 'pending'
+            };
 
             if (payerEmail) {
-                const backUrl = `${appBaseUrl}/app-entry?user_id=${decoded.userId}&plan_type=${planType}`;
-                const notificationUrl = `${appBaseUrl}/api/webhooks/mercadopago?user_id=${decoded.userId}&plan_type=${planType}`;
+                bodyPayload.payer_email = payerEmail;
+            }
 
-                // Se construye el preapproval dinámico sin preapproval_plan_id para generar la URL init_point de Hosted Checkout
-                const bodyPayload = {
-                    reason: planReason,
-                    external_reference: decoded.userId,
-                    payer_email: payerEmail,
-                    auto_recurring: {
-                        frequency: 1,
-                        frequency_type: 'months',
-                        transaction_amount: planAmount,
-                        currency_id: 'ARS'
-                    },
-                    back_url: backUrl,
-                    notification_url: notificationUrl,
-                    status: 'pending'
-                };
-
-                console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
+            console.log('Enviando payload a POST /preapproval de MP:', JSON.stringify(bodyPayload));
 
                 const response = await fetch('https://api.mercadopago.com/preapproval', {
                     method: 'POST',
