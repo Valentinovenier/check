@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { startPayment } from '../utils/payment';
 
@@ -10,6 +10,21 @@ interface RegisterPageProps {
 export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps) => {
   const initialPlan: 'basic' | 'pro' = 'basic';
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>(initialPlan);
+  const [planPrices, setPlanPrices] = useState({ basic: '$4.500', pro: '$9.000' });
+
+  useEffect(() => {
+    fetch('/api/plans')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setPlanPrices({
+            basic: data.basic?.formatted || '$4.500',
+            pro: data.pro?.formatted || '$9.000'
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -88,7 +103,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               <span className="text-xs font-bold uppercase tracking-wider">Básico</span>
               {selectedPlan === 'basic' && <span className="w-2 h-2 rounded-full bg-emerald-400"></span>}
             </div>
-            <p className="text-base font-extrabold text-white">$4.500 <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
+            <p className="text-base font-extrabold text-white">{planPrices.basic} <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
             
           </button>
 
@@ -101,7 +116,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pro</span>
               <span className="text-[9px] bg-slate-800 text-slate-400 border border-slate-700 font-bold px-1.5 py-0.5 rounded">PRÓXIMAMENTE</span>
             </div>
-            <p className="text-base font-extrabold text-slate-500">$9.000 <span className="text-[10px] font-normal text-slate-600">/mes</span></p>
+            <p className="text-base font-extrabold text-slate-500">{planPrices.pro} <span className="text-[10px] font-normal text-slate-600">/mes</span></p>
             
           </button>
         </div>
@@ -154,7 +169,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               disabled={loading}
               className="w-full py-3 text-slate-950 font-bold bg-gradient-to-r from-emerald-400 to-teal-400 rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/25 text-sm"
             >
-              {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? 'Pro ($9.000/mes)' : 'Básico ($4.500/mes)'}`}
+              {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? `Pro (${planPrices.pro}/mes)` : `Básico (${planPrices.basic}/mes)`}`}
             </button>
           </div>
 
