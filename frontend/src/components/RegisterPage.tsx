@@ -89,7 +89,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               {selectedPlan === 'basic' && <span className="w-2 h-2 rounded-full bg-emerald-400"></span>}
             </div>
             <p className="text-base font-extrabold text-white">$4.500 <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
-            <p className="text-[10px] text-slate-400 mt-1">Calculadora AEA</p>
+            
           </button>
 
           <button
@@ -102,7 +102,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               <span className="text-[9px] bg-slate-800 text-slate-400 border border-slate-700 font-bold px-1.5 py-0.5 rounded">PRÓXIMAMENTE</span>
             </div>
             <p className="text-base font-extrabold text-slate-500">$9.000 <span className="text-[10px] font-normal text-slate-600">/mes</span></p>
-            <p className="text-[10px] text-slate-600 mt-1">Informes PDF + Protecciones</p>
+            
           </button>
         </div>
         
