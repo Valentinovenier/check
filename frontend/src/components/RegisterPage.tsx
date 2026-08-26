@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { startPayment } from '../utils/payment';
 
@@ -9,8 +8,7 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps) => {
-  const [searchParams] = useSearchParams();
-  const initialPlan = searchParams.get('plan') === 'basic' ? 'basic' : 'pro';
+  const initialPlan: 'basic' | 'pro' = 'basic';
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>(initialPlan);
 
   const [username, setUsername] = useState('');
@@ -96,19 +94,15 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
 
           <button
             type="button"
-            onClick={() => setSelectedPlan('pro')}
-            className={`p-3 rounded-xl text-left border transition-all relative ${
-              selectedPlan === 'pro'
-                ? 'bg-emerald-500/15 border-emerald-400 text-white ring-1 ring-emerald-400 shadow-lg shadow-emerald-500/10'
-                : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-            }`}
+            disabled
+            className="p-3 rounded-xl text-left border bg-slate-950/40 border-slate-800/70 text-slate-500 opacity-60 cursor-not-allowed relative"
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Pro</span>
-              <span className="text-[9px] bg-emerald-400 text-slate-950 font-black px-1.5 py-0.5 rounded">TOTAL</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pro</span>
+              <span className="text-[9px] bg-slate-800 text-slate-400 border border-slate-700 font-bold px-1.5 py-0.5 rounded">PRÓXIMAMENTE</span>
             </div>
-            <p className="text-base font-extrabold text-white">$9.000 <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
-            <p className="text-[10px] text-slate-400 mt-1">Informes PDF + Protecciones</p>
+            <p className="text-base font-extrabold text-slate-500">$9.000 <span className="text-[10px] font-normal text-slate-600">/mes</span></p>
+            <p className="text-[10px] text-slate-600 mt-1">Informes PDF + Protecciones</p>
           </button>
         </div>
         

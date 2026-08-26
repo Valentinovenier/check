@@ -54,6 +54,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   }, []);
 
   const handleSubscribeClick = (planType: 'basic' | 'pro') => {
+    if (planType === 'pro') return;
     if (isAuthenticated) {
       startPayment(planType);
     } else {
@@ -260,24 +261,27 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
             {
-            title: "Calculadora",
-            price: planPrices.basic,
-            desc: "Acceso a cálculos de parámetros",
-            features: [
-              { name: "Cálculos normativos AEA", included: true },
-              { name: "Dimensionamiento de conductores", included: true },
-              { name: "Verificación de protecciones", included: false },
-              { name: "Informes técnicos PDF", included: false },
-              { name: "Soporte prioritario", included: false },
-            ],
-            buttonText: "Suscribirse Ahora",
-            isPro: false
+              title: "Calculadora",
+              badge: "Disponible",
+              price: planPrices.basic,
+              desc: "Acceso a cálculos de parámetros",
+              features: [
+                { name: "Cálculos normativos AEA", included: true },
+                { name: "Informes técnicos PDF", included: true },
+                { name: "Verificación de protecciones", included: false },
+                { name: "Dimensionamiento de conductores", included: false },
+                { name: "Soporte prioritario", included: false },
+              ],
+              buttonText: "Suscribirse Ahora",
+              isPro: false,
+              available: true,
             },
 
             {
               title: "Acceso Total",
+              badge: "Próximamente",
               price: planPrices.pro,
-              desc: "Todo incluido, sin límites",
+              desc: "Todo incluido, sin límites (En desarrollo)",
               features: [
                 { name: "Cálculos normativos AEA", included: true },
                 { name: "Dimensionamiento de conductores", included: true },
@@ -285,40 +289,88 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 { name: "Informes técnicos PDF", included: true },
                 { name: "Soporte prioritario", included: true },
               ],
-              buttonText: "Suscribirse Ahora",
-              isPro: true
+              buttonText: "Próximamente",
+              isPro: true,
+              available: false,
             }
           ].map((plan, i) => (
-            <div key={i} className={`rounded-3xl p-8 shadow-2xl relative flex flex-col ${plan.isPro ? 'bg-slate-900 border-2 border-emerald-500/50' : 'bg-slate-900/50 border border-slate-700'}`}>
-              {plan.isPro && <div className="absolute top-0 right-0 p-4"><Crown className="w-8 h-8 text-emerald-400" /></div>}
+            <div
+              key={i}
+              className={`rounded-3xl p-8 shadow-2xl relative flex flex-col transition-all ${
+                plan.available
+                  ? 'bg-slate-900 border-2 border-emerald-500/50 shadow-emerald-950/20 hover:border-emerald-500/80'
+                  : 'bg-slate-900/40 border border-slate-800/80 opacity-75 backdrop-blur-sm'
+              }`}
+            >
+              {plan.available ? (
+                <div className="absolute top-6 right-6">
+                  <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+                    {plan.badge}
+                  </span>
+                </div>
+              ) : (
+                <div className="absolute top-6 right-6 flex items-center gap-2">
+                  <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-400 border border-slate-700 rounded-full">
+                    {plan.badge}
+                  </span>
+                  <Crown className="w-5 h-5 text-slate-600" />
+                </div>
+              )}
               
-              <h3 className="text-2xl font-bold text-white mb-1">{plan.title}</h3>
+              <h3 className={`text-2xl font-bold mb-1 ${plan.available ? 'text-white' : 'text-slate-300'}`}>
+                {plan.title}
+              </h3>
               <p className="text-slate-400 text-sm mb-5">{plan.desc}</p>
               <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-5xl font-black text-white">{plan.price}</span>
-                <span className="text-slate-400">/ mes</span>
+                <span className={`text-5xl font-black ${plan.available ? 'text-white' : 'text-slate-400'}`}>
+                  {plan.price}
+                </span>
+                <span className={plan.available ? 'text-slate-400' : 'text-slate-500'}>/ mes</span>
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
                 {plan.features.map((feat, idx) => (
-                  <li key={idx} className={`flex items-center gap-3 ${feat.included ? 'text-slate-100' : 'text-slate-500'}`}>
-                    {feat.included ? 
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" /> : 
+                  <li
+                    key={idx}
+                    className={`flex items-center gap-3 ${
+                      !plan.available
+                        ? 'text-slate-500'
+                        : feat.included
+                        ? 'text-slate-100'
+                        : 'text-slate-500'
+                    }`}
+                  >
+                    {feat.included ? (
+                      <CheckCircle2
+                        className={`w-5 h-5 flex-shrink-0 ${
+                          plan.available ? 'text-emerald-400' : 'text-slate-500'
+                        }`}
+                      />
+                    ) : (
                       <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
-                        <span className="text-red-500 font-bold">✕</span>
+                        <span className="text-red-500/60 font-bold text-xs">✕</span>
                       </div>
-                    }
-                    {feat.name}
+                    )}
+                    <span className={!plan.available ? 'text-slate-400' : ''}>{feat.name}</span>
                   </li>
                 ))}
               </ul>
               
-              <button 
-                onClick={() => handleSubscribeClick(plan.isPro ? 'pro' : 'basic')} 
-                className={`w-full py-4 font-bold rounded-xl transition-all ${plan.isPro ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'}`}
-              >
-                {plan.buttonText}
-              </button>
+              {plan.available ? (
+                <button 
+                  onClick={() => handleSubscribeClick('basic')} 
+                  className="w-full py-4 font-bold rounded-xl transition-all bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-slate-950 shadow-lg shadow-emerald-500/20 cursor-pointer text-center"
+                >
+                  {plan.buttonText}
+                </button>
+              ) : (
+                <button 
+                  disabled
+                  className="w-full py-4 font-bold rounded-xl bg-slate-800/80 text-slate-500 border border-slate-700/50 cursor-not-allowed select-none text-center"
+                >
+                  {plan.buttonText}
+                </button>
+              )}
 
             </div>
           ))}
