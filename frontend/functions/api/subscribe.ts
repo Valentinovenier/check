@@ -116,7 +116,6 @@ export async function onRequestPost(context: any) {
                     const errorText = await response.text();
                     console.warn('Error al llamar a POST /preapproval de MP:', errorText);
                 }
-            }
         } catch (e) {
             console.error('Error al invocar API de Mercado Pago:', e);
         }
