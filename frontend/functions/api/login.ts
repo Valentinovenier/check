@@ -44,12 +44,28 @@ export async function onRequestPost(context) {
       });
     }
 
+    let subscriptionStatus = user.subscription_status || 'pending';
+    if (user.role !== 'admin' && subscriptionStatus === 'active' && user.subscription_end_date) {
+      const GRACE_PERIOD_MS = 3 * 24 * 60 * 60 * 1000;
+      const expirationLimit = new Date(new Date(user.subscription_end_date).getTime() + GRACE_PERIOD_MS);
+      if (new Date() > expirationLimit) {
+        subscriptionStatus = 'inactive';
+        try {
+          await env.DB.prepare("UPDATE users SET subscription_status = 'inactive' WHERE id = ?")
+            .bind(user.id)
+            .run();
+        } catch (e) {
+          console.error("Error actualizando status inactive en login:", e);
+        }
+      }
+    }
+
     const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
     const token = jwt.sign({ 
       userId: user.id, 
       username: user.username,
       role: user.role || 'user',
-      subscription_status: user.subscription_status || 'pending',
+      subscription_status: subscriptionStatus,
       plan_type: user.plan_type || 'basic'
     }, secret, { expiresIn: '7d' });
 

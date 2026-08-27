@@ -59,24 +59,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           planType: decoded.plan_type 
         });
 
-        // Si no es admin y el estado en el token no es 'active', verificar en segundo plano
-        if (decoded.role !== 'admin' && decoded.subscription_status !== 'active') {
+        // Si no es admin, sincronizar siempre el estado actualizado de la suscripción con el backend
+        if (decoded.role !== 'admin') {
           fetch('/api/check-subscription', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
           .then(res => res.ok ? res.json() : null)
           .then(data => {
-            if (data && data.status === 'active') {
+            if (data && data.status) {
               if (data.token) {
                 localStorage.setItem('token', data.token);
               }
-              setUser({ 
-                id: decoded.userId, 
-                username: decoded.username, 
-                role: decoded.role, 
-                subscriptionStatus: 'active', 
-                planType: data.plan_type || decoded.plan_type || 'basic' 
-              });
+              setUser(prev => prev ? { 
+                ...prev, 
+                subscriptionStatus: data.status, 
+                planType: data.plan_type || prev.planType 
+              } : null);
             }
           })
           .catch(err => console.error("Error validando suscripción inicial en AuthContext:", err));

@@ -17,7 +17,7 @@ async function verifyAuth(request, env) {
 
   // Validar estado de suscripción o rol admin en DB
   if (env.DB && decoded?.userId) {
-    const dbUser = await env.DB.prepare('SELECT id, role, subscription_status FROM users WHERE id = ?')
+    const dbUser = await env.DB.prepare('SELECT id, role, subscription_status, subscription_end_date FROM users WHERE id = ?')
       .bind(decoded.userId)
       .first();
 
@@ -25,10 +25,32 @@ async function verifyAuth(request, env) {
       throw new Error('Usuario no encontrado en la base de datos');
     }
 
-    if (dbUser.role !== 'admin' && dbUser.subscription_status !== 'active') {
-      const error: any = new Error('Se requiere una suscripción activa para gestionar proyectos.');
-      error.statusCode = 403;
-      throw error;
+    if (dbUser.role !== 'admin') {
+      const GRACE_PERIOD_MS = 3 * 24 * 60 * 60 * 1000; // 3 días de gracia
+      let isExpiredPastGrace = false;
+
+      if (dbUser.subscription_end_date) {
+        const expirationLimit = new Date(new Date(dbUser.subscription_end_date).getTime() + GRACE_PERIOD_MS);
+        if (new Date() > expirationLimit) {
+          isExpiredPastGrace = true;
+        }
+      }
+
+      if (dbUser.subscription_status !== 'active' || isExpiredPastGrace) {
+        // Si estaba como activo pero superó el período de gracia sin pagar, cancelar la suscripción en la BD
+        if (isExpiredPastGrace && dbUser.subscription_status === 'active') {
+          try {
+            await env.DB.prepare("UPDATE users SET subscription_status = 'inactive' WHERE id = ?")
+              .bind(decoded.userId)
+              .run();
+          } catch (e) {
+            console.error("Error cancelando suscripción por vencimiento en projects:", e);
+          }
+        }
+        const error: any = new Error('Tu suscripción ha vencido y el período de gracia ha finalizado. Por favor, renueva tu suscripción para continuar.');
+        error.statusCode = 403;
+        throw error;
+      }
     }
   }
 

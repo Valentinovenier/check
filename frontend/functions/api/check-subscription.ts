@@ -65,9 +65,18 @@ export async function onRequest(context: any) {
         const targetPreapprovalId = queryPreapprovalId || user.mp_subscription_id;
         let nextPaymentDate: string | null = user.subscription_end_date || null;
 
-        let isVerifiedActive = userStatus === 'active';
+        const GRACE_PERIOD_MS = 3 * 24 * 60 * 60 * 1000; // 3 días de gracia
+        let isExpiredPastGrace = false;
+        if (nextPaymentDate) {
+            const expirationLimit = new Date(new Date(nextPaymentDate).getTime() + GRACE_PERIOD_MS);
+            if (new Date() > expirationLimit) {
+                isExpiredPastGrace = true;
+            }
+        }
 
-        // 1. Verificar en vivo consultando la API de Suscripciones (Preapproval) de MercadoPago
+        let isVerifiedActive = (userStatus === 'active' && !isExpiredPastGrace);
+
+        // 1. Si no está verificado como activo o su período de gracia ya venció, consultar Mercado Pago en vivo para chequear renovación
         if (!isVerifiedActive && targetPreapprovalId && env.MP_ACCESS_TOKEN) {
             try {
                 console.log(`Verificando suscripción en vivo en MP para preapprovalId: ${targetPreapprovalId}`);
@@ -77,9 +86,17 @@ export async function onRequest(context: any) {
                 if (subRes.ok) {
                     const subData: any = await subRes.json();
                     if (subData.status === 'authorized' || subData.status === 'active') {
-                        isVerifiedActive = true;
-                        if (subData.next_payment_date) {
-                            nextPaymentDate = subData.next_payment_date;
+                        const mpNextDate = subData.next_payment_date;
+                        if (mpNextDate) {
+                            const newExpLimit = new Date(new Date(mpNextDate).getTime() + GRACE_PERIOD_MS);
+                            if (new Date() <= newExpLimit) {
+                                isVerifiedActive = true;
+                                isExpiredPastGrace = false;
+                                nextPaymentDate = mpNextDate;
+                            }
+                        } else {
+                            isVerifiedActive = true;
+                            isExpiredPastGrace = false;
                         }
 
                         const PRO_PLAN_ID = env.PLAN_ID_PRO || 'f60b996e809848a482e25b74b1c44128';
@@ -107,6 +124,7 @@ export async function onRequest(context: any) {
                     const payData: any = await payRes.json();
                     if (payData.status === 'approved') {
                         isVerifiedActive = true;
+                        isExpiredPastGrace = false;
                     }
                 }
             } catch (payErr) {
@@ -121,8 +139,8 @@ export async function onRequest(context: any) {
             nextPaymentDate = calculatedDate.toISOString();
         }
 
-        // Actualizar la base de datos si fue verificado legítimamente como activo
-        if (isVerifiedActive && (userStatus !== 'active' || !user.subscription_end_date)) {
+        // Actualizar la base de datos según el estado resultante
+        if (isVerifiedActive) {
             userStatus = 'active';
             try {
                 await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = COALESCE(?, mp_subscription_id), plan_type = COALESCE(?, plan_type), subscription_end_date = COALESCE(?, subscription_end_date) WHERE id = ?')
@@ -131,6 +149,17 @@ export async function onRequest(context: any) {
                 console.log(`Base de datos actualizada exitosamente a 'active' para usuario ${targetUserId} con vencimiento ${nextPaymentDate}`);
             } catch (dbErr) {
                 console.error("Error actualizando DB en check-subscription:", dbErr);
+            }
+        } else if (isExpiredPastGrace || userStatus === 'inactive') {
+            // Cancelar suscripción si venció el período de gracia sin renovación
+            userStatus = 'inactive';
+            try {
+                await env.DB.prepare("UPDATE users SET subscription_status = 'inactive' WHERE id = ?")
+                    .bind(targetUserId)
+                    .run();
+                console.log(`Suscripción vencida pasada el período de gracia para usuario ${targetUserId}. Estado actualizado a 'inactive'.`);
+            } catch (dbErr) {
+                console.error("Error actualizando a inactive en check-subscription:", dbErr);
             }
         }
 
