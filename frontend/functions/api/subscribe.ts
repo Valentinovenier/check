@@ -51,8 +51,8 @@ export async function onRequestPost(context: any) {
     const planAmount = planType === 'pro' ? PLAN_PRICE_PRO : PLAN_PRICE_BASIC;
     const planReason = planType === 'pro' ? 'Suscripción ElectroCheck Pro' : 'Suscripción ElectroCheck Basic';
 
-    // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API a
-    if (env.MP_ACCESS_TOKEN) {
+    // 1. Si existe MP_ACCESS_TOKEN, intentamos crear la suscripción dinámicamente vía API a a
+    if (env.MP_ACCESS_TOKEN) { 
         try {
             const payerEmail = (decoded.username && decoded.username.includes('@'))
                 ? decoded.username
