@@ -154,9 +154,16 @@ async function handleWebhook(context: any) {
         }
 
         const finalStatus = status || 'active';
-        const nextPaymentDate = subData?.next_payment_date || null;
+        let nextPaymentDate = subData?.next_payment_date || null;
 
-        console.log(`Actualizando base de datos para usuario ${userId} -> estado: '${finalStatus}', plan: '${planType}', preapprovalId: '${targetPreapprovalId}'`);
+        // Si Mercado Pago no envía next_payment_date y la suscripción está activa, calcular +30 días por defecto
+        if (finalStatus === 'active' && !nextPaymentDate) {
+            const calculatedDate = new Date();
+            calculatedDate.setDate(calculatedDate.getDate() + 30);
+            nextPaymentDate = calculatedDate.toISOString();
+        }
+
+        console.log(`Actualizando base de datos para usuario ${userId} -> estado: '${finalStatus}', plan: '${planType}', preapprovalId: '${targetPreapprovalId}', vencimiento: '${nextPaymentDate}'`);
         
         const dbResult = await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = ?, subscription_end_date = ?, plan_type = ? WHERE id = ?')
             .bind(finalStatus, targetPreapprovalId, nextPaymentDate, planType, userId)

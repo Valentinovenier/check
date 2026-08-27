@@ -37,7 +37,7 @@ export async function onRequest(context: any) {
 
     try {
         const targetUserId = decoded.userId;
-        const user = await env.DB.prepare('SELECT id, username, role, subscription_status, plan_type, mp_subscription_id FROM users WHERE id = ?')
+        const user = await env.DB.prepare('SELECT id, username, role, subscription_status, plan_type, mp_subscription_id, subscription_end_date FROM users WHERE id = ?')
             .bind(targetUserId)
             .first();
 
@@ -63,6 +63,7 @@ export async function onRequest(context: any) {
         let userStatus = user.subscription_status || 'pending';
         let userPlanType = user.plan_type || queryPlanType || 'basic';
         const targetPreapprovalId = queryPreapprovalId || user.mp_subscription_id;
+        let nextPaymentDate: string | null = user.subscription_end_date || null;
 
         let isVerifiedActive = userStatus === 'active';
 
@@ -77,6 +78,9 @@ export async function onRequest(context: any) {
                     const subData: any = await subRes.json();
                     if (subData.status === 'authorized' || subData.status === 'active') {
                         isVerifiedActive = true;
+                        if (subData.next_payment_date) {
+                            nextPaymentDate = subData.next_payment_date;
+                        }
 
                         const PRO_PLAN_ID = env.PLAN_ID_PRO || 'f60b996e809848a482e25b74b1c44128';
                         const BASIC_PLAN_ID = env.PLAN_ID_BASIC || '53c1ba35b5fd4219b09b5be4d9585262';
@@ -110,14 +114,21 @@ export async function onRequest(context: any) {
             }
         }
 
+        // Si se confirma que está activo pero no hay fecha de vencimiento aún, calcular +30 días
+        if (isVerifiedActive && !nextPaymentDate) {
+            const calculatedDate = new Date();
+            calculatedDate.setDate(calculatedDate.getDate() + 30);
+            nextPaymentDate = calculatedDate.toISOString();
+        }
+
         // Actualizar la base de datos si fue verificado legítimamente como activo
-        if (isVerifiedActive && userStatus !== 'active') {
+        if (isVerifiedActive && (userStatus !== 'active' || !user.subscription_end_date)) {
             userStatus = 'active';
             try {
-                await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = COALESCE(?, mp_subscription_id), plan_type = COALESCE(?, plan_type) WHERE id = ?')
-                    .bind('active', targetPreapprovalId || null, userPlanType, targetUserId)
+                await env.DB.prepare('UPDATE users SET subscription_status = ?, mp_subscription_id = COALESCE(?, mp_subscription_id), plan_type = COALESCE(?, plan_type), subscription_end_date = COALESCE(?, subscription_end_date) WHERE id = ?')
+                    .bind('active', targetPreapprovalId || null, userPlanType, nextPaymentDate, targetUserId)
                     .run();
-                console.log(`Base de datos actualizada exitosamente a 'active' para usuario ${targetUserId}`);
+                console.log(`Base de datos actualizada exitosamente a 'active' para usuario ${targetUserId} con vencimiento ${nextPaymentDate}`);
             } catch (dbErr) {
                 console.error("Error actualizando DB en check-subscription:", dbErr);
             }
@@ -135,6 +146,7 @@ export async function onRequest(context: any) {
         return new Response(JSON.stringify({ 
             status: userStatus, 
             plan_type: userPlanType, 
+            subscription_end_date: nextPaymentDate,
             token: updatedToken 
         }), {
             headers: { 'Content-Type': 'application/json' },
