@@ -77,7 +77,7 @@ export const LoginPage = ({ onRegisterClick, onLandingClick }: LoginPageProps) =
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
             <div>
-              <label className="block text-white text-sm" htmlFor="username">Correo Electrónico</label>
+              <label className="block text-white text-sm" htmlFor="username">Correo Electrónico (Utilizar el asociado a Mercado Pago)</label>
               <input 
                 type="email" 
                 placeholder="tu@email.com"
