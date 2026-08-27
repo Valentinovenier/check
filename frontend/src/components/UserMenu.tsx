@@ -49,6 +49,8 @@ export const UserMenu = () => {
     );
   }
 
+  const isSubscriber = user?.role === 'admin' || user?.subscriptionStatus === 'active';
+
   return (
     <div className="relative" ref={menuRef}>
       <button 
@@ -65,19 +67,32 @@ export const UserMenu = () => {
             <p className="text-xs text-slate-400">Sesión iniciada como</p>
             <p className="text-sm font-semibold text-white truncate">{user?.username}</p>
             <div className="mt-1 flex items-center gap-1.5">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">
-                {user?.role === 'admin' ? 'Administrador' : user?.planType === 'pro' ? 'Plan Pro' : 'Plan Básico'}
+              <span className={`inline-block w-2 h-2 rounded-full ${isSubscriber ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+              <span className={`text-xs font-bold uppercase tracking-wide ${isSubscriber ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {user?.role === 'admin' 
+                  ? 'Administrador' 
+                  : isSubscriber 
+                    ? (user?.planType === 'pro' ? 'Plan Pro' : 'Plan Básico') 
+                    : 'Sin Plan'}
               </span>
             </div>
           </div>
 
-          <button 
-            onClick={() => { setIsOpen(false); navigate('/app'); }} 
-            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors"
-          >
-            <Zap className="w-4 h-4 text-emerald-400" /> Ir a la Aplicación
-          </button>
+          {isSubscriber ? (
+            <button 
+              onClick={() => { setIsOpen(false); navigate('/app'); }} 
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800 transition-colors"
+            >
+              <Zap className="w-4 h-4 text-emerald-400" /> Ir a la Aplicación
+            </button>
+          ) : (
+            <button 
+              onClick={() => { setIsOpen(false); handleVerPlanes(); }} 
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-slate-800 transition-colors"
+            >
+              <Zap className="w-4 h-4 text-emerald-400" /> Activar Plan
+            </button>
+          )}
           
           <button 
             onClick={() => { logout(); setIsOpen(false); navigate('/'); }} 
