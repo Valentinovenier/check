@@ -500,7 +500,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               },
               {
                 q: '¿Requiere instalar algún software?',
-                a: 'No. ElectroSaaS funciona 100% en el navegador web. No necesitás descargar ni instalar nada. Basta con un navegador moderno (Chrome, Firefox, Edge) y conexión a Internet.',
+                a: 'No. ElectroCheck funciona 100% en el navegador web. No necesitás descargar ni instalar nada. Basta con un navegador moderno (Chrome, Firefox, Edge) y conexión a Internet.',
               },
               {
                 q: '¿Los informes sirven para presentar ante la distribuidora o ente fiscalizador?',
@@ -569,7 +569,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
             {/* Copyright */}
             <p className="text-xs text-slate-600">
-              © {new Date().getFullYear()} ElectroSaaS. Todos los derechos reservados.
+              © {new Date().getFullYear()} ElectroCheck. Todos los derechos reservados.
             </p>
           </div>
         </div>

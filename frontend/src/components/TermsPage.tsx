@@ -20,7 +20,7 @@ export const TermsPage: React.FC = () => {
             <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center border border-emerald-500/40">
               <Zap className="w-4 h-4 text-emerald-400" />
             </div>
-            <span className="font-bold text-white text-sm">ElectroSaaS</span>
+            <span className="font-bold text-white text-sm">ElectroCheck</span>
           </div>
         </div>
       </header>
@@ -40,14 +40,14 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-lg font-bold text-white mb-2">1. Aceptación de los Términos</h2>
             <p>
-              Al acceder, registrarse o utilizar la plataforma ElectroSaaS (&quot;el Servicio&quot;), usted acepta quedar vinculado legalmente por los presentes Términos y Condiciones. Si no está de acuerdo con alguna parte de los términos, no podrá acceder ni utilizar el Servicio.
+              Al acceder, registrarse o utilizar la plataforma ElectroCheck (&quot;el Servicio&quot;), usted acepta quedar vinculado legalmente por los presentes Términos y Condiciones. Si no está de acuerdo con alguna parte de los términos, no podrá acceder ni utilizar el Servicio.
             </p>
           </section>
 
           <section className="bg-amber-950/20 border border-amber-500/30 p-4 rounded-xl">
             <h2 className="text-lg font-bold text-amber-300 mb-2">2. Alcance Técnico y Descargo de Responsabilidad Profesional</h2>
             <p className="text-amber-100/90 leading-relaxed mb-3">
-              ElectroSaaS es una herramienta informática de asistencia para el cálculo, dimensionamiento preliminar y generación de documentación de instalaciones eléctricas basada en criterios normativos (AEA 90364, AEA 770, AEA 771, normas IRAM e IEC aplicables).
+              ElectroCheck es una herramienta informática de asistencia para el cálculo, dimensionamiento preliminar y generación de documentación de instalaciones eléctricas basada en criterios normativos (AEA 90364, AEA 770, AEA 771, normas IRAM e IEC aplicables).
             </p>
             <p className="text-amber-100/90 leading-relaxed">
               <strong>IMPORTANTE:</strong> Los resultados, esquemas y memorias de cálculo generados no eximen de la revisión, verificación y validación técnica profesional. La responsabilidad legal, civil y profesional por el diseño, firma, presentación ante entes reguladores/distribuidoras y ejecución de cualquier instalación eléctrica recae de forma exclusiva e indelegable sobre el profesional matriculado e instalador habilitado interviniente en la obra.
@@ -76,7 +76,7 @@ export const TermsPage: React.FC = () => {
           <section>
             <h2 className="text-lg font-bold text-white mb-2">5. Propiedad Intelectual de los Proyectos</h2>
             <p>
-              Toda la información, datos de circuitos, esquemas unifilares y proyectos creados por el usuario pertenecen en su totalidad al usuario. ElectroSaaS no reclama ningún derecho de propiedad sobre los proyectos generados por sus clientes.
+              Toda la información, datos de circuitos, esquemas unifilares y proyectos creados por el usuario pertenecen en su totalidad al usuario. ElectroCheck no reclama ningún derecho de propiedad sobre los proyectos generados por sus clientes.
             </p>
           </section>
 
