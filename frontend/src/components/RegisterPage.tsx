@@ -109,15 +109,18 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
 
           <button
             type="button"
-            disabled
-            className="p-3 rounded-xl text-left border bg-slate-950/40 border-slate-800/70 text-slate-500 opacity-60 cursor-not-allowed relative"
+            onClick={() => setSelectedPlan('pro')}
+            className={`p-3 rounded-xl text-left border transition-all ${
+              selectedPlan === 'pro'
+                ? 'bg-emerald-500/15 border-emerald-400 text-white ring-1 ring-emerald-400'
+                : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+            }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pro</span>
-              <span className="text-[9px] bg-slate-800 text-slate-400 border border-slate-700 font-bold px-1.5 py-0.5 rounded">PRÓXIMAMENTE</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Pro</span>
+              {selectedPlan === 'pro' && <span className="w-2 h-2 rounded-full bg-emerald-400"></span>}
             </div>
-            <p className="text-base font-extrabold text-slate-500">{planPrices.pro} <span className="text-[10px] font-normal text-slate-600">/mes</span></p>
-            
+            <p className="text-base font-extrabold text-white">{planPrices.pro} <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
           </button>
         </div>
         
