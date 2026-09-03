@@ -20,7 +20,7 @@ export const PrivacyPage: React.FC = () => {
             <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center border border-emerald-500/40">
               <Zap className="w-4 h-4 text-emerald-400" />
             </div>
-            <span className="font-bold text-white text-sm">ElectroSaaS</span>
+            <span className="font-bold text-white text-sm">ElectroCheck</span>
           </div>
         </div>
       </header>
