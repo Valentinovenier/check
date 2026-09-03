@@ -36,7 +36,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   useEffect(() => {
     // Calculamos siempre si tenemos datos mínimos
     if (project && tieneProteccionAsignada && conductor && conductor.metodoInstalacion && conductor.longitud) {
-        const calculated = calcularConductorResidencial({ ...conductor, ...(tramoId ? { tramoId } : {}) } as any, project);
+        const conductorCalculo = {
+            ...conductor,
+            ...(tramoId ? { tramoId } : {}),
+            ...(esCircuitoTerminal ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } : {})
+        };
+        const calculated = calcularConductorResidencial(conductorCalculo as any, project);
         
         // Verificación de seguridad: Asegurar que la estructura del resultado es válida
         const esValido = calculated.resultadoCalculo && 
@@ -89,7 +94,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
   }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable, circuito?.normaCable]);
 
   const handleDataChange = (updates: Partial<Conductor>) => {
-    let newConductor = { ...conductor, ...updates, ...(tramoId ? { tramoId } : {}) } as Conductor;
+    let newConductor = {
+        ...conductor,
+        ...updates,
+        ...(tramoId ? { tramoId } : {}),
+        ...(esCircuitoTerminal ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } : {})
+    } as Conductor;
     
     // Si la norma fuerza a Unipolar, aseguramos el tipo
     if (esTipoCableForzado) {

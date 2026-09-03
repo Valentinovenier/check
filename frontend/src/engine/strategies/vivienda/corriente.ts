@@ -6,10 +6,23 @@ const getTension = (project: Project): number => {
 };
 
 // Función auxiliar para calcular potencia según normas (AEA 770)
-const getPotenciaCircuito = (c: any, project?: Project): number => {
+export const getPotenciaCircuito = (c: any, project?: Project): number => {
+    // Si es un circuito de usos específicos o carga específica
+    if (c.esEspecifico || c.tipo === 'usos_especificos' || c.tipo === 'usos_especificos_mbtf' || (typeof c.tipo === 'string' && c.tipo.startsWith('usos_especificos'))) {
+        const rawPotencia = Number(c.potencia ?? c.potenciaManual ?? 0);
+        if (rawPotencia <= 0) return 0;
+        const cosPhi = project?.cosPhi || 0.85;
+        const nominalVA = c.unidadPotencia === 'W' ? rawPotencia / cosPhi : rawPotencia;
+        const coefUtil = typeof c.coefUtilizacion === 'number' && c.coefUtilizacion > 0 ? c.coefUtilizacion : 1;
+        const coefSimul = typeof c.coefSimultaneidad === 'number' && c.coefSimultaneidad > 0 ? c.coefSimultaneidad : 1;
+        const potenciaFinal = nominalVA * coefUtil * coefSimul;
+        console.log(`DEBUG: Circuito específico ${c.nombre || c.id} - Potencia nominal: ${rawPotencia} ${c.unidadPotencia || 'VA'} -> ${potenciaFinal.toFixed(2)} VA`);
+        return potenciaFinal;
+    }
+
     // AEA 770: Demanda de potencia máxima simultánea
     switch (c.tipo) {
-        case 'iluminacion_usos_generales': 
+        case 'iluminacion_usos_generales': {
             // AEA 770: Sumar puntos IUG asignados en todos los ambientes para ESTE circuito
             let puntosIUG = 0;
             if (project && project.datosVivienda && project.datosVivienda.tomasPorAmbiente) {
@@ -33,30 +46,39 @@ const getPotenciaCircuito = (c: any, project?: Project): number => {
                 
             console.log(`DEBUG: Circuito ${c.id} - Potencia final calculada: ${potencia} VA`);
             return potencia;
+        }
         case 'tomacorrientes_usos_generales': 
+            return 2200;
+        case 'iluminacion_con_tomacorrientes':
             return 2200;
         case 'usos_especiales': 
             return 3300;
-        case 'usos_especificos_mbtf': 
-            return c.potenciaManual || 0;
-        default: return 0;
+        default: {
+            if (c.potencia && Number(c.potencia) > 0) {
+                const raw = Number(c.potencia);
+                const cosPhi = project?.cosPhi || 0.85;
+                return c.unidadPotencia === 'W' ? raw / cosPhi : raw;
+            }
+            return 0;
+        }
     }
 };
 
 export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project): number => {
     // 1. Si es el tablero principal, usamos la DPMS calculada para la vivienda
-    // Hacemos la comprobación más robusta
-    const esPrincipal = tablero.nombre.toLowerCase().includes('principal') || (tablero as any).tipo === 'Principal';
+    const esPrincipal = tablero.nombre?.toLowerCase().includes('principal') || (tablero as any).tipo === 'Principal';
+    const isTrifasica = project.tipoInstalacion === 'Trifásica';
+    const divisor = isTrifasica ? Math.sqrt(3) * 380 : 220;
     
     if (esPrincipal) {
         return project.datosVivienda?.potenciaMaximaSimultanea 
-            ? project.datosVivienda.potenciaMaximaSimultanea / getTension(project) 
+            ? project.datosVivienda.potenciaMaximaSimultanea / divisor 
             : 0;
     }
 
     // 2. Si tiene potenciaTotal definida (caso TableroSeccional), usarla
     if ('potenciaTotal' in tablero && (tablero as any).potenciaTotal) {
-        return (tablero as any).potenciaTotal / getTension(project);
+        return (tablero as any).potenciaTotal / divisor;
     }
     
     // 3. Caso contrario, sumar las potencias de sus circuitos y subtableros
@@ -65,12 +87,15 @@ export const getTableroNominalCurrent = (tablero: BaseTablero, project: Project)
         totalPotencia += tablero.circuitosTerminales.reduce((acc, c) => acc + getPotenciaCircuito(c, project), 0);
     }
     
-    return totalPotencia / getTension(project);
+    return totalPotencia / divisor;
 };
 
 export const getCircuitoNominalCurrent = (circuito: CircuitoTerminal, project: Project): number => {
   const potencia = getPotenciaCircuito(circuito, project);
-  const corriente = potencia / getTension(project);
-  console.log(`DEBUG: Circuito ${circuito.nombre} - Potencia: ${potencia} VA - I: ${corriente} A`);
+  // En viviendas (AEA 770), los circuitos terminales son monofásicos (220V) a menos que sea un circuito trifásico específico (ej: ITE)
+  const esCircuitoTrifasico = (circuito as any).siglaEspecifica === 'ITE' || (circuito as any).tipoInstalacion === 'Trifásica';
+  const tension = esCircuitoTrifasico ? Math.sqrt(3) * 380 : 220;
+  const corriente = tension > 0 ? potencia / tension : 0;
+  console.log(`DEBUG: Circuito ${circuito.nombre || circuito.id} - Potencia: ${potencia} VA - Tensión: ${tension}V - I: ${corriente} A`);
   return corriente;
 };

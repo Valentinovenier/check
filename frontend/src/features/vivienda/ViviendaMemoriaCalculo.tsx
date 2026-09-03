@@ -35,9 +35,13 @@ export const ViviendaMemoriaCalculo = ({ project }: { project: Project }) => {
   };
 
   const obtenerConductor = (cId: string): Conductor | undefined => {
-    const conds = project.conductores || {};
+    const fromInforme = project.informeConductores?.find(
+      (c: any) => c.destinoId === cId || c.tramoId === cId || (c as any).id === cId
+    );
+    if (fromInforme) return fromInforme;
+    const conds = (project as any).conductores || {};
     for (const [key, val] of Object.entries(conds)) {
-      if (key.includes(cId) || (val as any)?.destinoId === cId) return val;
+      if (key.includes(cId) || (val as any)?.destinoId === cId || (val as any)?.tramoId === cId) return val as Conductor;
     }
     return undefined;
   };

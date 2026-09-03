@@ -67,18 +67,33 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         tipoTramo: tipoViviendaTramo,
         origenNombre,
         destinoNombre,
+        tramoId: destinoId || tableroOrigenId,
+        destinoId: destinoId || tableroOrigenId,
     } as any;
 
     const informe = [...(project.informeConductores || []), conductorFinal];
+    const keyConductor = destinoId || tableroOrigenId;
 
-    onChange({ ...project, informeConductores: informe });
+    onChange({
+        ...project,
+        informeConductores: informe,
+        conductores: {
+            ...((project as any).conductores || {}),
+            [keyConductor]: conductorFinal
+        }
+    });
     alert('Conductor calculado y añadido al informe exitosamente.');
     };
 
     const handleDeleteInforme = (index: number) => {
     const informe = [...(project.informeConductores || [])];
-    informe.splice(index, 1);
-    onChange({ ...project, informeConductores: informe });
+    const deleted = informe.splice(index, 1)[0];
+    const key = (deleted as any)?.destinoId || (deleted as any)?.tramoId;
+    const conductores = { ...((project as any).conductores || {}) };
+    if (key && conductores[key]) {
+        delete conductores[key];
+    }
+    onChange({ ...project, informeConductores: informe, conductores });
     };
 
     return (
@@ -135,7 +150,26 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                     <select
                         className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
                         value={destinoId}
-                        onChange={e => setDestinoId(e.target.value)}
+                        onChange={e => {
+                            const newId = e.target.value;
+                            setDestinoId(newId);
+                            const circ = circuitosDelTablero.find(c => c.id === newId);
+                            const existing = (project as any).conductores?.[newId] || project.informeConductores?.find((c: any) => c.destinoId === newId || c.tramoId === newId);
+                            if (existing) {
+                                setCurrentConductor(existing);
+                            } else {
+                                setCurrentConductor({
+                                    tipo: 'Cable',
+                                    material: 'Cobre',
+                                    aislacion: 'PVC',
+                                    longitud: 0,
+                                    tipoTramo: 'CircuitoTerminal',
+                                    destinoId: newId,
+                                    tramoId: newId,
+                                    tipoCircuito: circ?.tipo
+                                } as any);
+                            }
+                        }}
                     >
                         <option value="">— Seleccionar Circuito —</option>
                         {circuitosDelTablero.map(c => (

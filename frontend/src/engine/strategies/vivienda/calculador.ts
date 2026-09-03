@@ -70,7 +70,7 @@ export const calcularTramoResidencial = (
             case 'iluminacion_usos_generales': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesIluminacion; break;
             case 'tomacorrientes_usos_generales':
             case 'usos_especiales': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.terminalesTomacorrientes; break;
-            case 'usos_especificos': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificosMBTF; break;
+            case 'usos_especificos': seccionMinima = SECCIONES_MINIMAS_VIVIENDA.usosEspecificos; break;
         }
         break;
   }
@@ -122,7 +122,7 @@ export const calcularTramoResidencial = (
     const potAparente = I_B * 220;
     pasosActuales.push({
         numero: 1, nombre: "Corriente de diseño (IB)",
-        valor: `IB = S / (U * cos φ) = ${potAparente.toFixed(0)} VA / (220V * ${cosPhi.toFixed(2)}) = ${I_B.toFixed(2)} A`,
+        valor: `IB = S / U = ${potAparente.toFixed(0)} VA / 220V = ${I_B.toFixed(2)} A`,
         condicion: "Corriente de proyecto", cumple: true
     });
 

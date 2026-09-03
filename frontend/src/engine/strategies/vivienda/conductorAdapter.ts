@@ -11,43 +11,53 @@ export const adaptarConductorACondiciones = (
 
   let canalizacionId = conductor.canalizacionId;
   let corrienteDiseño = 16; // Fallback
+  const targetId = (conductor as any).destinoId || (conductor as any).tramoId;
+
+  let tipoTramo = conductor.tipoTramo;
+  let tipoCircuito = conductor.tipoCircuito;
   
   if (project.datosVivienda) {
-      if (conductor.tipoTramo === 'LineaPrincipal') {
+      // 1. Buscar si targetId corresponde a un circuito calculado
+      const circuito = targetId 
+        ? project.datosVivienda.circuitosCalculados?.find(c => c.id === targetId)
+        : undefined;
+
+      if (circuito || tipoTramo === 'CircuitoTerminal') {
+          tipoTramo = 'CircuitoTerminal';
+          const circ = circuito || (targetId ? project.datosVivienda.circuitosCalculados?.find(c => c.id === targetId) : undefined);
+          console.log('[DEBUG] Adaptador - Conductor:', conductor, 'CircuitoEncontrado:', !!circ, 'CircuitoCanalizacionId:', (circ as any)?.canalizacionId);
+          if (circ) {
+              tipoCircuito = (circ.tipo as TipoCircuito) || tipoCircuito;
+              corrienteDiseño = getCircuitoNominalCurrent(circ as unknown as CircuitoTerminal, project);
+              // CRUCIAL: Si no está en el conductor, buscar en el objeto circuito
+              if (!canalizacionId) {
+                  canalizacionId = (circ as any).canalizacionId;
+              }
+          }
+      } else if (tipoTramo === 'LineaPrincipal' || targetId === 'tp' || targetId === 'int-general-salida') {
+          tipoTramo = 'LineaPrincipal';
           corrienteDiseño = getTableroNominalCurrent(project.tableroPrincipal, project);
-      } else if (conductor.tipoTramo === 'LineaSeccional') {
-          // ... (código existente de tablero) ...
-          const destinoId = (conductor as any).destinoId;
-          const tableroDestino = project.datosVivienda.tableros?.find(t => t.id === destinoId);
+      } else if (tipoTramo === 'LineaSeccional' || project.datosVivienda.tableros?.some(t => t.id === targetId)) {
+          tipoTramo = 'LineaSeccional';
+          const tableroDestino = project.datosVivienda.tableros?.find(t => t.id === targetId);
           if (tableroDestino) {
               const baseTablero: any = {
                   id: tableroDestino.id,
                   nombre: tableroDestino.nombre,
                   tipo: tableroDestino.tipo,
-                  circuitosTerminales: [],
+                  circuitosTerminales: project.datosVivienda.circuitosCalculados?.filter(c => tableroDestino.circuitosIds?.includes(c.id)) || [],
                   subTableros: []
               };
               corrienteDiseño = getTableroNominalCurrent(baseTablero, project);
           } else {
               corrienteDiseño = getTableroNominalCurrent(project.tableroPrincipal, project);
           }
-      } else if (conductor.tipoTramo === 'CircuitoTerminal' && (conductor as any).destinoId) {
-          const circuitoId = (conductor as any).destinoId;
-          const circuito = project.datosVivienda.circuitosCalculados?.find(c => c.id === circuitoId);
-          console.log('[DEBUG] Adaptador - Conductor:', conductor, 'CircuitoEncontrado:', !!circuito, 'CircuitoCanalizacionId:', (circuito as any)?.canalizacionId);
-          if (circuito) {
-              corrienteDiseño = getCircuitoNominalCurrent(circuito as unknown as CircuitoTerminal, project);
-              // CRUCIAL: Si no está en el conductor, buscar en el objeto circuito
-              if (!canalizacionId) {
-                  canalizacionId = (circuito as any).canalizacionId;
-              }
-          }
       }
   }
 
   return {
-    tipoTramo: conductor.tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal',
-    tipoCircuito: (conductor.tipoCircuito as TipoCircuito) || 'iluminacion_usos_generales',
+    tipoTramo: (tipoTramo as 'LineaPrincipal' | 'LineaSeccional' | 'CircuitoTerminal') || 'CircuitoTerminal',
+    tipoCircuito: (tipoCircuito as TipoCircuito) || 'iluminacion_usos_generales',
     metodoInstalacion: conductor.metodoInstalacion || 'B1',
     longitudMetros: conductor.longitud || 0,
     corrienteDiseñoAmperes: corrienteDiseño,
