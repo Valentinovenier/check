@@ -83,7 +83,7 @@ describe('Cálculo de corriente y caída de tensión para cargas específicas', 
     expect(corriente).toBeGreaterThan(0);
   });
 
-  test('calcularConductorResidencial debe calcular IB y caída de tensión mayores a 0', () => {
+  test('calcularConductorResidencial debe calcular IB y caída de tensión mayores a 0 con límite configurado por el usuario', () => {
     const conductor: Conductor = {
       tipo: 'Cable',
       material: 'Cobre',
@@ -108,11 +108,33 @@ describe('Cálculo de corriente y caída de tensión para cargas específicas', 
     expect(paso1!.valor).toContain('13.37 A');
     expect(paso1!.valor).not.toContain('0.00 A');
 
-    // Paso 8: Caída de tensión
+    // Paso 8: Caída de tensión - debe ser 3% por defecto y NO 5%
     const paso8 = pasos.find((p: any) => p.numero === 8);
     expect(paso8).toBeDefined();
     expect(paso8!.valor).toContain('13.37A');
     expect(resultado.resultadoCalculo!.caidaTensionPorcentaje).toBeGreaterThan(0);
     expect(paso8!.valor).not.toContain('0.00A');
+    expect(paso8!.condicion).toContain('3%');
+    expect(paso8!.condicion).not.toContain('5%');
+  });
+
+  test('calcularConductorResidencial debe respetar el valor de caída personalizada ingresado por el usuario (ej: 2.5%)', () => {
+    const conductorCustom: Conductor = {
+      tipo: 'Cable',
+      material: 'Cobre',
+      aislacion: 'PVC',
+      metodoInstalacion: 'B2',
+      longitud: 15,
+      destinoId: 'ce-1',
+      tramoId: 'ce-1',
+      tipoTramo: 'CircuitoTerminal',
+      normaCable: 'IRAM 2178',
+      caidaMaxPermitida: 2.5
+    } as any;
+
+    const resultado = calcularConductorResidencial(conductorCustom, mockProject);
+    const paso8 = resultado.resultadoCalculo!.pasosVerificacion.find((p: any) => p.numero === 8);
+    expect(paso8).toBeDefined();
+    expect(paso8!.condicion).toContain('2.5%');
   });
 });

@@ -283,14 +283,17 @@ export const calcularTramoResidencial = (
         caidaTensionPorcentaje = (dv / 220) * 100;
     }
     
-    // Usar el límite de caída de tensión personalizado si existe, sino el predeterminado
-    let limiteCaida = conductor.caidaMaxPermitida ?? PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.iluminacionTomacorrientes;
+    // Usar el límite de caída de tensión personalizado del usuario si existe, sino el predeterminado (3.0%)
+    let limiteCaida = (conductor.caidaMaxPermitida !== undefined && !isNaN(Number(conductor.caidaMaxPermitida)))
+        ? Number(conductor.caidaMaxPermitida)
+        : (condiciones.caidaMaxPermitida !== undefined && !isNaN(Number(condiciones.caidaMaxPermitida)))
+            ? Number(condiciones.caidaMaxPermitida)
+            : PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.iluminacionTomacorrientes;
     
-    if (conductor.caidaMaxPermitida === undefined) {
-        if (condiciones.tipoCircuito.includes('fuerza_motriz') || condiciones.tipoCircuito.includes('especificos')) {
+    if (conductor.caidaMaxPermitida === undefined && condiciones.caidaMaxPermitida === undefined) {
+        if (condiciones.tipoCircuito.includes('fuerza_motriz') || (conductor as any).siglaEspecifica === 'APM') {
             limiteCaida = PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.motoresRegimen;
-        }
-        if (condiciones.tipoTramo === 'LineaPrincipal') {
+        } else if (condiciones.tipoTramo === 'LineaPrincipal') {
             limiteCaida = PARAMETROS_CALCULO_VIVIENDA.limitesCaidaTension.recomendacionSeccionales;
         }
     }

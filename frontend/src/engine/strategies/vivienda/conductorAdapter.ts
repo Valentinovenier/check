@@ -68,6 +68,6 @@ export const adaptarConductorACondiciones = (
     resistividadTermica: conductor.resistividadTermica || 2.5, // Default a 2.5 para métodos D
     separacionBordes: conductor.separacionBordes,
     normaCable: normaCable as any,
-    caidaMaxPermitida: conductor.caidaMaxPermitida
+    caidaMaxPermitida: conductor.caidaMaxPermitida ?? 3.0
   };
 };

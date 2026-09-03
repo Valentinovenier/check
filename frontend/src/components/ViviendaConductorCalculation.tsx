@@ -28,7 +28,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
 
   // Manejo del estado del conductor actual que se está editando
   const [currentConductor, setCurrentConductor] = useState<Conductor>({
-    tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0
+    tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0, caidaMaxPermitida: 3.0
   });
 
   const getTramoKey = () => {
@@ -163,6 +163,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                                     material: 'Cobre',
                                     aislacion: 'PVC',
                                     longitud: 0,
+                                    caidaMaxPermitida: 3.0,
                                     tipoTramo: 'CircuitoTerminal',
                                     destinoId: newId,
                                     tramoId: newId,

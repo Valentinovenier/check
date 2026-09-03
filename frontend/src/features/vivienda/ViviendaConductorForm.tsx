@@ -38,6 +38,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     if (project && tieneProteccionAsignada && conductor && conductor.metodoInstalacion && conductor.longitud) {
         const conductorCalculo = {
             ...conductor,
+            caidaMaxPermitida: conductor.caidaMaxPermitida ?? 3.0,
             ...(tramoId ? { tramoId } : {}),
             ...(esCircuitoTerminal ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } : {})
         };
@@ -95,6 +96,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = {
+        caidaMaxPermitida: conductor?.caidaMaxPermitida ?? 3.0,
         ...conductor,
         ...updates,
         ...(tramoId ? { tramoId } : {}),
@@ -268,11 +270,14 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Caída de Tensión Máxima Permitida (%)</label>
                     <input 
-                        type="number"
-                        step="0.1"
-                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700"
-                        value={conductor?.caidaMaxPermitida ?? 3.0}
-                        onChange={(e) => handleDataChange({ caidaMaxPermitida: parseFloat(e.target.value) || 3.0 })}
+                        type="number" 
+                        step="0.1" 
+                        className="w-full bg-slate-950 text-white text-sm rounded-lg p-2.5 border border-slate-700" 
+                        value={conductor?.caidaMaxPermitida ?? 3.0} 
+                        onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            handleDataChange({ caidaMaxPermitida: isNaN(val) ? 3.0 : val });
+                        }} 
                     />
                 </div>
             </div>
