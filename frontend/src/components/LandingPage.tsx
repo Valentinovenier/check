@@ -373,7 +373,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               Beneficios
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-              ¿Por qué usar ElectroSaaS?
+              ¿Por qué usar ElectroCheck?
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
