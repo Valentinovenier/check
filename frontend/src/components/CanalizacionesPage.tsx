@@ -317,7 +317,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
         </div>
       </div>
     </div>
-    </div>
   );
 };
 
