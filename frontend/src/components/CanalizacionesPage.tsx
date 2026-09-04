@@ -125,21 +125,21 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
   return (
     <div className="space-y-8">
       {/* Encabezado principal */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 shadow-lg">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5 tracking-tight">
-            <Network className="text-[var(--accent)]" />
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 sm:p-7 rounded-2xl border border-slate-800 shadow-xl">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
+            <Network className="text-[var(--accent)]" size={32} />
             Gestión de Canalizaciones y Agrupamiento
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-sm text-slate-300 mt-2 leading-relaxed">
             Agrupa los circuitos en cañerías para determinar el factor de agrupamiento (Ka), tipo de montaje y verificar el factor de llenado (≤ 35%).
           </p>
         </div>
 
         {/* Input para nueva canalización */}
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2.5 w-full sm:w-auto">
           <input 
-            className="bg-slate-950 p-2.5 rounded-xl text-white text-xs border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full sm:w-60" 
+            className="bg-slate-950 p-3.5 rounded-xl text-white text-sm border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-full sm:w-64 font-medium" 
             placeholder="Ej: Cañería Principal Pasillo..." 
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
@@ -147,9 +147,9 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
           />
           <button 
             onClick={addCanalizacion} 
-            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all shrink-0 cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-600/25 transition-all shrink-0 cursor-pointer"
           >
-            <Plus size={16} /> Crear Cañería
+            <Plus size={18} /> Crear Cañería
           </button>
         </div>
       </div>
@@ -157,12 +157,12 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       {/* Lista de Canalizaciones */}
       <div className="space-y-6">
         {canalizaciones.length === 0 ? (
-          <div className="bg-slate-900/50 p-8 rounded-2xl border border-dashed border-slate-700 text-center space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto">
-              <Layers size={24} />
+          <div className="bg-slate-900/50 p-10 rounded-2xl border border-dashed border-slate-700 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto">
+              <Layers size={28} />
             </div>
-            <h3 className="text-white font-bold text-base">No hay canalizaciones creadas</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+            <h3 className="text-white font-bold text-lg">No hay canalizaciones creadas</h3>
+            <p className="text-sm text-slate-300 max-w-lg mx-auto">
               Crea tu primera canalización o cañería arriba para agrupar los circuitos y calcular automáticamente los factores de corrección y ocupación.
             </p>
           </div>
@@ -177,34 +177,34 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
             const normaPredominante = circuitosEnC[0]?.normaCable || 'IRAM 2178';
 
             return (
-              <div key={c.id} className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-700/80 shadow-xl space-y-6">
+              <div key={c.id} className="bg-[var(--bg-secondary)] p-6 sm:p-7 rounded-2xl border border-slate-700/80 shadow-xl space-y-6">
                 {/* Cabecera de la canalización */}
                 <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                      <Network size={18} />
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                      <Network size={22} />
                     </div>
                     <div>
-                      <span className="text-white font-bold text-lg">{c.nombre}</span>
-                      <p className="text-xs text-slate-400">
-                        {cantCircuitosEnCanalizacion} elementos asignados • Factor agrupamiento: <span className="text-amber-400 font-bold">{getFactorAgrupamiento(cantCircuitosEnCanalizacion)}</span>
+                      <span className="text-white font-bold text-xl">{c.nombre}</span>
+                      <p className="text-sm text-slate-300 mt-0.5">
+                        {cantCircuitosEnCanalizacion} elementos asignados • Factor agrupamiento: <span className="text-amber-300 font-bold">{getFactorAgrupamiento(cantCircuitosEnCanalizacion)}</span>
                       </p>
                     </div>
                   </div>
 
                   <button 
                     onClick={() => deleteCanalizacion(c.id)} 
-                    className="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+                    className="text-slate-400 hover:text-red-400 p-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
                     title="Eliminar canalización"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
 
                 {/* Error de validación de agrupamiento si existe */}
                 {!val.esValido && (
-                  <div className="p-3.5 bg-red-950/40 border border-red-800 rounded-xl text-red-300 text-xs flex items-center gap-2.5">
-                    <AlertTriangle size={18} className="shrink-0 text-red-400" />
+                  <div className="p-4 bg-red-950/50 border border-red-800 rounded-xl text-red-200 text-sm flex items-center gap-3">
+                    <AlertTriangle size={20} className="shrink-0 text-red-400" />
                     <span>{val.errores[0]}</span>
                   </div>
                 )}
@@ -217,36 +217,36 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 />
 
                 {/* Selección de circuitos agrupados */}
-                <div className="space-y-3">
-                  <h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-slate-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
                     Asignar circuitos a esta canalización:
                   </h4>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {/* Tramos de alimentación */}
                     {tramosAlimentacion.map(tramo => {
                       const isChecked = c.tramosIds?.includes(tramo.id);
                       return (
                         <label 
                           key={tramo.id} 
-                          className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          className={`flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer transition-all ${
                             isChecked 
-                              ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm' 
-                              : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700'
+                              ? 'bg-blue-600/20 border-blue-500 text-white shadow-md' 
+                              : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'
                           }`}
                         >
                           <input 
                             type="checkbox" 
                             checked={isChecked}
                             onChange={() => toggleElemento(c.id, tramo.id, true)}
-                            className="accent-blue-600 w-4 h-4 rounded"
+                            className="accent-blue-600 w-5 h-5 rounded cursor-pointer"
                           />
                           <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold text-white flex items-center gap-1.5 truncate">
-                              <Zap size={14} className="text-amber-400 shrink-0" />
+                            <span className="text-sm font-bold text-white flex items-center gap-2 truncate">
+                              <Zap size={16} className="text-amber-400 shrink-0" />
                               {tramo.nombre}
                             </span>
-                            <span className="text-[10px] text-slate-500">Línea Seccional</span>
+                            <span className="text-xs text-slate-400 font-medium mt-0.5">Línea Seccional</span>
                           </div>
                         </label>
                       );
@@ -258,24 +258,24 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                       return (
                         <label 
                           key={circ.id} 
-                          className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          className={`flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer transition-all ${
                             isChecked 
-                              ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm' 
-                              : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700'
+                              ? 'bg-blue-600/20 border-blue-500 text-white shadow-md' 
+                              : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'
                           }`}
                         >
                           <input 
                             type="checkbox" 
                             checked={isChecked}
                             onChange={() => toggleElemento(c.id, circ.id, false)}
-                            className="accent-blue-600 w-4 h-4 rounded"
+                            className="accent-blue-600 w-5 h-5 rounded cursor-pointer"
                           />
                           <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold text-white flex items-center gap-1.5 truncate">
-                              <Cable size={14} className={isChecked ? 'text-blue-400 shrink-0' : 'text-slate-500 shrink-0'} />
+                            <span className="text-sm font-bold text-white flex items-center gap-2 truncate">
+                              <Cable size={16} className={isChecked ? 'text-blue-400 shrink-0' : 'text-slate-400 shrink-0'} />
                               {circ.nombre}
                             </span>
-                            <span className="text-[10px] text-slate-500 uppercase">{circ.tipo?.replace(/_/g, ' ') || 'Circuito'}</span>
+                            <span className="text-xs text-slate-400 font-medium uppercase mt-0.5">{circ.tipo?.replace(/_/g, ' ') || 'Circuito'}</span>
                           </div>
                         </label>
                       );
@@ -289,21 +289,21 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
       </div>
 
       {/* Configuración rápida de Normas de Cable */}
-      <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 shadow-lg space-y-4">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="text-emerald-400" size={18} />
-          <h3 className="text-base font-bold text-white">Norma IRAM Aplicada por Circuito</h3>
+      <div className="bg-[var(--bg-secondary)] p-6 sm:p-7 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="text-emerald-400" size={22} />
+          <h3 className="text-lg font-bold text-white">Norma IRAM Aplicada por Circuito</h3>
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-sm text-slate-300">
           Define el tipo de aislación de cada circuito (ej: unipolar flexible IRAM-NM 247-3 o subterráneo IRAM 2178).
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {(project.datosVivienda?.circuitosCalculados || []).map((circ: any) => (
-            <div key={circ.id} className="flex flex-col gap-1.5 p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <span className="text-white text-xs font-semibold">{circ.nombre}</span>
+            <div key={circ.id} className="flex flex-col gap-2 p-3.5 bg-slate-950/90 rounded-xl border border-slate-800">
+              <span className="text-white text-sm font-bold">{circ.nombre}</span>
               <select 
-                className="bg-slate-900 text-white text-xs rounded-lg p-2 border border-slate-700 focus:border-blue-500"
+                className="bg-slate-900 text-white text-sm rounded-xl p-2.5 border border-slate-700 focus:border-blue-500 font-medium"
                 value={circ.normaCable || 'IRAM 2178'}
                 onChange={(e) => updateCircuitoNorma(circ.id, e.target.value)}
               >
@@ -316,6 +316,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };

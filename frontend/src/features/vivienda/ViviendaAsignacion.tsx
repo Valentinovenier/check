@@ -147,7 +147,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       {/* Barra superior de carga de circuitos */}
       <div className="bg-slate-900 p-5 rounded-lg border border-slate-700">
         <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Carga de Circuitos</h3>
+            <h3 className="text-base font-bold text-slate-300 uppercase tracking-wider">Carga de Circuitos</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {datos.circuitosCalculados.map(c => {
@@ -158,10 +158,10 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                     return (
                         <div key={c.id} className={`p-3 rounded border flex justify-between items-center ${isAsignado ? 'border-slate-700 bg-slate-950' : 'border-amber-900/50 bg-amber-950/20'}`}>
                             <div>
-                                <div className="text-white text-xs font-bold truncate">{c.nombre}</div>
-                                <div className="text-[10px] text-slate-400">{c.potencia || 0} {c.unidadPotencia || 'VA'}</div>
+                                <div className="text-white text-sm font-bold truncate">{c.nombre}</div>
+                                <div className="text-xs text-slate-400">{c.potencia || 0} {c.unidadPotencia || 'VA'}</div>
                             </div>
-                            <div className={`text-xs font-bold px-2 py-1 rounded ${isAsignado ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800'}`}>
+                            <div className={`text-sm font-bold px-2.5 py-1 rounded ${isAsignado ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800'}`}>
                                 {isAsignado ? 'Asignado' : 'Sin asignar'}
                             </div>
                         </div>
@@ -175,7 +175,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                 
                 return (
                     <div key={c.id} className={`p-3 rounded border flex justify-between items-center ${superaLimite ? 'border-red-900 bg-red-950/30' : 'border-slate-700 bg-slate-950'}`}>
-                        <div className="text-white text-xs font-bold truncate">{c.nombre}</div>
+                        <div className="text-white text-sm font-bold truncate">{c.nombre}</div>
                         <div className={`text-xl font-black ${superaLimite ? 'text-red-500' : 'text-emerald-500'}`}>
                             {totalTomas}<span className="text-sm text-slate-500 font-normal">/{maxBocas === 'Sin límite' ? '∞' : (maxBocas === '12 por fase' ? '12/fase' : maxBocas)}</span>
                         </div>
@@ -188,7 +188,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
       {/* Lista de Ambientes */}
       <div className="space-y-4">
         <div className="flex justify-between items-end border-b border-slate-800 pb-2">
-            <h2 className="text-xl font-bold text-white">Ambientes</h2>
+            <h2 className="text-2xl font-bold text-white">Ambientes</h2>
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Puntos de utilización</h3>
         </div>
         {datos.ambientes.map((ambiente) => {
@@ -208,9 +208,9 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                         <button onClick={() => toggleExpandido(ambiente.id)} className="text-slate-400 hover:text-white">
                             {isExpandido ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                         </button>
-                        <h3 className="text-md font-semibold text-white">{ambiente.nombre}</h3>
+                        <h3 className="text-base font-semibold text-white">{ambiente.nombre}</h3>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-[10px] font-bold bg-slate-900 p-2 rounded border border-slate-800">
+                    <div className="flex flex-wrap gap-2 text-xs font-bold bg-slate-900 p-2 rounded border border-slate-800">
                         <span className={asignadoIUG >= ambiente.puntosIUG ? 'text-emerald-400' : 'text-amber-400'}>IUG: {asignadoIUG}/{ambiente.puntosIUG}</span>
                         <span className={asignadoTUG >= ambiente.puntosTUG ? 'text-emerald-400' : 'text-amber-400'}>TUG: {asignadoTUG}/{ambiente.puntosTUG}</span>
                         {asignadoTUE > 0 && <span className="text-cyan-400">TUE: {asignadoTUE}</span>}
@@ -226,7 +226,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                                 <button
                                     key={circuito.id}
                                     onClick={() => toggleAmbienteEnCircuito(ambiente, circuito.id)}
-                                    className={`px-3 py-1.5 rounded text-xs font-bold border transition-colors ${
+                                    className={`px-3.5 py-2 rounded text-sm font-bold border transition-colors ${
                                         isSelected 
                                         ? 'bg-[var(--accent)] border-[var(--accent)] text-black' 
                                         : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
@@ -264,7 +264,7 @@ export const ViviendaAsignacion = ({ project, onChange }: Props) => {
                         const isCargaUnica = circuito.maximoBocas === 'N/A' || circuito.siglaEspecifica === 'ACU';
 
                         return (
-                            <div key={`input-${circuito.id}`} className="flex items-center justify-between bg-black/20 p-2.5 rounded text-xs border border-slate-800/80">
+                            <div key={`input-${circuito.id}`} className="flex items-center justify-between bg-black/20 p-3 rounded text-sm border border-slate-800/80">
                                 <div className="flex items-center gap-2">
                                     <span className="font-bold text-white">{circuito.nombre}</span>
                                     <span className="text-[10px] text-slate-400 uppercase">

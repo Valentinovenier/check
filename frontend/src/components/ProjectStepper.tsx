@@ -77,7 +77,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
   ];
 
   return (
-    <div className="w-full bg-slate-900/60 border-b border-slate-800/90 px-4 py-3 backdrop-blur-md">
+    <div className="w-full bg-slate-900/60 border-b border-slate-800/90 px-4 py-4 backdrop-blur-md">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-1 overflow-x-auto scrollbar-none">
         {steps.map((step, idx) => {
           const isActive = activePage === step.id;
@@ -87,24 +87,24 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
             <React.Fragment key={step.id}>
               <button
                 onClick={() => onNavigate(step.id)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group text-left min-w-fit ${
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 group text-left min-w-fit ${
                   isActive
-                    ? 'bg-blue-600/15 border border-blue-500/40 shadow-lg shadow-blue-500/5'
-                    : 'hover:bg-slate-800/50 border border-transparent'
+                    ? 'bg-blue-600/20 border border-blue-500/50 shadow-lg shadow-blue-500/10'
+                    : 'hover:bg-slate-800/60 border border-transparent'
                 }`}
               >
                 {/* Indicador de número / check */}
                 <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs transition-all ${
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-all shrink-0 ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/40'
                       : step.isDone
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
                       : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
                   }`}
                 >
                   {step.isDone && !isActive ? (
-                    <Check size={14} className="stroke-[3]" />
+                    <Check size={16} className="stroke-[3]" />
                   ) : (
                     step.stepNumber
                   )}
@@ -114,18 +114,18 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
                 <div className="hidden sm:block">
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`text-xs font-semibold transition-colors ${
+                      className={`text-base font-bold tracking-tight transition-colors ${
                         isActive
                           ? 'text-white'
                           : step.isDone
-                          ? 'text-slate-200'
+                          ? 'text-slate-100'
                           : 'text-slate-400 group-hover:text-slate-200'
                       }`}
                     >
                       {step.label}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500 line-clamp-1">{step.sublabel}</p>
+                  <p className="text-sm text-slate-400 line-clamp-1">{step.sublabel}</p>
                 </div>
               </button>
 

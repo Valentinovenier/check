@@ -73,11 +73,11 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-4">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Puntos de utilizacion y dimensiones por ambiente</h2>
+      <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-4">Puntos de utilizacion y dimensiones por ambiente</h2>
       
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {TIPOS_AMBIENTES.map(tipo => (
-            <button key={tipo} onClick={() => handleAddAmbiente(tipo)} className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-full text-xs whitespace-nowrap">
+            <button key={tipo} onClick={() => handleAddAmbiente(tipo)} className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors">
                 <Plus size={14} /> {tipo}
             </button>
         ))}
@@ -85,15 +85,15 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
       
       <div className="space-y-3">
         {/* Encabezados */}
-        <div className="grid grid-cols-12 gap-3 px-3 text-xs font-semibold text-slate-400 uppercase">
+        <div className="grid grid-cols-12 gap-3 px-3 text-sm font-semibold text-slate-400 uppercase">
           <div className="col-span-2 text-center">Ambientes</div>
           <div className="col-span-3 text-center">Dimensiones (m²)</div>
           <div className="col-span-4 text-center">Puntos de utilización minimos</div>
         </div>
         {datos.ambientes.map((a) => (
-          <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-3 rounded-lg text-sm">
+          <div key={a.id} className="grid grid-cols-12 gap-3 items-center bg-slate-900 p-4 rounded-lg text-base">
             <input 
-              className="col-span-2 bg-slate-950 p-2 rounded border border-slate-700 text-white font-medium" 
+              className="col-span-2 bg-slate-950 p-2.5 rounded border border-slate-700 text-white font-medium" 
               value={a.nombre} 
               onChange={(e) => updateAmbiente(a.id, { nombre: e.target.value })} 
             />
@@ -107,7 +107,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
             
             <div className="col-span-4 flex justify-around bg-slate-950/50 rounded-lg py-1">
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase">IUG</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase">IUG</p>
                     <input 
                       type="number" 
                       className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
@@ -120,7 +120,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
                     />
                 </div>
                 <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase">TUG</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase">TUG</p>
                     <input 
                     type="number" 
                     className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 
@@ -133,7 +133,7 @@ export const ViviendaAmbientes = ({ project, onChange }: Props) => {
                     />
                     </div>
                     <div className="text-center">
-                    <p className="text-[10px] text-slate-500 uppercase">TUE</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase">TUE</p>
                     <input 
                     type="number" 
                     className="w-12 bg-transparent text-center font-bold text-[var(--accent)] outline-none focus:border-b border-[var(--accent)]" 

@@ -33,26 +33,26 @@ export const AsignacionProteccion: React.FC<AsignacionProteccionProps> = ({
   const hasErrors = isTooHigh || isTooLow || isIcnInsuficiente;
 
   return (
-    <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-700/80 shadow-sm transition-all hover:border-slate-600">
-      <div className="flex justify-between items-center mb-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <Shield size={14} className="text-blue-400" />
+    <div className="bg-slate-900/95 p-4 rounded-xl border border-slate-700 shadow-sm transition-all hover:border-slate-600 space-y-2">
+      <div className="flex justify-between items-center">
+        <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+          <Shield size={16} className="text-blue-400 shrink-0" />
           {label}
         </label>
         {opcional && proteccion && (
           <button 
             onClick={() => onChange(undefined)} 
-            className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-0.5 hover:underline"
+            className="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1 hover:underline cursor-pointer"
             title="Quitar protección"
           >
-            <X size={13} /> Quitar
+            <X size={14} /> Quitar
           </button>
         )}
       </div>
 
       {/* Selector desplegable */}
       <select 
-        className="w-full bg-slate-950 px-3 py-2.5 rounded-lg text-white text-xs border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+        className="w-full bg-slate-950 px-3.5 py-3 rounded-xl text-white text-xs sm:text-sm border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer font-medium"
         value={proteccion?.id || ''}
         onChange={(e) => {
           const selectedId = e.target.value;
@@ -100,20 +100,20 @@ export const AsignacionProteccion: React.FC<AsignacionProteccionProps> = ({
 
       {/* Tarjeta de estado de la protección seleccionada */}
       {proteccion && (
-        <div className={`mt-2.5 p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2 ${
+        <div className={`p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-2.5 ${
           hasErrors 
-            ? 'bg-red-950/40 border-red-800/80 text-red-300'
-            : 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300'
+            ? 'bg-red-950/50 border-red-800 text-red-200'
+            : 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
         }`}>
-          <div className="flex items-center gap-2">
-            {hasErrors ? <ShieldAlert size={16} className="text-red-400 shrink-0" /> : <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
+          <div className="flex items-center gap-2.5">
+            {hasErrors ? <ShieldAlert size={18} className="text-red-400 shrink-0" /> : <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />}
             <div>
-              <span className="font-bold text-white">{proteccion.modelo}</span>
-              <span className="text-slate-400 ml-1">({proteccion.in_amp}A • {proteccion.curva_disparo || 'C'} • Icn {maxIcn}kA)</span>
+              <span className="font-bold text-white text-sm">{proteccion.modelo}</span>
+              <span className="text-slate-300 ml-1.5 font-medium">({proteccion.in_amp}A • {proteccion.curva_disparo || 'C'} • Icn {maxIcn}kA)</span>
             </div>
           </div>
-          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-            hasErrors ? 'bg-red-900/60 text-red-200' : 'bg-emerald-900/60 text-emerald-200'
+          <span className={`px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 ${
+            hasErrors ? 'bg-red-900/80 text-red-100 border border-red-700' : 'bg-emerald-900/80 text-emerald-100 border border-emerald-700'
           }`}>
             {hasErrors ? 'Inválido' : 'Cumple AEA'}
           </span>

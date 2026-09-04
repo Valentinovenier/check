@@ -36,7 +36,7 @@ export const DashboardLayout = ({
       <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col shrink-0">
         <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
           <Zap size={36} fill="currentColor" />
-          <h1 className="text-xl font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
+          <h1 className="text-2xl font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
         </div>
         <nav className="space-y-2 flex-1">
           {sidebarItems.map((item) => (
@@ -50,14 +50,14 @@ export const DashboardLayout = ({
               }`}
             >
               <item.icon size={20} />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium text-base">{item.label}</span>
             </button>
           ))}
         </nav>
 
         {/* User Plan Badge */}
-        <div className="mb-4 p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
-          <span className="text-slate-400 font-medium">Plan Activo:</span>
+        <div className="mb-4 p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-between text-sm">
+          <span className="text-slate-400 font-medium text-sm">Plan Activo:</span>
           <span className={`font-bold px-2 py-0.5 rounded ${user?.planType === 'pro' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
             {user?.planType === 'pro' ? 'PRO' : 'BASIC'}
           </span>
@@ -69,7 +69,7 @@ export const DashboardLayout = ({
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[var(--text-secondary)] hover:text-red-400 hover:bg-[var(--bg-primary)] transition-all duration-200"
         >
           <LogOut size={20} />
-          <span className="font-medium">Cerrar Sesión</span>
+          <span className="font-medium text-base">Cerrar Sesión</span>
         </button>
       </aside>
 

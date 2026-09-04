@@ -49,11 +49,11 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
 
     return (
       <div style={{ marginLeft: `${depth * 16}px` }} className="border-l border-slate-700 pl-4 space-y-2 mt-2">
-        <div className="flex items-center gap-2 bg-slate-900 p-3 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-2 bg-slate-900 p-4 rounded-lg border border-slate-800">
             <button onClick={() => setExpanded(!expanded)}>
                 {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </button>
-            <span className="font-bold text-white flex-1">{tablero.nombre} ({tablero.tipo})</span>
+            <span className="font-bold text-white flex-1 text-base">{tablero.nombre} ({tablero.tipo})</span>
             {tablero.tipo !== 'SubSeccional' && (
                 <button onClick={() => addTablero(tablero.tipo === 'Principal' ? 'Seccional' : 'SubSeccional', tablero.id)} className="text-[var(--accent)]">
                     <Plus size={16} />
@@ -68,7 +68,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
                     const estaEnOtro = tableros.some(t => t.id !== tablero.id && t.circuitosIds.includes(c.id));
                     
                     return (
-                        <label key={c.id} className={`flex items-center gap-2 p-2 rounded text-sm ${estaEnOtro ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-800'}`}>
+                        <label key={c.id} className={`flex items-center gap-2.5 p-2.5 rounded text-base ${estaEnOtro ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-800'}`}>
                             <input 
                                 type="checkbox" 
                                 checked={esAsignado} 
@@ -88,7 +88,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
 
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
-      <h2 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Gestión de Tableros y Circuitos</h2>
+      <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-4">Gestión de Tableros y Circuitos</h2>
       
       <div className="space-y-4">
         {tableros.filter(t => t.tipo === 'Principal').map(tp => <TableroItem key={tp.id} tablero={tp} />)}
@@ -96,7 +96,7 @@ export const ViviendaTablero = ({ project, onChange }: Props) => {
             <button onClick={() => {
                 const tp: TableroVivienda = { id: 'tp', nombre: 'Tablero Principal', tipo: 'Principal', circuitosIds: [] };
                 onChange({ ...project, datosVivienda: { ...datos, tableros: [tp] } });
-            }} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg font-bold">
+            }} className="bg-[var(--accent)] text-black px-5 py-3 rounded-lg font-bold text-base">
                 Crear Tablero Principal
             </button>
         )}

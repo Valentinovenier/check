@@ -126,11 +126,11 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
   return (
     <div className="bg-[var(--bg-primary)] p-6 rounded-xl border border-slate-700 space-y-6">
       <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-        <h2 className="text-xl font-bold text-white">Seleccion y configuracion de Circuitos</h2>
+        <h2 className="text-2xl font-bold text-white">Seleccion y configuracion de Circuitos</h2>
         <div className="px-4 py-2 rounded-lg border bg-emerald-900/20 border-emerald-800 text-emerald-400 flex items-center gap-3">
             <Zap size={18} />
             <div>
-                <p className="text-[10px] uppercase font-bold opacity-70">Cantidad mínima de circuitos</p>
+                <p className="text-xs uppercase font-bold opacity-70">Cantidad mínima de circuitos</p>
                 <p className="text-lg font-bold">{datos.circuitosCalculados.length} / {minCircuitos}</p>
             </div>
         </div>
@@ -139,20 +139,20 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
       {/* Selector de variante */}
       {configuraciones.length > 1 && (
         <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-            <p className="text-sm font-bold text-slate-300 mb-3">Seleccionar Variante</p>
+            <p className="text-base font-bold text-slate-200 mb-3">Seleccionar Variante</p>
             <div className="flex gap-2 flex-wrap">
                 {configuraciones.map(c => (
                     <button 
                         key={c.variante}
                         onClick={() => onChange({ ...project, datosVivienda: { ...datos, varianteElectrificacion: c.variante } })}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold border ${variante === c.variante ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}
+                        className={`px-5 py-2.5 rounded-lg text-sm font-bold border ${variante === c.variante ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}
                     >
                         Variante {c.variante}
                     </button>
                 ))}
             </div>
             {/* Detalles de la variante */}
-            <div className="mt-4 text-xs text-slate-500 flex gap-4">
+            <div className="mt-4 text-sm text-slate-400 flex gap-4">
                 <span><strong className="text-white">{configActual.IUG}</strong> IUG</span>
                 <span><strong className="text-white">{configActual.TUG}</strong> TUG</span>
                 {configActual.CLE && <span><strong className="text-white">1</strong> Especial</span>}
@@ -162,7 +162,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
 
       <div className="space-y-3">
         {datos.circuitosCalculados.map(c => (
-          <div key={c.id} className="bg-slate-900 p-4 rounded-lg border border-slate-800 flex justify-between items-center">
+          <div key={c.id} className="bg-slate-900 p-5 rounded-lg border border-slate-800 flex justify-between items-center">
             <div className="flex flex-col gap-2">
               <div>
                 <p className="font-bold text-white">{c.nombre} {c.id.startsWith('auto-') && <span className="text-[10px] text-emerald-500">(Normativo)</span>}</p>
@@ -189,7 +189,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                         <option value="usos_especiales">Circuito Especial</option>
                     </select>
                 ) : (
-                    <p className="text-[10px] text-slate-500 uppercase">{c.tipo.replace(/_/g, ' ')}</p>
+                    <p className="text-xs text-slate-400 uppercase font-medium">{c.tipo.replace(/_/g, ' ')}</p>
                 )}
               </div>
 
@@ -221,19 +221,19 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
 
       {/* Formulario nuevo circuito */}
       <div className="bg-slate-900 p-4 rounded-lg border border-dashed border-slate-700 flex flex-col gap-3">
-        <p className="text-sm font-bold text-white">Agregar circuito adicional</p>
+        <p className="text-base font-bold text-white">Agregar circuito adicional</p>
         <div className="flex gap-2">
             <input 
                 type="text" 
                 placeholder="Nombre" 
                 value={nuevoNombre}
                 onChange={(e) => setNuevoNombre(e.target.value)}
-                className="flex-grow bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                className="flex-grow bg-slate-800 p-3 rounded-lg text-white text-base border border-slate-700"
             />
             <select 
                 value={nuevoTipo}
                 onChange={(e) => setNuevoTipo(e.target.value as CircuitoCalculado['tipo'])}
-                className="bg-slate-800 p-2 rounded-lg text-white text-sm border border-slate-700"
+                className="bg-slate-800 p-3 rounded-lg text-white text-base border border-slate-700"
             >
                 <option value="iluminacion_usos_generales">Circuito IUG</option>
                 <option value="tomacorrientes_usos_generales">Circuito TUG</option>
@@ -245,7 +245,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
         {nuevoTipo === 'usos_especificos' && (
             <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-800 p-4 rounded-lg">
                 <div className="col-span-2">
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Tipo de Circuito Específico</label>
+                    <label className="text-xs uppercase font-bold text-slate-400 block mb-1.5">Tipo de Circuito Específico</label>
                     <select 
                         value={circuitoEspecificoSeleccionado.descripcion}
                         onChange={(e) => setCircuitoEspecificoSeleccionado(CIRCUITOS_ESPECIFICOS.find(c => c.descripcion === e.target.value)!)}
@@ -257,7 +257,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     </select>
                 </div>
                 <div>
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Potencia</label>
+                    <label className="text-xs uppercase font-bold text-slate-400 block mb-1.5">Potencia</label>
                     <input 
                         type="number" 
                         value={potencia}
@@ -266,7 +266,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     />
                 </div>
                 <div>
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Unidad</label>
+                    <label className="text-xs uppercase font-bold text-slate-400 block mb-1.5">Unidad</label>
                     <select 
                         value={unidadPotencia}
                         onChange={(e) => setUnidadPotencia(e.target.value as 'W' | 'VA')}
@@ -277,7 +277,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     </select>
                 </div>
                 <div>
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Coef. Utilización</label>
+                    <label className="text-xs uppercase font-bold text-slate-400 block mb-1.5">Coef. Utilización</label>
                     <input 
                         type="number" 
                         value={coefUtilizacion}
@@ -287,7 +287,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
                     />
                 </div>
                 <div>
-                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Coef. Simultaneidad</label>
+                    <label className="text-xs uppercase font-bold text-slate-400 block mb-1.5">Coef. Simultaneidad</label>
                     <input 
                         type="number" 
                         value={coefSimultaneidad}
@@ -299,7 +299,7 @@ export const ViviendaCircuitos = ({ project, onChange }: Props) => {
             </div>
         )}
 
-        <button onClick={addCircuito} className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-500 w-full mt-2">
+        <button onClick={addCircuito} className="flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg text-base font-bold hover:bg-emerald-500 w-full mt-2">
             <PlusCircle size={16} /> Agregar
         </button>
       </div>

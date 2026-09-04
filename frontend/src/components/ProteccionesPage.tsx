@@ -188,31 +188,31 @@ export const ProteccionesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Encabezado con título y botón de auto-asignación */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 shadow-lg">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5 tracking-tight">
-            <Zap className="text-[var(--accent)]" />
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 sm:p-7 rounded-2xl border border-slate-800 shadow-xl">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3 tracking-tight">
+            <Zap className="text-[var(--accent)]" size={32} />
             Gestión de Protecciones por Tablero
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-sm text-slate-300 mt-2 leading-relaxed">
             Asigna interruptores termomagnéticos y diferenciales para garantizar la protección según normativa (Ib ≤ In ≤ Iz e Icn ≥ Icc).
           </p>
         </div>
 
         <button
           onClick={handleAutoAsignarProtecciones}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 transition-all active:scale-95 cursor-pointer"
+          className="flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3.5 rounded-xl font-bold text-sm shadow-xl shadow-blue-600/25 transition-all active:scale-95 cursor-pointer"
           title="Dimensiona y asigna automáticamente protecciones comerciales a todos los circuitos según norma"
         >
-          <Sparkles size={16} className="text-amber-300" />
+          <Sparkles size={18} className="text-amber-300" />
           <span>Dimensionar Protecciones Automáticamente</span>
         </button>
       </div>
 
       {/* Resumen de corrientes nominales */}
-      <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-slate-950/85 p-5 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 shadow-lg">
         {tablerosVivienda.map((tablero: any) => {
             const baseTablero = {
                 ...tablero,
@@ -221,12 +221,12 @@ export const ProteccionesPage = () => {
             };
             const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
             return (
-                <div key={tablero.id} className="text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
+                <div key={tablero.id} className="bg-slate-900/90 p-4 rounded-xl border border-slate-700/80 flex items-center justify-between shadow-sm">
                     <div>
-                      <p className="text-slate-400 font-bold mb-0.5">{tablero.nombre}</p>
-                      <p className="text-[11px] text-slate-500">{baseTablero.circuitosTerminales.length} circuitos terminales</p>
+                      <p className="text-white font-bold text-sm sm:text-base mb-1">{tablero.nombre}</p>
+                      <p className="text-xs text-slate-400 font-medium">{baseTablero.circuitosTerminales.length} circuitos terminales</p>
                     </div>
-                    <span className="text-emerald-400 font-mono font-bold text-sm bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-900/60">
+                    <span className="text-emerald-400 font-mono font-black text-base sm:text-lg bg-emerald-950/70 px-3 py-1.5 rounded-xl border border-emerald-800/80 shadow-inner">
                       {corrienteTotal.toFixed(2)} A
                     </span>
                 </div>
@@ -238,8 +238,8 @@ export const ProteccionesPage = () => {
         {/* Columna Izquierda: Tableros y Riel DIN */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white tracking-tight">Tableros de la Instalación</h3>
-            <span className="text-xs text-slate-400">{tablerosVivienda.length} tableros configurados</span>
+            <h3 className="text-xl font-bold text-white tracking-tight">Tableros de la Instalación</h3>
+            <span className="text-sm font-medium text-slate-300">{tablerosVivienda.length} tableros configurados</span>
           </div>
 
           {tablerosVivienda.map((tablero: any) => {
@@ -260,22 +260,22 @@ export const ProteccionesPage = () => {
             const showRiel = vistaRielDin[tablero.id] !== false;
             
             return (
-              <div key={tablero.id} className="bg-[var(--bg-secondary)] p-5 rounded-2xl border border-slate-700/80 shadow-xl space-y-4">
+              <div key={tablero.id} className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-700/80 shadow-xl space-y-5">
                 <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleTablero(tablero.id)}>
-                  <h4 className="text-white font-bold flex items-center gap-2.5 text-base">
-                    {expandedTableros[tablero.id] ? <ChevronDown size={18} className="text-blue-400" /> : <ChevronRight size={18} className="text-slate-400" />}
-                    <Layout size={18} className="text-blue-400" /> 
+                  <h4 className="text-white font-bold flex items-center gap-3 text-lg">
+                    {expandedTableros[tablero.id] ? <ChevronDown size={22} className="text-blue-400" /> : <ChevronRight size={22} className="text-slate-400" />}
+                    <Layout size={22} className="text-blue-400" /> 
                     <span>{tablero.nombre}</span>
                   </h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded border border-emerald-900">
+                    <span className="text-sm font-mono font-black text-emerald-400 bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-800 shadow-sm">
                       I nominal: {corrienteTotal.toFixed(2)} A
                     </span>
                   </div>
                 </div>
                 
                 {expandedTableros[tablero.id] && (
-                  <div className="space-y-5 pt-2">
+                  <div className="space-y-6 pt-3">
                     {/* Vista frente de tablero Riel DIN */}
                     <TableroRielDinView 
                       tableroNombre={tablero.nombre}
@@ -285,33 +285,37 @@ export const ProteccionesPage = () => {
                     />
 
                     {/* Asignación detallada */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                      <AsignacionProteccion 
-                        label="Protección General (Cabecera)"
-                        proteccion={tablero.proteccionCabecera}
-                        disponibles={protecciones}
-                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
-                        iccTablero={tablero.Ik}
-                        minAmp={corrienteTotal}
-                      />
-                      {tablero.proteccionCabecera && (
-                          <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                              Asignado: {tablero.proteccionCabecera.modelo} | {tablero.proteccionCabecera.in_amp}A | Icn: {tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3}kA
-                          </div>
-                      )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-2">
+                        <AsignacionProteccion 
+                          label="Protección General (Cabecera)"
+                          proteccion={tablero.proteccionCabecera}
+                          disponibles={protecciones}
+                          onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
+                          iccTablero={tablero.Ik}
+                          minAmp={corrienteTotal}
+                        />
+                        {tablero.proteccionCabecera && (
+                            <div className="p-2.5 bg-emerald-950/40 rounded-xl text-xs sm:text-sm text-emerald-300 border border-emerald-800/80 font-medium">
+                                Asignado: {tablero.proteccionCabecera.modelo} | {tablero.proteccionCabecera.in_amp}A | Icn: {tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3}kA
+                            </div>
+                        )}
+                      </div>
                       
-                      <AsignacionProteccion 
-                        label="Protección Diferencial"
-                        proteccion={tablero.proteccionDiferencial}
-                        disponibles={protecciones}
-                        onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
-                        minAmp={corrienteTotal}
-                      />
-                      {tablero.proteccionDiferencial && (
-                          <div className="p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
-                              Asignado: {tablero.proteccionDiferencial.modelo} | {tablero.proteccionDiferencial.in_amp}A | Icn: {tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3}kA
-                          </div>
-                      )}
+                      <div className="space-y-2">
+                        <AsignacionProteccion 
+                          label="Protección Diferencial"
+                          proteccion={tablero.proteccionDiferencial}
+                          disponibles={protecciones}
+                          onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
+                          minAmp={corrienteTotal}
+                        />
+                        {tablero.proteccionDiferencial && (
+                            <div className="p-2.5 bg-emerald-950/40 rounded-xl text-xs sm:text-sm text-emerald-300 border border-emerald-800/80 font-medium">
+                                Asignado: {tablero.proteccionDiferencial.modelo} | {tablero.proteccionDiferencial.in_amp}A | Icn: {tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3}kA
+                            </div>
+                        )}
+                      </div>
 
                       {/* Nuevas protecciones de salida - Lógica de Sincronización */}
                       {(() => {
@@ -333,8 +337,8 @@ export const ProteccionesPage = () => {
                           return nuevasSalidas.map((ps: any, index: number) => {
                               const hijo = hijos.find(h => h.id === ps.tableroDestinoId);
                               return (
-                                <div key={ps.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                                   <p className="text-sm text-white">Tramo al: {hijo?.nombre || 'Desconocido'}</p>
+                                <div key={ps.id} className="bg-slate-800/90 p-4 rounded-xl border border-slate-700 space-y-2">
+                                   <p className="text-sm font-bold text-white">Tramo al: {hijo?.nombre || 'Desconocido'}</p>
                                    <AsignacionProteccion 
                                         label="Asignar Protección"
                                         proteccion={ps.proteccion}
@@ -352,32 +356,22 @@ export const ProteccionesPage = () => {
                       })()}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-3 pt-2">
+                      <h5 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">Circuitos Terminales:</h5>
                       {baseTablero.circuitosTerminales.map((circuito: any) => {
                         const iNominal = getCircuitoNominalCurrent(circuito, project);
-                        
-                        // Mapeo de tipos de circuitos a calibres máximos (Amperes)
-                        // Ajustado según normativa AEA para circuitos de uso general, especial y específicos.
-                        const calibresMaximos: Record<string, number | undefined> = {
-                            'iluminacion_usos_generales': 16,
-                            'tomacorrientes_usos_generales': 20,
-                            'usos_especiales': 32,
-                            'alimentacion_mbtf': 20, // MBTF
-                            'alimentacion_motores': 25, // APM
-                            // Otros circuitos específicos son responsabilidad del proyectista (sin restricción automática)
-                        };
                         const maxAmp = calibresMaximos[circuito.tipo as string];
 
                         return (
-                          <div key={circuito.id} className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                            <div className="flex justify-between items-center mb-2">
-                                <p className="text-sm text-white">{circuito.nombre}</p>
-                                <span className="text-xs font-mono text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-700">
-                                    {iNominal.toFixed(2)} A
+                          <div key={circuito.id} className="bg-slate-850 p-4 rounded-xl border border-slate-700/80 space-y-3">
+                            <div className="flex justify-between items-center">
+                                <p className="text-base font-bold text-white">{circuito.nombre}</p>
+                                <span className="text-xs sm:text-sm font-mono font-bold text-emerald-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-700">
+                                    Ib: {iNominal.toFixed(2)} A
                                 </span>
                             </div>
                             <AsignacionProteccion 
-                              label="Asignar Protección"
+                              label="Protección del Circuito"
                               proteccion={circuito.proteccion}
                               disponibles={protecciones}
                               onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
@@ -386,7 +380,7 @@ export const ProteccionesPage = () => {
                               iccTablero={tablero.Ik}
                             />
                             {circuito.proteccion && (
-                                <div className="mt-2 p-2 bg-emerald-900/30 rounded text-xs text-emerald-400 border border-emerald-800">
+                                <div className="p-2.5 bg-emerald-950/40 rounded-xl text-xs sm:text-sm text-emerald-300 border border-emerald-800/80 font-medium">
                                     Asignado: {circuito.proteccion.modelo} - {circuito.proteccion.in_amp}A
                                 </div>
                             )}
@@ -404,24 +398,24 @@ export const ProteccionesPage = () => {
         {/* Catálogo */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-             <h3 className="text-lg font-semibold text-white">Catálogo de Protecciones</h3>
-             <button onClick={() => { setEditingProteccion(null); setShowForm(true); }} className="bg-[var(--accent)] text-white px-3 py-1 rounded flex items-center gap-1 text-sm">
-                <Plus size={14} /> Nueva
+             <h3 className="text-xl font-bold text-white">Catálogo de Protecciones</h3>
+             <button onClick={() => { setEditingProteccion(null); setShowForm(true); }} className="bg-[var(--accent)] hover:bg-blue-500 text-white px-4 py-2 rounded-xl flex items-center gap-1.5 text-sm font-bold shadow-md cursor-pointer transition-all">
+                <Plus size={16} /> Nueva
              </button>
           </div>
           
           {(protecciones || []).map((p: any) => (
-            <div key={p.id} className="bg-[var(--bg-secondary)] p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+            <div key={p.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700 flex justify-between items-center shadow-sm">
               <div>
-                <p className="text-white text-sm">{p.modelo}</p>
-                <p className="text-[var(--text-secondary)] text-xs">{p.tipo_proteccion} | {p.in_amp}A</p>
+                <p className="text-white font-bold text-base">{p.modelo}</p>
+                <p className="text-slate-300 text-xs sm:text-sm font-medium mt-0.5">{p.tipo_proteccion} | {p.in_amp}A</p>
               </div>
               <button onClick={() => { 
                 console.log('DEBUG: Protección seleccionada para editar:', p);
                 setEditingProteccion(p); 
                 setShowForm(true); 
-              }} className="text-[var(--text-secondary)] hover:text-white">
-                <Pencil size={16} />
+              }} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                <Pencil size={18} />
               </button>
             </div>
           ))}
