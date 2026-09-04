@@ -33,7 +33,7 @@ export const DashboardLayout = ({
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
       {/* Sidebar Global */}
-      <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col shrink-0">
+      <aside className="w-56 bg-[var(--bg-secondary)] border-r border-slate-800 p-5 flex flex-col shrink-0">
         <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
           <Zap size={36} fill="currentColor" />
           <h1 className="text-2xl font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
@@ -74,7 +74,7 @@ export const DashboardLayout = ({
       </aside>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Header & Stepper Contextual (Solo si hay proyecto) */}
         {projectSelected && (
           <header className="flex flex-col border-b border-slate-800 bg-[var(--bg-secondary)] sticky top-0 z-30">
@@ -117,8 +117,8 @@ export const DashboardLayout = ({
         )}
 
         {/* Main Content */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-5 md:p-7 overflow-y-auto bg-[var(--bg-primary)]">
+          <div className="w-full">
             {children}
           </div>
         </main>
