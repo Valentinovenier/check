@@ -33,8 +33,8 @@ export const DashboardLayout = ({
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
       {/* Sidebar Global */}
-      <aside className="w-56 bg-[var(--bg-secondary)] border-r border-slate-800 p-5 flex flex-col shrink-0">
-        <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
+      <aside className="w-56 bg-[var(--bg-secondary)] border-r border-slate-800 p-5 flex flex-col shrink-0 overflow-hidden">
+        <div className="flex items-center gap-2 text-[var(--accent)] mb-6 px-2">
           <Zap size={36} fill="currentColor" />
           <h1 className="text-2xl font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
         </div>
