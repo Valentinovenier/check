@@ -17,7 +17,6 @@ interface Props {
   onSelectCircuito?: (circuitoId: string) => void;
   onAssignCabecera?: () => void;
   onAssignDiferencial?: () => void;
-  onOpenAgregarGeneral?: () => void;
 }
 
 export const TableroRielDinView: React.FC<Props> = ({
@@ -28,7 +27,6 @@ export const TableroRielDinView: React.FC<Props> = ({
   onSelectCircuito,
   onAssignCabecera,
   onAssignDiferencial,
-  onOpenAgregarGeneral,
 }) => {
   // Cálculo de módulos DIN (polos aproximados: cabecera polos, diferencial polos, y 2 polos por circuito)
   const polosCabecera = cabecera?.polos || 2;
@@ -47,16 +45,6 @@ export const TableroRielDinView: React.FC<Props> = ({
         </div>
         
         <div className="flex items-center gap-3">
-          {onOpenAgregarGeneral && (
-            <button
-              onClick={onOpenAgregarGeneral}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
-              title="Abrir catálogo para agregar o cambiar protecciones en este tablero"
-            >
-              <Plus size={16} />
-              <span>Agregar Protección</span>
-            </button>
-          )}
           <div className="flex items-center gap-2.5 text-base text-slate-300">
             <span className="font-semibold text-xs sm:text-sm text-slate-400">Ocupación:</span>
             <span className="font-mono font-bold text-amber-300 bg-slate-900 px-3 py-1 rounded-xl border border-slate-700 text-xs sm:text-sm shadow-inner">
