@@ -78,7 +78,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
 
   return (
     <div className="w-full bg-slate-900/60 border-b border-slate-800/90 px-4 py-4 backdrop-blur-md">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-1 overflow-x-auto scrollbar-none">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-0.5 overflow-x-auto scrollbar-none">
         {steps.map((step, idx) => {
           const isActive = activePage === step.id;
           const Icon = step.icon;
@@ -87,7 +87,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
             <React.Fragment key={step.id}>
               <button
                 onClick={() => onNavigate(step.id)}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 group text-left min-w-fit ${
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 group text-left min-w-fit ${
                   isActive
                     ? 'bg-blue-600/20 border border-blue-500/50 shadow-lg shadow-blue-500/10'
                     : 'hover:bg-slate-800/60 border border-transparent'
@@ -95,7 +95,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
               >
                 {/* Indicador de número / check */}
                 <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm transition-all shrink-0 ${
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm transition-all shrink-0 ${
                     isActive
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/40'
                       : step.isDone
@@ -114,7 +114,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
                 <div className="hidden sm:block">
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`text-base font-bold tracking-tight transition-colors ${
+                      className={`text-sm font-bold tracking-tight transition-colors ${
                         isActive
                           ? 'text-white'
                           : step.isDone
@@ -125,7 +125,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
                       {step.label}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-400 line-clamp-1">{step.sublabel}</p>
+                  <p className="text-xs text-slate-400 line-clamp-1">{step.sublabel}</p>
                 </div>
               </button>
 
