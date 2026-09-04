@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Zap, Pencil, Layout, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Zap, Pencil, Layout, ChevronDown, ChevronRight, Wand2, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
 import { ProteccionesForm } from './ProteccionesForm';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../context/ProjectDataContext';
 import { AsignacionProteccion } from './AsignacionProteccion';
 import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
 import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
+import { TableroRielDinView } from './TableroRielDinView';
+import { useToast } from '../context/ToastContext';
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
   const { state: project, setState: setProject } = useProject();
+  const { addToast } = useToast();
   const [protecciones, setProtecciones] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProteccion, setEditingProteccion] = useState<any>(null);
   const [expandedTableros, setExpandedTableros] = useState<Record<string, boolean>>({});
+  const [vistaRielDin, setVistaRielDin] = useState<Record<string, boolean>>({});
 
   const toggleTablero = (id: string) => {
     setExpandedTableros(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleVista = (id: string) => {
+    setVistaRielDin(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const datosVivienda = project?.datosVivienda;
@@ -33,17 +41,17 @@ export const ProteccionesPage = () => {
   };
 
   useEffect(() => {
-    console.log('DEBUG: Full Project State:', project);
-    console.log('DEBUG: Datos Vivienda:', datosVivienda);
-    console.log('DEBUG: Tableros:', tablerosVivienda);
-    console.log('DEBUG: Circuitos:', circuitosVivienda);
     fetchProtecciones();
+    // Expandir por defecto el primer tablero
+    if (tablerosVivienda.length > 0 && Object.keys(expandedTableros).length === 0) {
+      setExpandedTableros({ [tablerosVivienda[0].id]: true });
+      setVistaRielDin({ [tablerosVivienda[0].id]: true });
+    }
   }, [project]);
 
   if (!project) return <div className="text-white p-6">Por favor, selecciona un proyecto.</div>;
 
   const handleSave = async (data: any) => {
-    console.log('DEBUG: Payload enviado al backend:', data);
     const token = localStorage.getItem('token');
     const method = editingProteccion ? 'PUT' : 'POST';
     const payload = editingProteccion ? { ...data, id: editingProteccion.id } : data;
@@ -93,15 +101,118 @@ export const ProteccionesPage = () => {
     }
   };
 
+  // Mapeo normativo de calibres máximos
+  const calibresMaximos: Record<string, number | undefined> = {
+    'iluminacion_usos_generales': 16,
+    'tomacorrientes_usos_generales': 20,
+    'usos_especiales': 32,
+    'alimentacion_mbtf': 20,
+    'alimentacion_motores': 25,
+  };
+
+  // Asignación automática inteligente según AEA
+  const handleAutoAsignarProtecciones = async () => {
+    if (!datosVivienda || (protecciones || []).length === 0) {
+      addToast ? addToast('No hay catálogo de protecciones disponible para auto-asignar.', 'error') : alert('No hay protecciones disponibles.');
+      return;
+    }
+
+    let asignadosCount = 0;
+    const nuevosCircuitos = circuitosVivienda.map((circ: any) => {
+      const iNom = getCircuitoNominalCurrent(circ, project);
+      const maxAmp = calibresMaximos[circ.tipo as string];
+
+      // Filtrar interruptores automáticos disponibles
+      const candidatos = (protecciones as any[]).filter(p => {
+        const esAuto = p.tipo_proteccion?.toLowerCase().includes('autom') || p.tipo_proteccion?.toLowerCase().includes('termo') || p.tipo_proteccion?.toLowerCase().includes('pia');
+        if (!esAuto) return false;
+        if (p.in_amp < iNom) return false;
+        if (maxAmp && p.in_amp > maxAmp) return false;
+        return true;
+      });
+
+      // Ordenar por menor amperaje que cumpla (el más justo normalizado)
+      candidatos.sort((a, b) => a.in_amp - b.in_amp);
+
+      if (candidatos.length > 0) {
+        asignadosCount++;
+        return { ...circ, proteccion: candidatos[0] };
+      }
+      return circ;
+    });
+
+    // Asignar cabecera y diferencial en tableros si están vacíos
+    const nuevosTableros = tablerosVivienda.map((tablero: any) => {
+      const baseTablero = {
+        ...tablero,
+        circuitosTerminales: nuevosCircuitos.filter((c: any) => tablero.circuitosIds.includes(c.id)),
+        proteccionesSalida: []
+      };
+      const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
+
+      let cabecera = tablero.proteccionCabecera;
+      if (!cabecera) {
+        const candidatosCab = (protecciones as any[])
+          .filter(p => p.tipo_proteccion?.toLowerCase().includes('autom') && p.in_amp >= corrienteTotal)
+          .sort((a, b) => a.in_amp - b.in_amp);
+        if (candidatosCab.length > 0) cabecera = candidatosCab[0];
+      }
+
+      let dif = tablero.proteccionDiferencial;
+      if (!dif) {
+        const candidatosDif = (protecciones as any[])
+          .filter(p => p.tipo_proteccion?.toLowerCase().includes('diferen') && p.in_amp >= corrienteTotal)
+          .sort((a, b) => a.in_amp - b.in_amp);
+        if (candidatosDif.length > 0) dif = candidatosDif[0];
+      }
+
+      return { ...tablero, proteccionCabecera: cabecera, proteccionDiferencial: dif };
+    });
+
+    const newProject = {
+      ...project,
+      datosVivienda: {
+        ...datosVivienda,
+        circuitosCalculados: nuevosCircuitos,
+        tableros: nuevosTableros,
+      }
+    };
+
+    setProject(newProject);
+    await saveProject(newProject);
+    if (addToast) {
+      addToast(`¡Listo! Se auto-asignaron ${asignadosCount} protecciones normalizadas según AEA.`, 'success');
+    } else {
+      alert(`Se auto-asignaron ${asignadosCount} protecciones.`);
+    }
+  };
+
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-        <Zap className="text-[var(--accent)]" />
-        Gestión de Protecciones por Tablero
-      </h2>
-      
+    <div className="space-y-6">
+      {/* Encabezado con título y botón de auto-asignación */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 shadow-lg">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5 tracking-tight">
+            <Zap className="text-[var(--accent)]" />
+            Gestión de Protecciones por Tablero
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Asigna interruptores termomagnéticos y diferenciales para garantizar la protección según normativa (Ib ≤ In ≤ Iz e Icn ≥ Icc).
+          </p>
+        </div>
+
+        <button
+          onClick={handleAutoAsignarProtecciones}
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 transition-all active:scale-95 cursor-pointer"
+          title="Dimensiona y asigna automáticamente protecciones comerciales a todos los circuitos según norma"
+        >
+          <Sparkles size={16} className="text-amber-300" />
+          <span>Dimensionar Protecciones Automáticamente</span>
+        </button>
+      </div>
+
       {/* Resumen de corrientes nominales */}
-      <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4">
         {tablerosVivienda.map((tablero: any) => {
             const baseTablero = {
                 ...tablero,
@@ -110,17 +221,27 @@ export const ProteccionesPage = () => {
             };
             const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
             return (
-                <div key={tablero.id} className="text-xs">
-                    <p className="text-slate-400 font-bold mb-1">{tablero.nombre}</p>
-                    <p className="text-emerald-500 font-bold">{corrienteTotal.toFixed(2)} A</p>
+                <div key={tablero.id} className="text-xs bg-slate-900/60 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
+                    <div>
+                      <p className="text-slate-400 font-bold mb-0.5">{tablero.nombre}</p>
+                      <p className="text-[11px] text-slate-500">{baseTablero.circuitosTerminales.length} circuitos terminales</p>
+                    </div>
+                    <span className="text-emerald-400 font-mono font-bold text-sm bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-900/60">
+                      {corrienteTotal.toFixed(2)} A
+                    </span>
                 </div>
             )
         })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Tableros</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Columna Izquierda: Tableros y Riel DIN */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-white tracking-tight">Tableros de la Instalación</h3>
+            <span className="text-xs text-slate-400">{tablerosVivienda.length} tableros configurados</span>
+          </div>
+
           {tablerosVivienda.map((tablero: any) => {
             const baseTablero = {
                 ...tablero,
@@ -128,22 +249,43 @@ export const ProteccionesPage = () => {
                 proteccionesSalida: []
             };
             const corrienteTotal = getTableroNominalCurrent(baseTablero, project);
+            const circuitosFormateados = baseTablero.circuitosTerminales.map((c: any) => ({
+              id: c.id,
+              nombre: c.nombre,
+              tipo: c.tipo,
+              proteccion: c.proteccion,
+              iNominal: getCircuitoNominalCurrent(c, project),
+              maxAmp: calibresMaximos[c.tipo as string]
+            }));
+            const showRiel = vistaRielDin[tablero.id] !== false;
             
             return (
-              <div key={tablero.id} className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-slate-700">
-                <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => toggleTablero(tablero.id)}>
-                  <h4 className="text-white font-medium flex items-center gap-2">
-                    {expandedTableros[tablero.id] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    <Layout size={16} /> {tablero.nombre}
+              <div key={tablero.id} className="bg-[var(--bg-secondary)] p-5 rounded-2xl border border-slate-700/80 shadow-xl space-y-4">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleTablero(tablero.id)}>
+                  <h4 className="text-white font-bold flex items-center gap-2.5 text-base">
+                    {expandedTableros[tablero.id] ? <ChevronDown size={18} className="text-blue-400" /> : <ChevronRight size={18} className="text-slate-400" />}
+                    <Layout size={18} className="text-blue-400" /> 
+                    <span>{tablero.nombre}</span>
                   </h4>
-                  <span className="text-sm font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-900">
-                    {corrienteTotal.toFixed(2)} A
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded border border-emerald-900">
+                      I nominal: {corrienteTotal.toFixed(2)} A
+                    </span>
+                  </div>
                 </div>
                 
                 {expandedTableros[tablero.id] && (
-                  <>
-                    <div className="grid grid-cols-1 gap-4 mb-4">
+                  <div className="space-y-5 pt-2">
+                    {/* Vista frente de tablero Riel DIN */}
+                    <TableroRielDinView 
+                      tableroNombre={tablero.nombre}
+                      cabecera={tablero.proteccionCabecera}
+                      diferencial={tablero.proteccionDiferencial}
+                      circuitos={circuitosFormateados}
+                    />
+
+                    {/* Asignación detallada */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                       <AsignacionProteccion 
                         label="Protección General (Cabecera)"
                         proteccion={tablero.proteccionCabecera}
@@ -252,7 +394,7 @@ export const ProteccionesPage = () => {
                         );
                       })}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             );

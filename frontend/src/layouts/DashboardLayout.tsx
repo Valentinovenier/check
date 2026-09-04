@@ -1,9 +1,11 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, ClipboardList, Network, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, Network, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Project } from '../types/project';
 import { SaveIndicator } from '../components/SaveIndicator';
 import { usePlanAccess } from '../hooks/usePlanAccess';
+import { ProjectSummaryBar } from '../components/ProjectSummaryBar';
+import { ProjectStepper } from '../components/ProjectStepper';
 
 export const DashboardLayout = ({ 
   children, 
@@ -28,30 +30,13 @@ export const DashboardLayout = ({
     { icon: LayoutDashboard, label: 'Inicio', id: 'inicio' },
   ];
 
-  // Menú contextual superior (solo si hay proyecto)
-  const headerItems = projectSelected 
-    ? canAccessFullFeatures() 
-      ? [
-          { icon: Settings, label: 'Parámetros', id: 'parametros' },
-          { icon: Server, label: 'Tableros', id: 'tableros-seccionales' },
-          { icon: Network, label: 'Canalizaciones', id: 'canalizaciones' },
-          { icon: Zap, label: 'Protecciones', id: 'protecciones' },
-          { icon: Cable, label: 'Conductores', id: 'conductores' },
-          { icon: FileText, label: 'Informe', id: 'informe' },
-        ]
-      : [
-          { icon: Zap, label: 'Calculadora DPMS', id: 'parametros' },
-          { icon: FileText, label: 'Informe', id: 'informe' },
-        ]
-    : [];
-
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex">
       {/* Sidebar Global */}
-      <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col">
+      <aside className="w-64 bg-[var(--bg-secondary)] border-r border-slate-800 p-6 flex flex-col shrink-0">
         <div className="flex items-center gap-2 text-[var(--accent)] mb-10 px-2">
-          <Zap size={44} fill="currentColor" />
-          <h1 className="text-lg font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
+          <Zap size={36} fill="currentColor" />
+          <h1 className="text-xl font-black tracking-tighter text-white font-sans lowercase">ElectroCheck</h1>
         </div>
         <nav className="space-y-2 flex-1">
           {sidebarItems.map((item) => (
@@ -60,7 +45,7 @@ export const DashboardLayout = ({
               onClick={() => onNavigate(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                 activePage === item.id 
-                  ? 'bg-[var(--bg-primary)] text-white' 
+                  ? 'bg-blue-600/20 text-white border border-blue-500/30' 
                   : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-primary)]'
               }`}
             >
@@ -89,32 +74,50 @@ export const DashboardLayout = ({
       </aside>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Contextual (Solo si hay proyecto) */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Header & Stepper Contextual (Solo si hay proyecto) */}
         {projectSelected && (
-          <header className="bg-[var(--bg-secondary)] border-b border-slate-800 p-4 flex items-center justify-between">
-            <nav className="flex items-center gap-2">
-              {headerItems.map((item) => (
+          <header className="flex flex-col border-b border-slate-800 bg-[var(--bg-secondary)] sticky top-0 z-30">
+            {/* Barra superior con resumen de proyecto y SaveIndicator */}
+            <div className="flex items-center justify-between px-6 py-2 border-b border-slate-800/60 bg-slate-950/40">
+              <ProjectSummaryBar project={project} />
+              <div className="shrink-0 ml-4">
+                <SaveIndicator project={project} lastSaved={lastSaved} />
+              </div>
+            </div>
+
+            {/* Stepper Guiado de Navegación */}
+            {canAccessFullFeatures() ? (
+              <ProjectStepper 
+                activePage={activePage} 
+                onNavigate={onNavigate} 
+                project={project} 
+              />
+            ) : (
+              <nav className="flex items-center gap-2 p-3 px-6">
                 <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
-                    activePage === item.id 
-                      ? 'bg-[var(--bg-primary)] text-white' 
-                      : 'text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-primary)]'
+                  onClick={() => onNavigate('parametros')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${
+                    activePage === 'parametros' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <item.icon size={18} />
-                  <span className="font-medium text-sm">{item.label}</span>
+                  <Zap size={16} /> Calculadora DPMS
                 </button>
-              ))}
-            </nav>
-            <SaveIndicator project={project} lastSaved={lastSaved} />
+                <button
+                  onClick={() => onNavigate('informe')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${
+                    activePage === 'informe' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <FileText size={16} /> Informe
+                </button>
+              </nav>
+            )}
           </header>
         )}
 
         {/* Main Content */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[var(--bg-primary)]">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

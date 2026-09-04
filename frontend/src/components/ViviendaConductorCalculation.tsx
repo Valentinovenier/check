@@ -3,20 +3,22 @@ import { Project, Conductor } from '../types/project';
 import { useProject } from '../context/ProjectDataContext';
 import { ConductorForm } from './ConductorForm';
 import { ConductorReportTable } from './ConductorReportTable';
+import { ConductorResultCard } from './ConductorResultCard';
+import { Cable, Zap, CheckCircle2, Clock, Shield, Network } from 'lucide-react';
 
 export const ViviendaConductorCalculation = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const tableros = project.datosVivienda?.tableros || [];
   const circuitos = project.datosVivienda?.circuitosCalculados || [];
 
-  const [tableroOrigenId, setTableroOrigenId] = useState<string>('');
-  const [tipoTramo, setTipoTramo] = useState<'general_salida' | 'salida_circuito' | 'salida_tablero'>('general_salida');
-  const [destinoId, setDestinoId] = useState<string>('');
+  const [tableroOrigenId, setTableroOrigenId] = useState<string>(tableros[0]?.id || '');
+  const [tipoTramo, setTipoTramo] = useState<'general_salida' | 'salida_circuito' | 'salida_tablero'>('salida_circuito');
+  const [destinoId, setDestinoId] = useState<string>(circuitos[0]?.id || '');
 
   const tableroOrigen = tableros.find(t => t.id === tableroOrigenId);
 
   // Circuitos de este tablero
   const circuitosDelTablero = useMemo(() => {
-    if (!tableroOrigen) return [];
+    if (!tableroOrigen) return circuitos;
     return circuitos.filter(c => tableroOrigen.circuitosIds?.includes(c.id));
   }, [tableroOrigen, circuitos]);
 
@@ -27,16 +29,41 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
   }, [tableroOrigen, tableros]);
 
   // Manejo del estado del conductor actual que se está editando
-  const [currentConductor, setCurrentConductor] = useState<Conductor>({
-    tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 0, caidaMaxPermitida: 3.0
+  const [currentConductor, setCurrentConductor] = useState<Conductor>(() => {
+    const firstId = circuitos[0]?.id;
+    const existing = firstId ? ((project as any).conductores?.[firstId] || project.informeConductores?.find((c: any) => c.destinoId === firstId || c.tramoId === firstId)) : null;
+    if (existing) return existing;
+    return {
+      tipo: 'Cable', material: 'Cobre', aislacion: 'PVC', longitud: 15, caidaMaxPermitida: 3.0,
+      tipoTramo: 'CircuitoTerminal', destinoId: firstId, tramoId: firstId,
+      tipoCircuito: circuitos[0]?.tipo
+    } as any;
   });
 
-  const getTramoKey = () => {
-    if (!tableroOrigen) return '';
-    if (tipoTramo === 'general_salida') return `${tableroOrigen.id}_general_salida`;
-    if (tipoTramo === 'salida_circuito') return `${tableroOrigen.id}_circuito_${destinoId}`;
-    if (tipoTramo === 'salida_tablero') return `${tableroOrigen.id}_tablero_${destinoId}`;
-    return '';
+  const selectCircuitoDirecto = (circId: string) => {
+    // Buscar a qué tablero pertenece
+    const tPadre = tableros.find(t => t.circuitosIds?.includes(circId)) || tableros[0];
+    if (tPadre) setTableroOrigenId(tPadre.id);
+    setTipoTramo('salida_circuito');
+    setDestinoId(circId);
+
+    const circ = circuitos.find(c => c.id === circId);
+    const existing = (project as any).conductores?.[circId] || project.informeConductores?.find((c: any) => c.destinoId === circId || c.tramoId === circId);
+    if (existing) {
+      setCurrentConductor(existing);
+    } else {
+      setCurrentConductor({
+        tipo: 'Cable',
+        material: 'Cobre',
+        aislacion: 'PVC',
+        longitud: 15,
+        caidaMaxPermitida: 3.0,
+        tipoTramo: 'CircuitoTerminal',
+        destinoId: circId,
+        tramoId: circId,
+        tipoCircuito: circ?.tipo
+      } as any);
+    }
   };
 
   const handleCalcularYGuardar = () => {
@@ -53,7 +80,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
 
     if (tipoTramo === 'general_salida') {
         destinoNombre = 'Tramo al ' + tableroOrigen.nombre;
-        tipoViviendaTramo = 'LineaPrincipal'; // o dependiente
+        tipoViviendaTramo = 'LineaPrincipal';
     } else if (tipoTramo === 'salida_circuito') {
         destinoNombre = circuitosDelTablero.find(c => c.id === destinoId)?.nombre || '';
         tipoViviendaTramo = 'CircuitoTerminal';
@@ -83,9 +110,9 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         }
     });
     alert('Conductor calculado y añadido al informe exitosamente.');
-    };
+  };
 
-    const handleDeleteInforme = (index: number) => {
+  const handleDeleteInforme = (index: number) => {
     const informe = [...(project.informeConductores || [])];
     const deleted = informe.splice(index, 1)[0];
     const key = (deleted as any)?.destinoId || (deleted as any)?.tramoId;
@@ -94,149 +121,155 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         delete conductores[key];
     }
     onChange({ ...project, informeConductores: informe, conductores });
-    };
+  };
 
-    return (
-    <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Cálculo de Conductores</h2>
-      </div>
-
-      {/* Flujo paso a paso */}
-      <div className="bg-slate-900/50 p-6 rounded-xl border border-slate-700 space-y-6">
-        <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">1. Configuración del Tramo y Método</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tablero de Origen</label>
-                <select
-                    className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
-                    value={tableroOrigenId}
-                    onChange={e => {
-                        setTableroOrigenId(e.target.value);
-                        setDestinoId('');
-                    }}
-                >
-                    <option value="">— Seleccionar Tablero —</option>
-                    {tableros.map(t => (
-                        <option key={t.id} value={t.id}>{t.tipo}: {t.nombre}</option>
-                    ))}
-                </select>
-            </div>
-
-            {tableroOrigenId && (
-                <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tramo a Calcular</label>
-                    <select
-                        className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
-                        value={tipoTramo}
-                        onChange={e => {
-                            setTipoTramo(e.target.value as any);
-                            setDestinoId('');
-                        }}
-                    >
-                        <option value="general_salida">Int. General - Tramo al Tablero</option>
-                        <option value="salida_circuito">Tramo al Circuito Terminal</option>
-                        {tablerosHijos.length > 0 && (
-                            <option value="salida_tablero">Tramo al Tablero Seccional/Sub-seccional</option>
-                        )}
-                    </select>
-                </div>
-            )}
-
-            {tipoTramo === 'salida_circuito' && tableroOrigenId && (
-                <div className="md:col-span-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Circuito Terminal</label>
-                    <select
-                        className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
-                        value={destinoId}
-                        onChange={e => {
-                            const newId = e.target.value;
-                            setDestinoId(newId);
-                            const circ = circuitosDelTablero.find(c => c.id === newId);
-                            const existing = (project as any).conductores?.[newId] || project.informeConductores?.find((c: any) => c.destinoId === newId || c.tramoId === newId);
-                            if (existing) {
-                                setCurrentConductor(existing);
-                            } else {
-                                setCurrentConductor({
-                                    tipo: 'Cable',
-                                    material: 'Cobre',
-                                    aislacion: 'PVC',
-                                    longitud: 0,
-                                    caidaMaxPermitida: 3.0,
-                                    tipoTramo: 'CircuitoTerminal',
-                                    destinoId: newId,
-                                    tramoId: newId,
-                                    tipoCircuito: circ?.tipo
-                                } as any);
-                            }
-                        }}
-                    >
-                        <option value="">— Seleccionar Circuito —</option>
-                        {circuitosDelTablero.map(c => (
-                            <option key={c.id} value={c.id}>{c.nombre} ({c.tipo})</option>
-                        ))}
-                    </select>
-                </div>
-            )}
-
-            {tipoTramo === 'salida_tablero' && tableroOrigenId && (
-                <div className="md:col-span-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Tablero Destino</label>
-                    <select
-                        className="mt-1 bg-slate-950 text-white text-sm rounded-lg p-3 border border-slate-700 w-full"
-                        value={destinoId}
-                        onChange={e => setDestinoId(e.target.value)}
-                    >
-                        <option value="">— Seleccionar Tablero —</option>
-                        {tablerosHijos.map(t => (
-                            <option key={t.id} value={t.id}>{t.nombre}</option>
-                        ))}
-                    </select>
-                </div>
-            )}
+  return (
+    <div className="space-y-8">
+      {/* Encabezado */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 shadow-lg">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5 tracking-tight">
+            <Cable className="text-[var(--accent)]" />
+            Cálculo y Dimensionamiento de Conductores
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Selecciona un circuito para dimensionar la sección comercial por corriente admisible y verificar la caída de tensión según AEA 90364-7-770.
+          </p>
         </div>
       </div>
 
+      {/* Cuadrícula interactiva de selección de circuitos */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <span>Seleccionar Circuito o Tramo a Calcular:</span>
+          </h3>
+          <span className="text-xs text-slate-500">{circuitos.length} circuitos en total</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {circuitos.map((c) => {
+            const isSelected = tipoTramo === 'salida_circuito' && destinoId === c.id;
+            const enInforme = project.informeConductores?.find((inf: any) => inf.destinoId === c.id || inf.tramoId === c.id);
+            const seccionCalculada = enInforme?.resultadoCalculo?.seccionRecomendada || enInforme?.seccion;
+            const caidaCalc = enInforme?.resultadoCalculo?.porcentajeCaida;
+            const canalizacionAsoc = project.canalizaciones?.find(can => can.circuitosIds.includes(c.id));
+
+            return (
+              <button
+                key={c.id}
+                onClick={() => selectCircuitoDirecto(c.id)}
+                className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between gap-2.5 cursor-pointer ${
+                  isSelected
+                    ? 'bg-blue-600/15 border-blue-500 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500'
+                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex justify-between items-start gap-2 w-full">
+                  <div className="min-w-0">
+                    <p className={`font-bold text-sm truncate ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                      {c.nombre}
+                    </p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">{c.tipo?.replace(/_/g, ' ')}</p>
+                  </div>
+
+                  {/* Badge de estado */}
+                  {seccionCalculada ? (
+                    <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 size={11} /> {seccionCalculada} mm²
+                    </span>
+                  ) : (
+                    <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                      <Clock size={11} /> Pendiente
+                    </span>
+                  )}
+                </div>
+
+                {/* Subdatos: Térmica y Canalización */}
+                <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800/60 w-full">
+                  <span className="flex items-center gap-1">
+                    <Shield size={11} className="text-blue-400" />
+                    {c.proteccion ? `${c.proteccion.in_amp}A` : 'Sin prot.'}
+                  </span>
+                  <span>•</span>
+                  <span className="truncate flex items-center gap-1">
+                    <Network size={11} className={canalizacionAsoc ? 'text-emerald-400' : 'text-slate-500'} />
+                    {canalizacionAsoc ? canalizacionAsoc.nombre : 'Sin caño'}
+                  </span>
+                  {caidaCalc !== undefined && (
+                    <>
+                      <span>•</span>
+                      <span className="text-emerald-400">ΔV: {caidaCalc.toFixed(1)}%</span>
+                    </>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Editor y cálculo del conductor activo */}
       {(tableroOrigenId && (tipoTramo === 'general_salida' || destinoId)) && (
-        <div className="bg-[var(--bg-primary)] rounded-xl border border-slate-700 p-6 space-y-6">
-            <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-2">2. Configuración Técnica y Cálculo</h3>
-            
+        <div className="space-y-6">
+          {/* Tarjeta gráfica de resultados si ya está calculado */}
+          {currentConductor?.resultadoCalculo && (
+            <ConductorResultCard 
+              seccion={currentConductor.resultadoCalculo.seccionRecomendada || currentConductor.resultadoCalculo.cable?.seccion}
+              caidaPorcentaje={currentConductor.resultadoCalculo.porcentajeCaida}
+              caidaMaxPermitida={currentConductor.caidaMaxPermitida || 3.0}
+              iNominal={currentConductor.resultadoCalculo.I_nominal || currentConductor.resultadoCalculo.I_fase}
+              iAdmisible={currentConductor.resultadoCalculo.I_adm_corregida || currentConductor.resultadoCalculo.iz}
+              iProteccion={currentConductor.resultadoCalculo.inProteccion}
+              norma={currentConductor.normaCable || 'IRAM 2178'}
+            />
+          )}
+
+          {/* Formulario de parámetros del conductor */}
+          <div className="bg-[var(--bg-secondary)] rounded-2xl border border-slate-700/80 p-6 space-y-6 shadow-xl">
+            <h3 className="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center gap-2">
+              <Zap size={18} className="text-blue-400" />
+              <span>Parámetros de Instalación del Circuito Seleccionado</span>
+            </h3>
+
             <ConductorForm
-                label={`Configuración de Cable`}
-                conductor={currentConductor}
-                tramoId={destinoId || tableroOrigenId || 'int-general-salida'}
-                onChange={c => {
-                    let updateC: any = { ...c };
-                    if (tipoTramo === 'salida_circuito') {
-                        const tCirc = circuitosDelTablero.find(circ => circ.id === destinoId)?.tipo;
-                        if (tCirc) updateC.tipoCircuito = tCirc;
-                        updateC.tipoTramo = 'CircuitoTerminal';
-                        updateC.destinoId = destinoId;
-                    } else if (tipoTramo === 'salida_tablero') {
-                        updateC.tipoTramo = 'LineaSeccional';
-                        updateC.destinoId = destinoId;
-                    } else {
-                        updateC.tipoTramo = 'LineaPrincipal';
-                        updateC.destinoId = tableroOrigenId;
-                    }
-                    setCurrentConductor(updateC);
-                }}
+              label="Configuración de Cable"
+              conductor={currentConductor}
+              tramoId={destinoId || tableroOrigenId || 'int-general-salida'}
+              onChange={c => {
+                let updateC: any = { ...c };
+                if (tipoTramo === 'salida_circuito') {
+                  const tCirc = circuitosDelTablero.find(circ => circ.id === destinoId)?.tipo;
+                  if (tCirc) updateC.tipoCircuito = tCirc;
+                  updateC.tipoTramo = 'CircuitoTerminal';
+                  updateC.destinoId = destinoId;
+                } else if (tipoTramo === 'salida_tablero') {
+                  updateC.tipoTramo = 'LineaSeccional';
+                  updateC.destinoId = destinoId;
+                } else {
+                  updateC.tipoTramo = 'LineaPrincipal';
+                  updateC.destinoId = tableroOrigenId;
+                }
+                setCurrentConductor(updateC);
+              }}
             />
 
             <button
-                onClick={handleCalcularYGuardar}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-lg font-bold transition-colors"
+              onClick={handleCalcularYGuardar}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-5 py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 transition-all cursor-pointer active:scale-98"
             >
-                Agregar Cable al Informe
+              Guardar Conductor en el Informe del Proyecto
             </button>
+          </div>
         </div>
       )}
 
-      <div className="pt-8">
-        <h3 className="text-xl font-bold text-white mb-4">Informe de Conductores</h3>
+      {/* Tabla del informe de conductores */}
+      <div className="space-y-4 pt-4">
+        <h3 className="text-lg font-bold text-white tracking-tight">Informe de Conductores del Proyecto</h3>
         <ConductorReportTable project={project} onDelete={handleDeleteInforme} />
       </div>
     </div>
   );
 };
+

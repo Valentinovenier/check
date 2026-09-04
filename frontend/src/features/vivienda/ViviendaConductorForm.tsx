@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hideCanalizacion }: Props) => {
-  const { state: project } = useProject();
+  const { state: project, setState: setProject } = useProject();
   
   const esTramoProtegido = tramoId === 'tp' || hideCanalizacion;
   const isPanelTramo = ['LineaPrincipal', 'LineaSeccional'].includes(conductor?.tipoTramo || '');
@@ -177,8 +177,38 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Método de Instalación</label>
                     {(necesitaCanalizacion && !conductor?.canalizacionId && !canalizacionVinculada) ? (
-                        <div className="p-3 bg-amber-900/20 border border-amber-700 rounded-lg text-amber-300 text-xs">
-                            Debe asignar este circuito a una canalización en la sección "Canalizaciones" antes de configurar el método de instalación.
+                        <div className="p-3.5 bg-amber-950/40 border border-amber-700/80 rounded-xl text-amber-300 text-xs space-y-2">
+                            <p className="font-semibold">⚠️ Este circuito aún no está asignado a una canalización.</p>
+                            <p className="text-[11px] text-slate-300">
+                              Para calcular la corriente admisible se requiere conocer el caño y la norma. Puedes asignarlo a una canalización existente aquí:
+                            </p>
+                            {project?.canalizaciones && project.canalizaciones.length > 0 ? (
+                              <select 
+                                className="w-full bg-slate-950 text-white text-xs rounded-lg p-2 border border-slate-700 focus:border-blue-500"
+                                onChange={(e) => {
+                                  const canId = e.target.value;
+                                  if (canId && tramoId) {
+                                    const canalizacionesActualizadas = (project.canalizaciones || []).map(c => 
+                                      c.id === canId && !c.circuitosIds.includes(tramoId)
+                                        ? { ...c, circuitosIds: [...c.circuitosIds, tramoId] }
+                                        : c
+                                    );
+                                    const newProject = { ...project, canalizaciones: canalizacionesActualizadas };
+                                    setProject(newProject);
+                                    handleDataChange({ canalizacionId: canId });
+                                  }
+                                }}
+                              >
+                                <option value="">— Seleccionar Canalización Existente —</option>
+                                {project.canalizaciones.map(c => (
+                                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <p className="text-[11px] text-amber-400 italic">
+                                No hay canalizaciones creadas aún. Por favor, crea una en la pestaña "Canalizaciones".
+                              </p>
+                            )}
                         </div>
                     ) : (
                         <select 
