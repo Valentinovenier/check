@@ -18,7 +18,14 @@ export const ProjectSummaryBar: React.FC<Props> = ({ project }) => {
 
   // Potencia estimada
   let potenciaDisplay = '—';
-  let tensionDisplay = project.tipoInstalacion || (isVivienda ? 'Monofásica (220V)' : 'Trifásica (380V)');
+  let tensionDisplay: string;
+
+  if (isVivienda) {
+    const supplyType = project.datosVivienda?.supplyType;
+    tensionDisplay = supplyType === 'trifasic' ? 'Trifásica (380V)' : 'Monofásica (220V)';
+  } else {
+    tensionDisplay = project.tipoInstalacion || 'Trifásica (380V)';
+  }
 
   if (isVivienda) {
     const totalVA = circuitos.reduce((sum, c) => sum + (Number(c.potencia) || 0), 0);

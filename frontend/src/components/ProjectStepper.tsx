@@ -18,7 +18,9 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
   // Verificaciones visuales de avance (solo presentación)
   const stepStatus = {
     parametros: Boolean(project && (circuitos.length > 0 || project.transformador)),
-    tableros: tableros.length > 0 && tableros.some(t => t.circuitosIds && t.circuitosIds.length > 0),
+    tableros: tableros.length > 0 && circuitos.length > 0 && circuitos.every(c =>
+      tableros.some(t => t.circuitosIds?.includes(c.id))
+    ),
     protecciones: circuitos.length > 0 && circuitos.some(c => Boolean(c.proteccion)),
     canalizaciones: canalizaciones.length > 0,
     conductores: informeConductores.length > 0 || Boolean((project as any)?.conductores && Object.keys((project as any).conductores).length > 0),

@@ -213,17 +213,44 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
       {(tableroOrigenId && (tipoTramo === 'general_salida' || destinoId)) && (
         <div className="space-y-6">
           {/* Tarjeta gráfica de resultados si ya está calculado */}
-          {currentConductor?.resultadoCalculo && (
-            <ConductorResultCard 
-              seccion={currentConductor.resultadoCalculo.seccionRecomendada || currentConductor.resultadoCalculo.cable?.seccion}
-              caidaPorcentaje={currentConductor.resultadoCalculo.porcentajeCaida}
-              caidaMaxPermitida={currentConductor.caidaMaxPermitida || 3.0}
-              iNominal={currentConductor.resultadoCalculo.I_nominal || currentConductor.resultadoCalculo.I_fase}
-              iAdmisible={currentConductor.resultadoCalculo.I_adm_corregida || currentConductor.resultadoCalculo.iz}
-              iProteccion={currentConductor.resultadoCalculo.inProteccion}
-              norma={currentConductor.normaCable || 'IRAM 2178'}
-            />
-          )}
+          {currentConductor?.resultadoCalculo && (() => {
+            const res = currentConductor.resultadoCalculo as any;
+            // Extraer Ib, In, Iz de los pasos de verificación
+            const paso1 = res.pasosVerificacion?.find((p: any) => p.numero === 1);
+            const paso2 = res.pasosVerificacion?.find((p: any) => p.numero === 2);
+            const paso3 = res.pasosVerificacion?.find((p: any) => p.numero === 3);
+
+            // Parsear valores numéricos desde la cadena del paso
+            const parsearA = (txt: string = '') => {
+              const m = txt.match(/([\d.]+)\s*A\b/);
+              return m ? parseFloat(m[1]) : undefined;
+            };
+            const parsearIz = (txt: string = '') => {
+              // "Iz = Iz_base * ... = XX.XX A"
+              const m = txt.match(/=\s*([\d.]+)\s*A\s*$/);
+              return m ? parseFloat(m[1]) : undefined;
+            };
+            const parsearIn = (txt: string = '') => {
+              const m = txt.match(/In\s*=\s*([\d.]+)\s*A/);
+              return m ? parseFloat(m[1]) : undefined;
+            };
+
+            const ib = parsearA(paso1?.valor);
+            const iz = parsearIz(paso2?.valor);
+            const inProt = parsearIn(paso3?.valor);
+
+            return (
+              <ConductorResultCard
+                seccion={res.seccionRecomendada || res.cable?.seccion}
+                caidaPorcentaje={res.caidaTensionPorcentaje ?? res.porcentajeCaida ?? 0}
+                caidaMaxPermitida={currentConductor.caidaMaxPermitida || 3.0}
+                iNominal={ib}
+                iAdmisible={iz}
+                iProteccion={inProt}
+                norma={(currentConductor as any).normaCable || 'IRAM 2178'}
+              />
+            );
+          })()}
 
           {/* Formulario de parámetros del conductor */}
           <div className="bg-[var(--bg-secondary)] rounded-2xl border border-slate-700/80 p-6 space-y-6 shadow-xl">
