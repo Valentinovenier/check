@@ -39,6 +39,12 @@ export const obtenerProteccionAsignada = (
                 return protSalida.proteccion;
             }
         }
+        if (tableroDestino.proteccionCabecera && tableroDestino.proteccionCabecera.in_amp !== undefined) {
+            return tableroDestino.proteccionCabecera;
+        }
+        if (padre?.proteccionCabecera && padre.proteccionCabecera.in_amp !== undefined) {
+            return padre.proteccionCabecera;
+        }
     }
 
     // Si es un circuito terminal

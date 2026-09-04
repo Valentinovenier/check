@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Zap, Pencil, Layout, ChevronDown, ChevronRight, Wand2, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
 import { ProteccionesForm } from './ProteccionesForm';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,22 @@ import { ProteccionesRecomendadas } from './ProteccionesRecomendadas';
 import { getTableroNominalCurrent, getCircuitoNominalCurrent } from '../engine/strategies/vivienda/corriente';
 import { TableroRielDinView } from './TableroRielDinView';
 import { useToast } from '../context/ToastContext';
+import { ModalSeleccionProteccion } from './ModalSeleccionProteccion';
+import { PROTECCIONES_CATALOGO_DEFAULT } from '../data/catalogoProteccionesDefault';
+import { Proteccion } from '../types/project';
+
+interface ModalTarget {
+  tipo: 'cabecera' | 'diferencial' | 'circuito';
+  tableroId: string;
+  tableroNombre: string;
+  circuitoId?: string;
+  circuitoNombre?: string;
+  currentProteccion?: Proteccion;
+  minAmp?: number;
+  maxAmp?: number;
+  iccTablero?: number;
+  tipoSugerido?: 'termica' | 'diferencial' | 'todas';
+}
 
 export const ProteccionesPage = () => {
   const { isAuthenticated } = useAuth();
@@ -18,6 +34,7 @@ export const ProteccionesPage = () => {
   const [editingProteccion, setEditingProteccion] = useState<any>(null);
   const [expandedTableros, setExpandedTableros] = useState<Record<string, boolean>>({});
   const [vistaRielDin, setVistaRielDin] = useState<Record<string, boolean>>({});
+  const [modalTarget, setModalTarget] = useState<ModalTarget | null>(null);
 
   const toggleTablero = (id: string) => {
     setExpandedTableros(prev => ({ ...prev, [id]: !prev[id] }));
@@ -30,6 +47,15 @@ export const ProteccionesPage = () => {
   const datosVivienda = project?.datosVivienda;
   const tablerosVivienda = datosVivienda?.tableros || [];
   const circuitosVivienda = datosVivienda?.circuitosCalculados || [];
+
+  // Catálogo unificado: Protecciones guardadas por el usuario + catálogo normativo por defecto
+  const todasProteccionesDisponibles = useMemo(() => {
+    const backendList = Array.isArray(protecciones) ? (protecciones as Proteccion[]) : [];
+    const defaultsFiltrados = PROTECCIONES_CATALOGO_DEFAULT.filter(
+      def => !backendList.some((b: any) => b.modelo === def.modelo || b.id === def.id)
+    );
+    return [...backendList, ...defaultsFiltrados];
+  }, [protecciones]);
 
   const fetchProtecciones = () => {
     const token = localStorage.getItem('token');
@@ -112,7 +138,7 @@ export const ProteccionesPage = () => {
 
   // Asignación automática inteligente según AEA
   const handleAutoAsignarProtecciones = async () => {
-    if (!datosVivienda || (protecciones || []).length === 0) {
+    if (!datosVivienda || (todasProteccionesDisponibles || []).length === 0) {
       addToast ? addToast('No hay catálogo de protecciones disponible para auto-asignar.', 'error') : alert('No hay protecciones disponibles.');
       return;
     }
@@ -123,7 +149,7 @@ export const ProteccionesPage = () => {
       const maxAmp = calibresMaximos[circ.tipo as string];
 
       // Filtrar interruptores automáticos disponibles
-      const candidatos = (protecciones as any[]).filter(p => {
+      const candidatos = (todasProteccionesDisponibles as any[]).filter(p => {
         const esAuto = p.tipo_proteccion?.toLowerCase().includes('autom') || p.tipo_proteccion?.toLowerCase().includes('termo') || p.tipo_proteccion?.toLowerCase().includes('pia');
         if (!esAuto) return false;
         if (p.in_amp < iNom) return false;
@@ -152,15 +178,15 @@ export const ProteccionesPage = () => {
 
       let cabecera = tablero.proteccionCabecera;
       if (!cabecera) {
-        const candidatosCab = (protecciones as any[])
-          .filter(p => p.tipo_proteccion?.toLowerCase().includes('autom') && p.in_amp >= corrienteTotal)
+        const candidatosCab = (todasProteccionesDisponibles as any[])
+          .filter(p => (p.tipo_proteccion?.toLowerCase().includes('autom') || p.tipo_proteccion?.toLowerCase().includes('termo')) && p.in_amp >= corrienteTotal)
           .sort((a, b) => a.in_amp - b.in_amp);
         if (candidatosCab.length > 0) cabecera = candidatosCab[0];
       }
 
       let dif = tablero.proteccionDiferencial;
       if (!dif) {
-        const candidatosDif = (protecciones as any[])
+        const candidatosDif = (todasProteccionesDisponibles as any[])
           .filter(p => p.tipo_proteccion?.toLowerCase().includes('diferen') && p.in_amp >= corrienteTotal)
           .sort((a, b) => a.in_amp - b.in_amp);
         if (candidatosDif.length > 0) dif = candidatosDif[0];
@@ -185,6 +211,55 @@ export const ProteccionesPage = () => {
     } else {
       alert(`Se auto-asignaron ${asignadosCount} protecciones.`);
     }
+  };
+
+  const handleSelectProteccionFromModal = async (proteccionSeleccionada: Proteccion | undefined) => {
+    if (!modalTarget) return;
+
+    if (proteccionSeleccionada) {
+      const isDif = (proteccionSeleccionada.tipo_proteccion || '').toLowerCase().includes('diferen');
+      if (modalTarget.tipo === 'diferencial' && !isDif) {
+        alert('Solo puedes asignar interruptores diferenciales a esta posición.');
+        return;
+      }
+      if ((modalTarget.tipo === 'cabecera' || modalTarget.tipo === 'circuito') && isDif) {
+        alert('Solo puedes asignar interruptores termomagnéticos/automáticos a esta posición.');
+        return;
+      }
+    }
+
+    if (modalTarget.tipo === 'cabecera') {
+      await handleUpdateTablero(modalTarget.tableroId, { proteccionCabecera: proteccionSeleccionada });
+      if (addToast) {
+        addToast(
+          proteccionSeleccionada 
+            ? `Protección ${proteccionSeleccionada.modelo} agregada a cabecera de ${modalTarget.tableroNombre}`
+            : `Protección de cabecera quitada de ${modalTarget.tableroNombre}`,
+          'success'
+        );
+      }
+    } else if (modalTarget.tipo === 'diferencial') {
+      await handleUpdateTablero(modalTarget.tableroId, { proteccionDiferencial: proteccionSeleccionada });
+      if (addToast) {
+        addToast(
+          proteccionSeleccionada 
+            ? `Diferencial ${proteccionSeleccionada.modelo} agregado a ${modalTarget.tableroNombre}`
+            : `Diferencial quitado de ${modalTarget.tableroNombre}`,
+          'success'
+        );
+      }
+    } else if (modalTarget.tipo === 'circuito' && modalTarget.circuitoId) {
+      await handleUpdateCircuito(modalTarget.circuitoId, { proteccion: proteccionSeleccionada });
+      if (addToast) {
+        addToast(
+          proteccionSeleccionada 
+            ? `Protección ${proteccionSeleccionada.modelo} agregada a ${modalTarget.circuitoNombre}`
+            : `Protección quitada de ${modalTarget.circuitoNombre}`,
+          'success'
+        );
+      }
+    }
+    setModalTarget(null);
   };
 
   return (
@@ -276,12 +351,98 @@ export const ProteccionesPage = () => {
                 
                 {expandedTableros[tablero.id] && (
                   <div className="space-y-6 pt-3">
-                    {/* Vista frente de tablero Riel DIN */}
+                    {/* Vista frente de tablero Riel DIN con interactividad para agregar protecciones */}
                     <TableroRielDinView 
                       tableroNombre={tablero.nombre}
                       cabecera={tablero.proteccionCabecera}
                       diferencial={tablero.proteccionDiferencial}
                       circuitos={circuitosFormateados}
+                      onAssignCabecera={() => {
+                        setModalTarget({
+                          tipo: 'cabecera',
+                          tableroId: tablero.id,
+                          tableroNombre: tablero.nombre,
+                          currentProteccion: tablero.proteccionCabecera,
+                          minAmp: corrienteTotal,
+                          iccTablero: tablero.Ik,
+                          tipoSugerido: 'termica'
+                        });
+                      }}
+                      onAssignDiferencial={() => {
+                        setModalTarget({
+                          tipo: 'diferencial',
+                          tableroId: tablero.id,
+                          tableroNombre: tablero.nombre,
+                          currentProteccion: tablero.proteccionDiferencial,
+                          minAmp: corrienteTotal,
+                          tipoSugerido: 'diferencial'
+                        });
+                      }}
+                      onSelectCircuito={(circuitoId) => {
+                        const circ = baseTablero.circuitosTerminales.find((c: any) => c.id === circuitoId);
+                        const iNom = circ ? getCircuitoNominalCurrent(circ, project) : undefined;
+                        const maxA = circ ? calibresMaximos[circ.tipo as string] : undefined;
+                        setModalTarget({
+                          tipo: 'circuito',
+                          tableroId: tablero.id,
+                          tableroNombre: tablero.nombre,
+                          circuitoId: circuitoId,
+                          circuitoNombre: circ?.nombre || 'Circuito',
+                          currentProteccion: circ?.proteccion,
+                          minAmp: iNom,
+                          maxAmp: maxA,
+                          iccTablero: tablero.Ik,
+                          tipoSugerido: 'termica'
+                        });
+                      }}
+                      onOpenAgregarGeneral={() => {
+                        const primerSinProt = baseTablero.circuitosTerminales.find((c: any) => !c.proteccion);
+                        if (!tablero.proteccionCabecera) {
+                          setModalTarget({
+                            tipo: 'cabecera',
+                            tableroId: tablero.id,
+                            tableroNombre: tablero.nombre,
+                            currentProteccion: undefined,
+                            minAmp: corrienteTotal,
+                            iccTablero: tablero.Ik,
+                            tipoSugerido: 'termica'
+                          });
+                        } else if (!tablero.proteccionDiferencial) {
+                          setModalTarget({
+                            tipo: 'diferencial',
+                            tableroId: tablero.id,
+                            tableroNombre: tablero.nombre,
+                            currentProteccion: undefined,
+                            minAmp: corrienteTotal,
+                            tipoSugerido: 'diferencial'
+                          });
+                        } else if (primerSinProt) {
+                          const iNom = getCircuitoNominalCurrent(primerSinProt, project);
+                          const maxA = calibresMaximos[primerSinProt.tipo as string];
+                          setModalTarget({
+                            tipo: 'circuito',
+                            tableroId: tablero.id,
+                            tableroNombre: tablero.nombre,
+                            circuitoId: primerSinProt.id,
+                            circuitoNombre: primerSinProt.nombre,
+                            currentProteccion: undefined,
+                            minAmp: iNom,
+                            maxAmp: maxA,
+                            iccTablero: tablero.Ik,
+                            tipoSugerido: 'termica'
+                          });
+                        } else {
+                          setModalTarget({
+                            tipo: 'cabecera',
+                            tableroId: tablero.id,
+                            tableroNombre: tablero.nombre,
+                            currentProteccion: tablero.proteccionCabecera,
+                            minAmp: corrienteTotal,
+                            iccTablero: tablero.Ik,
+                            tipoSugerido: 'termica'
+                          });
+                        }
+                      }}
                     />
 
                     {/* Asignación detallada */}
@@ -290,7 +451,7 @@ export const ProteccionesPage = () => {
                         <AsignacionProteccion 
                           label="Protección General (Cabecera)"
                           proteccion={tablero.proteccionCabecera}
-                          disponibles={protecciones}
+                          disponibles={todasProteccionesDisponibles.filter(p => !(p.tipo_proteccion || '').toLowerCase().includes('diferen'))}
                           onChange={(p) => handleUpdateTablero(tablero.id, { proteccionCabecera: p })}
                           iccTablero={tablero.Ik}
                           minAmp={corrienteTotal}
@@ -306,7 +467,7 @@ export const ProteccionesPage = () => {
                         <AsignacionProteccion 
                           label="Protección Diferencial"
                           proteccion={tablero.proteccionDiferencial}
-                          disponibles={protecciones}
+                          disponibles={todasProteccionesDisponibles.filter(p => (p.tipo_proteccion || '').toLowerCase().includes('diferen'))}
                           onChange={(p) => handleUpdateTablero(tablero.id, { proteccionDiferencial: p })}
                           minAmp={corrienteTotal}
                         />
@@ -342,7 +503,7 @@ export const ProteccionesPage = () => {
                                    <AsignacionProteccion 
                                         label="Asignar Protección"
                                         proteccion={ps.proteccion}
-                                        disponibles={protecciones}
+                                        disponibles={todasProteccionesDisponibles.filter(p => !(p.tipo_proteccion || '').toLowerCase().includes('diferen'))}
                                         iccTablero={tablero.Ik}
                                         onChange={(p) => {
                                             const nuevasSalidas = [...(tablero.proteccionesSalida || [])];
@@ -373,7 +534,7 @@ export const ProteccionesPage = () => {
                             <AsignacionProteccion 
                               label="Protección del Circuito"
                               proteccion={circuito.proteccion}
-                              disponibles={protecciones}
+                              disponibles={todasProteccionesDisponibles.filter(p => !(p.tipo_proteccion || '').toLowerCase().includes('diferen'))}
                               onChange={(p) => handleUpdateCircuito(circuito.id, { proteccion: p })}
                               maxAmp={maxAmp}
                               minAmp={iNominal} // Validar que la protección sea >= Ib
@@ -430,6 +591,34 @@ export const ProteccionesPage = () => {
           initialData={editingProteccion} 
         />
       )}
+
+      {modalTarget && (
+        <ModalSeleccionProteccion 
+          isOpen={Boolean(modalTarget)}
+          onClose={() => setModalTarget(null)}
+          title={
+            modalTarget.tipo === 'cabecera'
+              ? 'Seleccionar Protección General (Cabecera)'
+              : modalTarget.tipo === 'diferencial'
+              ? 'Seleccionar Interruptor Diferencial'
+              : `Seleccionar Protección para ${modalTarget.circuitoNombre}`
+          }
+          subtitle={`Tablero: ${modalTarget.tableroNombre}`}
+          protecciones={todasProteccionesDisponibles}
+          currentProteccion={modalTarget.currentProteccion}
+          onSelect={handleSelectProteccionFromModal}
+          onCrearNueva={() => {
+            setModalTarget(null);
+            setEditingProteccion(null);
+            setShowForm(true);
+          }}
+          minAmp={modalTarget.minAmp}
+          maxAmp={modalTarget.maxAmp}
+          iccTablero={modalTarget.iccTablero}
+          tipoExclusivo={modalTarget.tipo === 'diferencial' ? 'diferencial' : 'termica'}
+        />
+      )}
     </div>
   );
 };
+

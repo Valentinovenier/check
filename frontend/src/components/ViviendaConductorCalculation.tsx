@@ -4,7 +4,9 @@ import { useProject } from '../context/ProjectDataContext';
 import { ConductorForm } from './ConductorForm';
 import { ConductorReportTable } from './ConductorReportTable';
 import { ConductorResultCard } from './ConductorResultCard';
-import { Cable, Zap, CheckCircle2, Clock, Shield, Network } from 'lucide-react';
+import { Cable, Zap, CheckCircle2, Clock, Shield, Network, Layers, ArrowRight } from 'lucide-react';
+import { getTableroNominalCurrent } from '../engine/strategies/vivienda/corriente';
+import { obtenerProteccionAsignada } from '../engine/strategies/vivienda/helpers';
 
 export const ViviendaConductorCalculation = ({ project, onChange }: { project: Project; onChange: (p: Project) => void }) => {
   const tableros = project.datosVivienda?.tableros || [];
@@ -15,6 +17,13 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
   const [destinoId, setDestinoId] = useState<string>(circuitos[0]?.id || '');
 
   const tableroOrigen = tableros.find(t => t.id === tableroOrigenId);
+
+  // Tableros seccionales (aquellos alimentados desde otro tablero o definidos como seccionales)
+  const tablerosSeccionales = useMemo(() => {
+    if (tableros.length <= 1) return [];
+    const tp = tableros.find(t => t.tipo === 'Principal') || tableros[0];
+    return tableros.filter(t => t.id !== tp?.id || Boolean(t.tableroPadreId) || t.tipo === 'Seccional');
+  }, [tableros]);
 
   // Circuitos de este tablero
   const circuitosDelTablero = useMemo(() => {
@@ -41,7 +50,6 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
   });
 
   const selectCircuitoDirecto = (circId: string) => {
-    // Buscar a qué tablero pertenece
     const tPadre = tableros.find(t => t.circuitosIds?.includes(circId)) || tableros[0];
     if (tPadre) setTableroOrigenId(tPadre.id);
     setTipoTramo('salida_circuito');
@@ -66,6 +74,32 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
     }
   };
 
+  const selectTramoSeccionalDirecto = (tableroHijo: any) => {
+    const padre = tableros.find(t => t.id === tableroHijo.tableroPadreId) || tableros.find(t => t.tipo === 'Principal') || tableros[0];
+    const padreId = padre ? padre.id : (tableros[0]?.id || '');
+    setTableroOrigenId(padreId);
+    setTipoTramo('salida_tablero');
+    setDestinoId(tableroHijo.id);
+
+    const existing = (project as any).conductores?.[tableroHijo.id] || project.informeConductores?.find((c: any) => c.destinoId === tableroHijo.id || c.tramoId === tableroHijo.id);
+    if (existing) {
+      setCurrentConductor(existing);
+    } else {
+      setCurrentConductor({
+        tipo: 'Cable',
+        material: 'Cobre',
+        aislacion: 'PVC',
+        longitud: 20,
+        caidaMaxPermitida: 1.0,
+        tipoTramo: 'LineaSeccional',
+        destinoId: tableroHijo.id,
+        tramoId: tableroHijo.id,
+        normaCable: 'IRAM 2178',
+        metodoInstalacion: 'B2',
+      } as any);
+    }
+  };
+
   const handleCalcularYGuardar = () => {
     if (!tableroOrigen) return alert('Seleccione un tablero origen.');
     if (tipoTramo === 'salida_circuito' && !destinoId) return alert('Seleccione un circuito destino.');
@@ -82,10 +116,11 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         destinoNombre = 'Tramo al ' + tableroOrigen.nombre;
         tipoViviendaTramo = 'LineaPrincipal';
     } else if (tipoTramo === 'salida_circuito') {
-        destinoNombre = circuitosDelTablero.find(c => c.id === destinoId)?.nombre || '';
+        destinoNombre = circuitos.find(c => c.id === destinoId)?.nombre || '';
         tipoViviendaTramo = 'CircuitoTerminal';
     } else if (tipoTramo === 'salida_tablero') {
-        destinoNombre = tablerosHijos.find(t => t.id === destinoId)?.nombre || '';
+        const destTab = tableros.find(t => t.id === destinoId);
+        destinoNombre = destTab?.nombre ? `Alimentación ${destTab.nombre}` : 'Tablero Seccional';
         tipoViviendaTramo = 'LineaSeccional';
     }
 
@@ -138,13 +173,99 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
         </div>
       </div>
 
+      {/* Tramos a Tableros Seccionales (Líneas Seccionales) */}
+      {tablerosSeccionales.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+              <Layers size={17} className="text-amber-400" />
+              <span>Líneas Seccionales (Alimentación a Tableros Seccionales):</span>
+            </h3>
+            <span className="text-xs text-slate-400 font-medium">{tablerosSeccionales.length} alimentadores seccionales</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {tablerosSeccionales.map((tHijo) => {
+              const isSelected = tipoTramo === 'salida_tablero' && destinoId === tHijo.id;
+              const padre = tableros.find(t => t.id === tHijo.tableroPadreId) || tableros.find(t => t.tipo === 'Principal') || tableros[0];
+              const enInforme = project.informeConductores?.find((inf: any) => inf.destinoId === tHijo.id || inf.tramoId === tHijo.id);
+              const seccionCalculada = enInforme?.resultadoCalculo?.seccionRecomendada || enInforme?.seccion;
+              const caidaCalc = enInforme?.resultadoCalculo?.porcentajeCaida ?? enInforme?.resultadoCalculo?.caidaTensionPorcentaje;
+              
+              // Corriente del tablero seccional
+              const baseTableroHijo: any = {
+                ...tHijo,
+                circuitosTerminales: circuitos.filter(c => tHijo.circuitosIds?.includes(c.id)),
+                proteccionesSalida: [],
+                subTableros: []
+              };
+              const iNominal = getTableroNominalCurrent(baseTableroHijo, project);
+              const prot = obtenerProteccionAsignada(project, { tipoTramo: 'LineaSeccional', destinoId: tHijo.id } as any, tHijo.id);
+
+              return (
+                <button
+                  key={tHijo.id}
+                  onClick={() => selectTramoSeccionalDirecto(tHijo)}
+                  className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between gap-2.5 cursor-pointer ${
+                    isSelected
+                      ? 'bg-amber-600/15 border-amber-500 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500'
+                      : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex justify-between items-start gap-2 w-full">
+                    <div className="min-w-0">
+                      <p className={`font-bold text-sm truncate flex items-center gap-1.5 ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                        <span>{padre?.nombre || 'TP'}</span>
+                        <ArrowRight size={14} className="text-amber-400 shrink-0" />
+                        <span className="text-amber-300 font-extrabold">{tHijo.nombre}</span>
+                      </p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5 font-medium">Línea Seccional Alimentadora</p>
+                    </div>
+
+                    {/* Badge de estado */}
+                    {seccionCalculada ? (
+                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                        <CheckCircle2 size={11} /> {seccionCalculada} mm²
+                      </span>
+                    ) : (
+                      <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                        <Clock size={11} /> Pendiente
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Subdatos: Térmica e Ib */}
+                  <div className="flex items-center gap-2 text-[10px] text-slate-300 font-mono pt-1 border-t border-slate-800/60 w-full">
+                    <span className="flex items-center gap-1">
+                      <Shield size={11} className="text-blue-400" />
+                      {prot ? `${prot.in_amp}A` : 'Sin prot.'}
+                    </span>
+                    <span>•</span>
+                    <span className="text-emerald-400 font-bold">
+                      Ib: {iNominal.toFixed(1)}A
+                    </span>
+                    {caidaCalc !== undefined && (
+                      <>
+                        <span>•</span>
+                        <span className="text-emerald-400">ΔV: {caidaCalc.toFixed(1)}%</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Cuadrícula interactiva de selección de circuitos */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-            <span>Seleccionar Circuito o Tramo a Calcular:</span>
+            <Zap size={16} className="text-blue-400" />
+            <span>Circuitos Terminales:</span>
           </h3>
-          <span className="text-xs text-slate-500">{circuitos.length} circuitos en total</span>
+          <span className="text-xs text-slate-400">{circuitos.length} circuitos en total</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -256,7 +377,13 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
           <div className="bg-[var(--bg-secondary)] rounded-2xl border border-slate-700/80 p-6 space-y-6 shadow-xl">
             <h3 className="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center gap-2">
               <Zap size={18} className="text-blue-400" />
-              <span>Parámetros de Instalación del Circuito Seleccionado</span>
+              <span>
+                {tipoTramo === 'salida_tablero' 
+                  ? `Parámetros de la Línea Seccional (Alimentación a ${tableros.find(t => t.id === destinoId)?.nombre || 'Tablero'})`
+                  : tipoTramo === 'general_salida'
+                  ? `Parámetros de la Línea Principal (Alimentación a ${tableroOrigen?.nombre || 'Tablero'})`
+                  : `Parámetros del Circuito: ${circuitos.find(c => c.id === destinoId)?.nombre || 'Circuito'}`}
+              </span>
             </h3>
 
             <ConductorForm

@@ -38,9 +38,11 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     if (project && tieneProteccionAsignada && conductor && conductor.metodoInstalacion && conductor.longitud) {
         const conductorCalculo = {
             ...conductor,
-            caidaMaxPermitida: conductor.caidaMaxPermitida ?? 3.0,
+            caidaMaxPermitida: conductor.caidaMaxPermitida ?? (isPanelTramo ? 1.0 : 3.0),
             ...(tramoId ? { tramoId } : {}),
-            ...(esCircuitoTerminal ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } : {})
+            ...(esCircuitoTerminal 
+              ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } 
+              : { tipoTramo: conductor.tipoTramo || 'LineaSeccional', destinoId: tramoId })
         };
         const calculated = calcularConductorResidencial(conductorCalculo as any, project);
         
@@ -64,15 +66,12 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     return found;
   }, [project, conductor, tramoId]);
 
-  // Nuevo useMemo para el filtrado reactivo
+  // Filtrado reactivo de métodos según norma
   const { metodosDisponibles, esTipoCableForzado } = useMemo(() => {
-    const esTramoPrincipal = tramoId === 'tp' || conductor?.tipoTramo === 'LineaPrincipal';
+    const esTramoPrincipalOSeccional = tramoId === 'tp' || isPanelTramo || conductor?.tipoTramo === 'LineaPrincipal' || conductor?.tipoTramo === 'LineaSeccional';
     
-    // Determinación de norma con manejo explícito:
-    // 1. Si es tramo principal ('tp'): norma seleccionable en el conductor (fallback IRAM 2178)
-    // 2. Si NO es tramo principal: norma del circuito terminal o canalización vinculada
     let norma = 'IRAM 2178';
-    if (esTramoPrincipal) {
+    if (esTramoPrincipalOSeccional) {
         norma = conductor?.normaCable || 'IRAM 2178';
     } else {
         // Buscar norma en el circuito (si existe) o canalización vinculada
@@ -92,15 +91,17 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
         metodosDisponibles: METODOS_INSTALACION_VIVIENDA.filter(m => metodosPermitidos.includes(m.value)),
         esTipoCableForzado: esForzado
     };
-  }, [tramoId, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable, circuito?.normaCable]);
+  }, [tramoId, isPanelTramo, conductor?.tipoTramo, conductor?.normaCable, canalizacionVinculada?.normaCable, circuito?.normaCable]);
 
   const handleDataChange = (updates: Partial<Conductor>) => {
     let newConductor = {
-        caidaMaxPermitida: conductor?.caidaMaxPermitida ?? 3.0,
+        caidaMaxPermitida: conductor?.caidaMaxPermitida ?? (isPanelTramo ? 1.0 : 3.0),
         ...conductor,
         ...updates,
         ...(tramoId ? { tramoId } : {}),
-        ...(esCircuitoTerminal ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } : {})
+        ...(esCircuitoTerminal 
+          ? { tipoTramo: 'CircuitoTerminal', destinoId: tramoId, tipoCircuito: circuito?.tipo } 
+          : { tipoTramo: conductor?.tipoTramo || 'LineaSeccional', destinoId: tramoId })
     } as Conductor;
     
     // Si la norma fuerza a Unipolar, aseguramos el tipo
@@ -127,6 +128,8 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
     onChange(newConductor);
   };
 
+  const esTramoPanelOSeccional = tramoId === 'tp' || isPanelTramo || conductor?.tipoTramo === 'LineaPrincipal' || conductor?.tipoTramo === 'LineaSeccional';
+
   return (
     <div className="p-4 bg-slate-900 rounded-xl border border-slate-700 shadow-sm">
         <label className="text-xs font-medium text-slate-400 mb-4 block border-b border-slate-800 pb-2">
@@ -144,7 +147,7 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
             <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-700 pb-2">1. Configuración del Tramo y Método</h3>
                 
-                {tramoId === 'tp' && (
+                {esTramoPanelOSeccional && (
                 <div>
                     <label className="block text-[10px] font-semibold uppercase text-slate-500 mb-1">Norma del Cable</label>
                     <select 
@@ -152,9 +155,9 @@ export const ViviendaConductorForm = ({ label, conductor, onChange, tramoId, hid
                         value={conductor?.normaCable || 'IRAM 2178'}
                         onChange={(e) => handleDataChange({ normaCable: e.target.value as any })}
                     >
-                        <option value="IRAM 2178">IRAM 2178</option>
-                        <option value="IRAM-NM 247-3">IRAM-NM 247-3 (Flexible)</option>
-                        <option value="IRAM 62267">IRAM 62267 (Libre de Halógenos)</option>
+                        <option value="IRAM 2178">IRAM 2178 (Subterráneo / Bandeja / Cañería)</option>
+                        <option value="IRAM-NM 247-3">IRAM-NM 247-3 (Unipolar en cañería)</option>
+                        <option value="IRAM 62267">IRAM 62267 (Libre de Halógenos LSZH)</option>
                         <option value="IRAM 62266">IRAM 62266</option>
                     </select>
                 </div>

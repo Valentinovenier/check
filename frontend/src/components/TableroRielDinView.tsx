@@ -17,6 +17,7 @@ interface Props {
   onSelectCircuito?: (circuitoId: string) => void;
   onAssignCabecera?: () => void;
   onAssignDiferencial?: () => void;
+  onOpenAgregarGeneral?: () => void;
 }
 
 export const TableroRielDinView: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const TableroRielDinView: React.FC<Props> = ({
   onSelectCircuito,
   onAssignCabecera,
   onAssignDiferencial,
+  onOpenAgregarGeneral,
 }) => {
   // Cálculo de módulos DIN (polos aproximados: cabecera polos, diferencial polos, y 2 polos por circuito)
   const polosCabecera = cabecera?.polos || 2;
@@ -43,11 +45,24 @@ export const TableroRielDinView: React.FC<Props> = ({
           <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50" />
           <h4 className="text-white font-bold text-lg tracking-tight">Frente de Tablero (Riel DIN): {tableroNombre}</h4>
         </div>
-        <div className="flex items-center gap-2.5 text-base text-slate-300">
-          <span className="font-semibold text-sm text-slate-400">Ocupación:</span>
-          <span className="font-mono font-bold text-amber-300 bg-slate-900 px-3.5 py-1.5 rounded-xl border border-slate-700 text-sm shadow-inner">
-            {totalModulos} / {capacidadGabinete} Módulos DIN
-          </span>
+        
+        <div className="flex items-center gap-3">
+          {onOpenAgregarGeneral && (
+            <button
+              onClick={onOpenAgregarGeneral}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+              title="Abrir catálogo para agregar o cambiar protecciones en este tablero"
+            >
+              <Plus size={16} />
+              <span>Agregar Protección</span>
+            </button>
+          )}
+          <div className="flex items-center gap-2.5 text-base text-slate-300">
+            <span className="font-semibold text-xs sm:text-sm text-slate-400">Ocupación:</span>
+            <span className="font-mono font-bold text-amber-300 bg-slate-900 px-3 py-1 rounded-xl border border-slate-700 text-xs sm:text-sm shadow-inner">
+              {totalModulos} / {capacidadGabinete} Módulos DIN
+            </span>
+          </div>
         </div>
       </div>
 
@@ -64,7 +79,7 @@ export const TableroRielDinView: React.FC<Props> = ({
               <div
                 onClick={onAssignCabecera}
                 className="w-28 sm:w-32 bg-slate-900 hover:bg-slate-850 cursor-pointer border-2 border-blue-500 hover:border-blue-400 rounded-xl p-3 flex flex-col justify-between items-center text-center shadow-xl transition-all group"
-                title={`${cabecera.modelo} - ${cabecera.in_amp}A`}
+                title={`Click para cambiar: ${cabecera.modelo} - ${cabecera.in_amp}A`}
               >
                 <div className="w-full flex justify-between items-center text-xs text-slate-300 font-mono font-bold">
                   <span>{cabecera.polos}P</span>
@@ -82,10 +97,14 @@ export const TableroRielDinView: React.FC<Props> = ({
             ) : (
               <button
                 onClick={onAssignCabecera}
-                className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-blue-400 transition-all bg-slate-900/40 cursor-pointer"
+                className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-blue-400 transition-all bg-slate-900/40 cursor-pointer group"
+                title="Agregar interruptor general de cabecera"
               >
-                <Plus size={24} />
-                <span className="text-sm font-bold">Asignar</span>
+                <div className="w-10 h-10 rounded-full bg-blue-500/10 group-hover:bg-blue-500/20 flex items-center justify-center transition-colors">
+                  <Plus size={22} className="text-blue-400" />
+                </div>
+                <span className="text-sm font-bold text-white group-hover:text-blue-400">Agregar</span>
+                <span className="text-[11px] text-slate-400 font-medium">Cabecera</span>
               </button>
             )}
           </div>
@@ -100,7 +119,7 @@ export const TableroRielDinView: React.FC<Props> = ({
               <div
                 onClick={onAssignDiferencial}
                 className="w-28 sm:w-32 bg-slate-900 hover:bg-slate-850 cursor-pointer border-2 border-amber-500 hover:border-amber-400 rounded-xl p-3 flex flex-col justify-between items-center text-center shadow-xl transition-all group"
-                title={`${diferencial.modelo} - ${diferencial.in_amp}A ${diferencial.sensibilidad || 30}mA`}
+                title={`Click para cambiar: ${diferencial.modelo} - ${diferencial.in_amp}A ${diferencial.sensibilidad || 30}mA`}
               >
                 <div className="w-full flex justify-between items-center text-xs text-slate-300 font-mono font-bold">
                   <span>{diferencial.polos}P</span>
@@ -118,10 +137,14 @@ export const TableroRielDinView: React.FC<Props> = ({
             ) : (
               <button
                 onClick={onAssignDiferencial}
-                className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-amber-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-amber-400 transition-all bg-slate-900/40 cursor-pointer"
+                className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-amber-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-amber-400 transition-all bg-slate-900/40 cursor-pointer group"
+                title="Agregar interruptor diferencial"
               >
-                <Plus size={24} />
-                <span className="text-sm font-bold">Asignar</span>
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 group-hover:bg-amber-500/20 flex items-center justify-center transition-colors">
+                  <Plus size={22} className="text-amber-400" />
+                </div>
+                <span className="text-sm font-bold text-white group-hover:text-amber-400">Agregar</span>
+                <span className="text-[11px] text-slate-400 font-medium">Diferencial</span>
               </button>
             )}
           </div>
@@ -151,7 +174,7 @@ export const TableroRielDinView: React.FC<Props> = ({
                           ? 'border-red-500 hover:border-red-400 shadow-red-500/20'
                           : 'border-emerald-500/70 hover:border-emerald-400 shadow-emerald-500/10'
                       }`}
-                      title={`${circ.nombre} - ${p!.modelo} (${p!.in_amp}A)`}
+                      title={`Click para cambiar: ${circ.nombre} - ${p!.modelo} (${p!.in_amp}A)`}
                     >
                       <div className="w-full flex justify-between items-center text-xs text-slate-300 font-mono font-bold">
                         <span>{p!.polos || 2}P</span>
@@ -181,11 +204,14 @@ export const TableroRielDinView: React.FC<Props> = ({
                   ) : (
                     <button
                       onClick={() => onSelectCircuito && onSelectCircuito(circ.id)}
-                      className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-emerald-400 transition-all bg-slate-900/40 cursor-pointer"
+                      className="w-28 sm:w-32 h-44 border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-emerald-400 transition-all bg-slate-900/40 cursor-pointer group"
+                      title={`Agregar protección para ${circ.nombre} (Ib: ${circ.iNominal.toFixed(1)}A)`}
                     >
-                      <Plus size={24} />
-                      <span className="text-sm font-bold">Asignar</span>
-                      <span className="text-xs font-mono font-bold text-slate-300">{circ.iNominal.toFixed(1)}A</span>
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/10 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
+                        <Plus size={22} className="text-emerald-400" />
+                      </div>
+                      <span className="text-sm font-bold text-white group-hover:text-emerald-400">Agregar</span>
+                      <span className="text-xs font-mono font-bold text-emerald-400/90">{circ.iNominal.toFixed(1)}A</span>
                     </button>
                   )}
 
