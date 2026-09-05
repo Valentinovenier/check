@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { Project, DatosCaratula } from '../types/project';
-import { getProjectStrategy } from '../engine/factory';
 import { usePlanAccess } from '../hooks/usePlanAccess';
-import { InformeBasicoSection } from './InformeBasicoSection';
+import { generatePdfMemoriaCalculoBasico } from '../utils/generatePdfMemoriaCalculoBasico';
 import { Edit3, FileDown } from 'lucide-react';
 
-export const ProjectReport = ({ project }: { project: Project }) => {
+interface ProjectReportProps {
+  project: Project;
+  onChange?: (updated: Project) => void;
+}
+
+export const ProjectReport = ({ project, onChange }: ProjectReportProps) => {
   const [showCaratulaForm, setShowCaratulaForm] = useState(false);
   const [caratula, setCaratula] = useState<DatosCaratula>({
     propietario: project.datosCaratula?.propietario || '',
@@ -23,37 +27,61 @@ export const ProjectReport = ({ project }: { project: Project }) => {
   const isPro = canAccessFullFeatures();
 
   const handleInputChange = (field: keyof DatosCaratula, value: string) => {
-    setCaratula(prev => ({ ...prev, [field]: value }));
+    const updated = { ...caratula, [field]: value };
+    setCaratula(updated);
+    if (onChange) {
+      onChange({
+        ...project,
+        datosCaratula: updated,
+      });
+    }
   };
 
-  const strategy = getProjectStrategy(project);
-  const ReportComponent = strategy.getInformeComponente();
+  const handleDownload = () => {
+    generatePdfMemoriaCalculoBasico(project, caratula, isPro);
+  };
 
   return (
-    <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6 print:bg-white print:text-black print:p-0 print:border-none">
-      <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 print:hidden flex-wrap gap-4">
+    <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-slate-800 space-y-6">
+      <div className="flex justify-between items-center border-b border-slate-800 pb-5 flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Informe Técnico: {project.name}</h2>
-          <p className="text-xs text-slate-400 mt-1">Generación e inspección de Informes.</p>
+          <p className="text-xs text-slate-400 mt-1">Generación y descarga de la documentación técnica oficial.</p>
         </div>
 
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex gap-3 flex-wrap items-center">
           <button
             onClick={() => setShowCaratulaForm(prev => !prev)}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-1.5"
+            className={`px-4 py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center gap-2 border ${
+              showCaratulaForm
+                ? 'bg-slate-700 text-white border-slate-600 shadow-md'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+            }`}
           >
-            <Edit3 size={15} />
+            <Edit3 size={16} />
             <span>{showCaratulaForm ? 'Ocultar Portada' : 'Editar Datos Portada'}</span>
+          </button>
+
+          <button
+            onClick={handleDownload}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95"
+            title="Descargar informe oficial en formato PDF"
+          >
+            <FileDown size={16} className="text-slate-950" />
+            <span>Descargar Informe (PDF)</span>
           </button>
         </div>
       </div>
 
       {/* Formulario desplegable para datos de la portada/carátula */}
       {showCaratulaForm && (
-        <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4 print:hidden">
-          <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2">
-            Datos Específicos para la Carátula del Informe (Modelo ERSeP / AEA)
-          </h3>
+        <div className="bg-[var(--bg-primary)] p-5 rounded-xl border border-slate-700 space-y-4">
+          <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+            <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+              Datos Específicos para la Carátula del Informe (Modelo ERSeP / AEA)
+            </h3>
+            <span className="text-[11px] text-slate-400">Se guardan automáticamente en el informe</span>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
@@ -150,12 +178,6 @@ export const ProjectReport = ({ project }: { project: Project }) => {
             </div>
           </div>
         </div>
-      )}
-
-      {isPro ? (
-        <ReportComponent project={project} />
-      ) : (
-        <InformeBasicoSection project={project} caratula={caratula} />
       )}
     </div>
   );

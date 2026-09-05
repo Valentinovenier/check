@@ -238,7 +238,15 @@ export default function App() {
           />
         );
       case 'informe':
-        return <ProjectReport project={selectedProject} />;
+        return (
+          <ProjectReport 
+            project={selectedProject} 
+            onChange={(updated) => {
+              setProjects(projects.map(p => p.id === updated.id ? updated : p));
+              setSelectedProject(updated);
+            }}
+          />
+        );
       case 'unifilar':
         return <UnifilarPage />;
       case 'protecciones':
