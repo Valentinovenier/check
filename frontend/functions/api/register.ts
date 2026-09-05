@@ -35,11 +35,14 @@ export async function onRequestPost(context) {
     // =========================================================
     // FEATURE FLAG: FREE_ACCESS_MODE
     // Cuando FREE_ACCESS_MODE está activo, todos los usuarios
-    // se registran directamente como 'active'/'pro' sin pago.
+    // se registran directamente como 'active'/'free' sin pago.
+    // 'free' como plan_type los identifica como usuarios del
+    // período gratuito: cuando se desactive el flag, el backend
+    // los redirigirá a elegir un plan de suscripción.
     // Para reactivar el cobro, setear FREE_ACCESS_MODE=false.
     // =========================================================
     const freeAccessMode = env.FREE_ACCESS_MODE === 'true' || env.FREE_ACCESS_MODE === true;
-    const targetPlanType = freeAccessMode ? 'pro' : ((planType === 'basic' || planType === 'pro') ? planType : 'basic');
+    const targetPlanType = freeAccessMode ? 'free' : ((planType === 'basic' || planType === 'pro') ? planType : 'basic');
     const initialStatus = freeAccessMode ? 'active' : 'pending';
 
     const existingUser = await env.DB.prepare('SELECT id FROM users WHERE username = ?')

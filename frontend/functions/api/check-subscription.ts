@@ -98,6 +98,23 @@ export async function onRequest(context: any) {
 
         let isVerifiedActive = (userStatus === 'active' && !isExpiredPastGrace);
 
+        // =========================================================
+        // PROTECCIÓN: Usuarios del período gratuito en modo de pago
+        // Si FREE_ACCESS_MODE está desactivado y el usuario tiene
+        // plan_type='free' (registrado durante el período gratuito)
+        // sin una suscripción real de MP, se lo fuerza a suscribirse.
+        // =========================================================
+        const isFreePhaseUser = userPlanType === 'free';
+        const hasRealMpSubscription = !!user.mp_subscription_id;
+        if (isFreePhaseUser && !hasRealMpSubscription) {
+            // Este usuario del período gratuito no tiene suscripción de pago activa.
+            // Si FREE_ACCESS_MODE está activo, lo deja entrar (el bypass de arriba
+            // ya retornó). Si está desactivado, llega hasta aquí y debe suscribirse.
+            isVerifiedActive = false;
+            userStatus = 'pending';
+            console.log(`Usuario ${targetUserId} del período gratuito (plan_type='free') sin suscripción real. Requiere suscripción.`);
+        }
+
         // 1. Si no está verificado como activo o su período de gracia ya venció, consultar Mercado Pago en vivo para chequear renovación
         if (!isVerifiedActive && targetPreapprovalId && env.MP_ACCESS_TOKEN) {
             try {
