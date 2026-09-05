@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Server, Shield, Network, Cable, FileText, Check } from 'lucide-react';
+import { Settings, Server, Shield, Network, Cable, Check } from 'lucide-react';
 import { Project } from '../types/project';
 
 interface Props {
@@ -67,14 +67,6 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
       sublabel: 'Sección y Caída V',
       icon: Cable,
       isDone: stepStatus.conductores,
-    },
-    {
-      id: 'informe',
-      stepNumber: 6,
-      label: 'Informe',
-      sublabel: 'Memoria Técnica',
-      icon: FileText,
-      isDone: false,
     },
   ];
 

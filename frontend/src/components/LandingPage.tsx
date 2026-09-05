@@ -6,7 +6,6 @@ import { UserMenu } from './UserMenu';
 import {
   Zap,
   ShieldCheck,
-  FileText,
   Layers,
   Clock,
   Cloud,
@@ -136,14 +135,12 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">
               Cálculos Eléctricos y <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-                Carpetas Técnicas AEA
+                Dimensionamiento AEA
               </span>{' '}
               en Segundos
             </h1>
             <p className="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-              La plataforma web para proyectistas electricos, ingenieros y estudiantes que automatiza el dimensionamiento de
-              conductores, verificación de protecciones, tableros y genera informes técnicos
-              profesionales en PDF.
+              La plataforma web para proyectistas eléctricos, ingenieros y estudiantes que automatiza el cálculo de demanda (DPMS), dimensionamiento de conductores, verificación de protecciones y tableros bajo norma AEA.
             </p>
 
             {/* CTAs */}
@@ -170,8 +167,8 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {[
               { icon: CheckCircle2, text: '100% en el Navegador' },
               { icon: CheckCircle2, text: 'Sin Instalaciones' },
-              { icon: CheckCircle2, text: 'Norma AEA' },
-              { icon: CheckCircle2, text: 'Informe PDF Descargable' },
+              { icon: CheckCircle2, text: 'Norma AEA 90364' },
+              { icon: CheckCircle2, text: 'Cálculo de DPMS y Circuitos' },
               { icon: CheckCircle2, text: 'Viviendas (Comercios e industrias próximamente)' },
             ].map((badge, i) => (
               <div
@@ -222,11 +219,11 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 desc: 'Validación automática de condiciones dadas por norma. Detecta incompatibilidades antes de presentar el proyecto.',
               },
               {
-                icon: FileText,
+                icon: Layers,
                 color: 'text-cyan-400',
                 bg: 'bg-cyan-500/10 border-cyan-500/20',
-                title: 'Carpeta Técnica en 1 Clic',
-                desc: 'Genera informes PDF con memoria descriptiva, matriz de cálculo y carátula oficial, listos para presentar ante entes de fiscalización.',
+                title: 'Cálculo de DPMS y Tableros',
+                desc: 'Determina automáticamente el grado de electrificación, puntos mínimos de utilización y la distribución de circuitos del proyecto.',
               },
               
             ].map((feature, i) => (
@@ -265,11 +262,11 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               price: planPrices.basic,
               desc: "Acceso a cálculos de parámetros",
               features: [
-                { name: "Cálculos normativos AEA", included: true },
-                { name: "Informes técnicos PDF", included: true },
-                { name: "Verificación de protecciones", included: false },
+                { name: "Cálculo de DPMS (AEA 90364-7-770)", included: true },
+                { name: "Puntos mínimos de utilización", included: true },
+                { name: "Determinación de circuitos mínimos", included: true },
                 { name: "Dimensionamiento de conductores", included: false },
-                { name: "Soporte prioritario", included: false },
+                { name: "Verificación de protecciones", included: false },
               ],
               buttonText: "Suscribirse Ahora",
               isPro: false,
@@ -283,11 +280,11 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               price: planPrices.pro,
               desc: "Todo incluido, sin límites para tus proyectos",
               features: [
-                { name: "Cálculos normativos AEA", included: true },
-                { name: "Dimensionamiento de conductores", included: true },
-                { name: "Verificación de protecciones", included: true },
-                { name: "Informes técnicos PDF", included: true },
-                { name: "Soporte prioritario", included: true },
+                { name: "Cálculo completo de DPMS (AEA 90364)", included: true },
+                { name: "Tableros principales y seccionales", included: true },
+                { name: "Dimensionamiento de conductores y caída de tensión", included: true },
+                { name: "Verificación de protecciones de catálogo", included: true },
+                { name: "Ocupación y cálculo de canalizaciones", included: true },
               ],
               buttonText: "Suscribirse al Plan Pro",
               isPro: true,
@@ -391,10 +388,10 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 desc: 'Cumplimiento estricto de AEA.                                            Reducís los rechazos en entes de fiscalización y distribuidoras.',
               },
               {
-                icon: FileText,
+                icon: ShieldCheck,
                 color: 'text-cyan-400',
-                title: 'Presentación Profesional',
-                desc: 'Entregá a tus clientes carpetas técnicas con estética impecable, listas para firmar e imprimir. Mejorá tu imagen profesional.',
+                title: 'Precisión y Seguridad',
+                desc: 'Evitá errores en tablas y fórmulas complejas. Todos los cálculos se ajustan rigurosamente a las condiciones y coeficientes normativos.',
               },
               {
                 icon: Cloud,
@@ -492,19 +489,19 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
             {[
               {
                 q: '¿Qué reglamentación utiliza para los cálculos?',
-                a: 'La plataforma aplica las normas AEA vigentes para instalaciones eléctricas. Para instalaciones industriales, incorpora los criterios de dimensionamiento según IRAM y AEA de aplicación general.',
+                a: 'La plataforma aplica las normas AEA vigentes para instalaciones eléctricas (AEA 90364-7-770 para viviendas).',
               },
               {
-                q: '¿Puedo descargar los informes en PDF?',
-                a: 'Sí. Todos los informes generados se pueden descargar como PDF directamente desde la plataforma. El PDF incluye carátula, memoria descriptiva, matriz de cálculo de conductores, resumen de protecciones y lista de materiales.',
+                q: '¿Qué tipo de instalaciones puedo calcular?',
+                a: 'Actualmente la plataforma está especializada en instalaciones residenciales y viviendas según la reglamentación AEA 90364-7-770, con soporte para comercios e industrias en desarrollo.',
               },
               {
                 q: '¿Requiere instalar algún software?',
-                a: 'No. ElectroCheck funciona 100% en el navegador web. No necesitás descargar ni instalar nada. Basta con un navegador moderno (Chrome, Firefox, Edge) y conexión a Internet.',
+                a: 'No. ElectroCheck funciona 100% en el navegador web. No necesitás descargar ni instalar nada. Basta con un navegador moderno y conexión a Internet.',
               },
               {
-                q: '¿Los informes sirven para presentar ante la distribuidora o ente fiscalizador?',
-                a: 'Sí. El formato y el contenido están pensados para cumplir los requisitos de presentación técnica. Igualmente, siempre es recomendable verificar con tu distribuidora local los requisitos específicos de formato que puedan exigir.',
+                q: '¿Cómo se guardan mis proyectos?',
+                a: 'Tus proyectos se sincronizan de manera segura en tu cuenta, permitiéndote acceder y editar tus cálculos desde cualquier dispositivo cuando lo necesites.',
               },
             ].map((faq, idx) => (
               <div

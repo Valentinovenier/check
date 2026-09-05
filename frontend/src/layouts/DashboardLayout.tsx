@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Settings, Zap, FileText, Server, Cable, Network, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Settings, Zap, Server, Cable, Network, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Project } from '../types/project';
 import { SaveIndicator } from '../components/SaveIndicator';
@@ -102,14 +102,6 @@ export const DashboardLayout = ({
                   }`}
                 >
                   <Zap size={16} /> Calculadora DPMS
-                </button>
-                <button
-                  onClick={() => onNavigate('informe')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${
-                    activePage === 'informe' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <FileText size={16} /> Informe
                 </button>
               </nav>
             )}

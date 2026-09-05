@@ -4,7 +4,6 @@ import { ProjectList } from './components/ProjectList';
 import { NewProjectModal } from './components/NewProjectModal';
 import { ProjectSettings } from './components/ProjectSettings';
 import { ConductorCalculation } from './components/ConductorCalculation';
-import { ProjectReport } from './components/ProjectReport';
 import { TablerosSeccionales } from './components/TablerosSeccionales';
 import { TablerosVivienda } from './components/TablerosVivienda';
 import { Project } from './types/project';
@@ -231,16 +230,6 @@ export default function App() {
         ) : (
           <TablerosSeccionales
             project={selectedProject}
-            onChange={(updated) => {
-              setProjects(projects.map(p => p.id === updated.id ? updated : p));
-              setSelectedProject(updated);
-            }}
-          />
-        );
-      case 'informe':
-        return (
-          <ProjectReport 
-            project={selectedProject} 
             onChange={(updated) => {
               setProjects(projects.map(p => p.id === updated.id ? updated : p));
               setSelectedProject(updated);
