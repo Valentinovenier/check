@@ -85,7 +85,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
         
         <h3 className="text-2xl font-bold text-white text-center mb-1">Crear tu Cuenta</h3>
         <p className="text-xs text-slate-400 text-center mb-6">
-          Selecciona tu plan y regístrate para acceder a la plataforma
+          Selecciona tu plan y regístrate para acceder a la plataforma (precios en ARS)
         </p>
 
         {/* Selector interactivo de Plan */}
@@ -103,7 +103,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               <span className="text-xs font-bold uppercase tracking-wider">Básico</span>
               {selectedPlan === 'basic' && <span className="w-2 h-2 rounded-full bg-emerald-400"></span>}
             </div>
-            <p className="text-base font-extrabold text-white">{planPrices.basic} <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
+            <p className="text-base font-extrabold text-white">{planPrices.basic} <span className="text-[10px] font-normal text-slate-400">ARS / mes</span></p>
             
           </button>
 
@@ -120,7 +120,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               <span className="text-xs font-bold uppercase tracking-wider">Pro</span>
               {selectedPlan === 'pro' && <span className="w-2 h-2 rounded-full bg-emerald-400"></span>}
             </div>
-            <p className="text-base font-extrabold text-white">{planPrices.pro} <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
+            <p className="text-base font-extrabold text-white">{planPrices.pro} <span className="text-[10px] font-normal text-slate-400">ARS / mes</span></p>
           </button>
         </div>
         
@@ -172,7 +172,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               disabled={loading}
               className="w-full py-3 text-slate-950 font-bold bg-gradient-to-r from-emerald-400 to-teal-400 rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/25 text-sm"
             >
-              {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? `Pro (${planPrices.pro}/mes)` : `Básico (${planPrices.basic}/mes)`}`}
+              {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? `Pro (${planPrices.pro} ARS/mes)` : `Básico (${planPrices.basic} ARS/mes)`}`}
             </button>
           </div>
 

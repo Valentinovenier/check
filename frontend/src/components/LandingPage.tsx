@@ -251,7 +251,7 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
         <div className="text-center mb-12">
           <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">Planes</span>
           <h2 className="text-3xl font-bold text-white">Elige tu Plan</h2>
-          <p className="text-slate-400 mt-2">Accede a las herramientas que necesitas.</p>
+          <p className="text-slate-400 mt-2">Accede a las herramientas que necesitas. Precios expresados en pesos argentinos (ARS).</p>
         </div>
         
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -315,11 +315,11 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
                 {plan.title}
               </h3>
               <p className="text-slate-400 text-sm mb-5">{plan.desc}</p>
-              <div className="flex items-baseline gap-1 mb-8">
+              <div className="flex items-baseline gap-2 mb-8">
                 <span className="text-5xl font-black text-white">
                   {plan.price}
                 </span>
-                <span className="text-slate-400">/ mes</span>
+                <span className="text-slate-400 font-semibold text-sm">ARS / mes</span>
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
