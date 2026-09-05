@@ -1,6 +1,6 @@
 import React from 'react';
 import { Proteccion } from '../types/project';
-import { Shield, ShieldAlert, CheckCircle2, X } from 'lucide-react';
+import { Shield, X } from 'lucide-react';
 
 interface AsignacionProteccionProps {
   label: string;
@@ -23,15 +23,6 @@ export const AsignacionProteccion: React.FC<AsignacionProteccionProps> = ({
   minAmp,
   iccTablero,
 }) => {
-  // Verificación de validez según reglas ya existentes
-  const isTooHigh = proteccion && maxAmp && proteccion.in_amp > maxAmp;
-  const isTooLow = proteccion && minAmp && proteccion.in_amp < minAmp;
-  const maxIcn = proteccion?.capacidades && proteccion.capacidades.length > 0
-    ? Math.max(...proteccion.capacidades.map(c => c.icn_ka))
-    : 3;
-  const isIcnInsuficiente = Boolean(proteccion && iccTablero && maxIcn < iccTablero);
-  const hasErrors = isTooHigh || isTooLow || isIcnInsuficiente;
-
   return (
     <div className="bg-slate-900/95 p-4 rounded-xl border border-slate-700 shadow-sm transition-all hover:border-slate-600 space-y-2">
       <div className="flex justify-between items-center">
@@ -97,28 +88,6 @@ export const AsignacionProteccion: React.FC<AsignacionProteccionProps> = ({
           );
         })}
       </select>
-
-      {/* Tarjeta de estado de la protección seleccionada */}
-      {proteccion && (
-        <div className={`p-3 rounded-xl border text-xs sm:text-sm flex items-center justify-between gap-2.5 ${
-          hasErrors 
-            ? 'bg-red-950/50 border-red-800 text-red-200'
-            : 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
-        }`}>
-          <div className="flex items-center gap-2.5">
-            {hasErrors ? <ShieldAlert size={18} className="text-red-400 shrink-0" /> : <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />}
-            <div>
-              <span className="font-bold text-white text-sm">{proteccion.modelo}</span>
-              <span className="text-slate-300 ml-1.5 font-medium">({proteccion.in_amp}A • {proteccion.curva_disparo || 'C'} • Icn {maxIcn}kA)</span>
-            </div>
-          </div>
-          <span className={`px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 ${
-            hasErrors ? 'bg-red-900/80 text-red-100 border border-red-700' : 'bg-emerald-900/80 text-emerald-100 border border-emerald-700'
-          }`}>
-            {hasErrors ? 'Inválido' : 'Cumple AEA'}
-          </span>
-        </div>
-      )}
     </div>
   );
 };
