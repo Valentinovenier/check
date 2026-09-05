@@ -23,21 +23,19 @@ export const ProjectSummaryBar: React.FC<Props> = ({ project }) => {
   if (isVivienda) {
     const supplyType = project.datosVivienda?.supplyType;
     tensionDisplay = supplyType === 'trifasic' ? 'Trifásica (380V)' : 'Monofásica (220V)';
+    
+    const potenciaMaxima = project.datosVivienda?.potenciaMaximaSimultanea;
+    if (potenciaMaxima && potenciaMaxima > 0) {
+      potenciaDisplay = `${(potenciaMaxima / 1000).toFixed(1)} kVA`;
+    }
   } else {
     tensionDisplay = project.tipoInstalacion || 'Trifásica (380V)';
-  }
-
-  if (isVivienda) {
-    const totalVA = circuitos.reduce((sum, c) => sum + (Number(c.potencia) || 0), 0);
-    if (totalVA > 0) {
-      potenciaDisplay = `${(totalVA / 1000).toFixed(1)} kVA`;
+    if (project.transformador?.potencia) {
+      potenciaDisplay = `${project.transformador.potencia} kVA`;
     }
-  } else if (project.transformador?.potencia) {
-    potenciaDisplay = `${project.transformador.potencia} kVA`;
   }
 
   const totalCircuitos = circuitos.length;
-  const proteccionesAsignadas = circuitos.filter(c => c.proteccion).length;
   const conductoresCalculados = informeConductores.length;
 
   return (
@@ -64,31 +62,6 @@ export const ProjectSummaryBar: React.FC<Props> = ({ project }) => {
       <div className="flex items-center gap-5 text-slate-300">
         {isVivienda && totalCircuitos > 0 && (
           <>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 font-medium text-sm">Circuitos:</span>
-              <span className="font-bold text-white bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-sm">
-                {totalCircuitos}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 font-medium text-sm">Protecciones:</span>
-              <span className={`font-bold px-2.5 py-1 rounded-lg border text-sm ${
-                proteccionesAsignadas === totalCircuitos && totalCircuitos > 0
-                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                  : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-              }`}>
-                {proteccionesAsignadas}/{totalCircuitos}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 font-medium text-sm">Canalizaciones:</span>
-              <span className="font-bold text-white bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-sm">
-                {canalizaciones.length}
-              </span>
-            </div>
-
             <div className="flex items-center gap-2">
               <span className="text-slate-400 font-medium text-sm">Cables:</span>
               <span className={`font-bold px-2.5 py-1 rounded-lg border text-sm ${

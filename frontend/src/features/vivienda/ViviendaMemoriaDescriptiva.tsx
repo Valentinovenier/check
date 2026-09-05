@@ -231,26 +231,30 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
       {/* 4. Canalizaciones Usadas */}
       <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
         <h3 className="text-base font-bold text-sky-400 flex items-center gap-2 border-b border-slate-800 pb-2">
-          <Box size={18} /> 4. Canalizaciones Usadas y Factor de Ocupación
+          <Box size={18} /> 4. Canalizaciones Usadas y Agrupamiento
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {(project.canalizaciones && project.canalizaciones.length > 0) ? project.canalizaciones.map((can, idx) => (
-            <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-white text-sm">{can.nombre}</span>
-                <span className="bg-sky-900/40 text-sky-300 border border-sky-800/50 px-2 py-0.5 rounded text-[10px] font-mono">
-                  {can.circuitosIds.length} Circuitos
-                </span>
+          {(project.canalizaciones && project.canalizaciones.length > 0) ? project.canalizaciones.map((can, idx) => {
+            const cant = can.circuitosIds.length + (can.tramosIds?.length || 0);
+            const fn = cant > 1 ? (cant === 2 ? 0.8 : cant === 3 ? 0.7 : 0.65) : 1.0;
+            return (
+              <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-white text-sm">{can.nombre}</span>
+                  <span className="bg-sky-900/40 text-sky-300 border border-sky-800/50 px-2 py-0.5 rounded text-[10px] font-mono">
+                    {cant} {cant === 1 ? 'Circuito' : 'Circuitos'}
+                  </span>
+                </div>
+                <p className="text-slate-400">Material: Caño de PVC ignífugo / flexible (IRAM 62386)</p>
+                <p className="text-slate-300">Factor de agrupamiento: <strong className="text-amber-400 font-mono">fn = {fn.toFixed(2)}</strong></p>
+                <p className="text-slate-400">Criterio de cañería: <span className="text-slate-200">Factor de ocupación &le; 35% (AEA 770.10)</span></p>
               </div>
-              <p className="text-slate-400">Material: Caño de PVC Rígido / Corrugado ignífugo (IRAM 62386)</p>
-              <p className="text-slate-400">Diámetro Adoptado: <strong className="text-slate-200">Ø {can.circuitosIds.length <= 2 ? '20 mm (3/4")' : '25 mm (1")'}</strong></p>
-              <p className="text-emerald-400 font-semibold">Ocupación interna &le; 35% (Cumple AEA)</p>
-            </div>
-          )) : (
+            );
+          }) : (
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs col-span-3">
               <span className="font-bold text-white text-sm">Canalización General Embebida en Mampostería / Cielorraso</span>
-              <p className="text-slate-400">Electroducto de PVC Corrugado / Rígido ignífugo según norma IRAM 62386 con diámetros de Ø 20 mm (3/4") y Ø 25 mm (1"), respetando el factor de ocupación &le; 35%.</p>
+              <p className="text-slate-400">Electroducto de PVC Corrugado / Rígido ignífugo según norma IRAM 62386, respetando el factor de ocupación admisible de hasta el 35% de la sección interna útil según reglamentación AEA 770.</p>
             </div>
           )}
         </div>

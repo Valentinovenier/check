@@ -358,17 +358,16 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
 
     const filasCanalizaciones: string[][] = [];
     (project.canalizaciones || []).forEach((can) => {
-      const cantCirc = can.circuitosIds.length;
+      const cantCirc = can.circuitosIds.length + (can.tramosIds?.length || 0);
       const factorAgrup = cantCirc > 1 ? (cantCirc === 2 ? 0.8 : cantCirc === 3 ? 0.7 : 0.65) : 1.0;
-      const diametro = cantCirc <= 2 ? 'Ø 20 mm (3/4")' : cantCirc <= 4 ? 'Ø 25 mm (1")' : 'Ø 32 mm (1 1/4")';
       filasCanalizaciones.push([
         can.nombre,
-        'Caño de PVC Rígido / Corrugado Ignífugo',
-        diametro,
+        'Caño de PVC Ignífugo',
+        'Embebido en mampostería / losa',
         'IRAM 62386',
         `${cantCirc} circuitos`,
-        `fn = ${factorAgrup}`,
-        '<= 35% (Cumple)',
+        `fn = ${factorAgrup.toFixed(2)}`,
+        '<= 35% s/ AEA 770',
       ]);
     });
 
@@ -376,17 +375,17 @@ export const generatePdfMemoriaDescriptiva = (project: Project, overrideCaratula
       filasCanalizaciones.push([
         'Canalización General Embebida en Mampostería',
         'Caño de PVC Rígido / Flexible Autoextinguible',
-        'Ø 20 mm / Ø 25 mm',
+        'Embebido en mampostería / losa',
         'IRAM 62386',
         '1 a 3 circuitos',
         'fn = 0.8 a 1.0',
-        '<= 35% (Cumple)',
+        '<= 35% s/ AEA 770',
       ]);
     }
 
     autoTable(doc, {
       startY: cursorY,
-      head: [['TRAMO CANALIZACIÓN', 'TIPO MATERIAL', 'DIÁMETRO NOMINAL', 'NORMA CAÑO', 'AGRUPAMIENTO', 'FACTOR fn', 'OCUPACIÓN S%']],
+      head: [['TRAMO CANALIZACIÓN', 'TIPO MATERIAL', 'TIPO INSTALACIÓN', 'NORMA CAÑO', 'AGRUPAMIENTO', 'FACTOR fn', 'CRITERIO OCUPACIÓN']],
       body: filasCanalizaciones,
       theme: 'grid',
       headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8, halign: 'center' },

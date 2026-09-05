@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Project, Canalizacion } from '../types/project';
-import { Plus, Trash2, Cable, AlertTriangle, Zap, Network, Layers, ShieldCheck } from 'lucide-react';
+import { Plus, Trash2, Cable, AlertTriangle, Zap, Network, Layers, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { validarAgrupamiento } from '../engine/strategies/vivienda/validacionesAgrupamiento';
 import { useToast } from '../context/ToastContext';
-import { ConduitCrossSection } from './ConduitCrossSection';
 
 interface Props {
   project: Project;
@@ -116,10 +115,10 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
 
   // Helper para estimar factor Ka
   const getFactorAgrupamiento = (n: number) => {
-    if (n <= 1) return '1.00 (Sin reducción)';
-    if (n === 2) return '0.80 (-20% Iz)';
-    if (n === 3) return '0.70 (-30% Iz)';
-    return '0.65 (-35% Iz)';
+    if (n <= 1) return { valor: '1.00', desc: 'Sin reducción de corriente (1 circuito)' };
+    if (n === 2) return { valor: '0.80', desc: '-20% corriente admisible Iz (2 circuitos)' };
+    if (n === 3) return { valor: '0.70', desc: '-30% corriente admisible Iz (3 circuitos)' };
+    return { valor: '0.65', desc: '-35% corriente admisible Iz (4 o más circuitos)' };
   };
 
   return (
@@ -132,7 +131,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
             Gestión de Canalizaciones y Agrupamiento
           </h2>
           <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-            Agrupa los circuitos en cañerías para determinar el factor de agrupamiento (Ka), tipo de montaje y verificar el factor de llenado (≤ 35%).
+            Crea las canalizaciones del proyecto y asigna los circuitos correspondientes para determinar el factor de corrección por agrupamiento (<span className="text-amber-300 font-semibold">Ka</span>) que afectará la corriente admisible en el paso de Conductores, validando las restricciones normativas (AEA 770 / 771).
           </p>
         </div>
 
@@ -149,7 +148,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
             onClick={addCanalizacion} 
             className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-600/25 transition-all shrink-0 cursor-pointer"
           >
-            <Plus size={18} /> Crear Cañería
+            <Plus size={18} /> Crear Canalización
           </button>
         </div>
       </div>
@@ -163,7 +162,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
             </div>
             <h3 className="text-white font-bold text-lg">No hay canalizaciones creadas</h3>
             <p className="text-sm text-slate-300 max-w-lg mx-auto">
-              Crea tu primera canalización o cañería arriba para agrupar los circuitos y calcular automáticamente los factores de corrección y ocupación.
+              Crea tu primera canalización arriba para agrupar los circuitos que compartirán recorrido y calcular su factor de reducción por agrupamiento (Ka).
             </p>
           </div>
         ) : (
@@ -171,10 +170,7 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
             const val = validarAgrupamiento(project, c);
             const circuitosDisponibles = project.datosVivienda?.circuitosCalculados || [];
             const cantCircuitosEnCanalizacion = c.circuitosIds.length + (c.tramosIds?.length || 0);
-
-            // Obtener norma predominante de la canalización
-            const circuitosEnC = circuitosDisponibles.filter(circ => c.circuitosIds.includes(circ.id));
-            const normaPredominante = circuitosEnC[0]?.normaCable || 'IRAM 2178';
+            const factorKa = getFactorAgrupamiento(cantCircuitosEnCanalizacion);
 
             return (
               <div key={c.id} className="bg-[var(--bg-secondary)] p-6 sm:p-7 rounded-2xl border border-slate-700/80 shadow-xl space-y-6">
@@ -187,18 +183,48 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                     <div>
                       <span className="text-white font-bold text-xl">{c.nombre}</span>
                       <p className="text-sm text-slate-300 mt-0.5">
-                        {cantCircuitosEnCanalizacion} elementos asignados • Factor agrupamiento: <span className="text-amber-300 font-bold">{getFactorAgrupamiento(cantCircuitosEnCanalizacion)}</span>
+                        {cantCircuitosEnCanalizacion} {cantCircuitosEnCanalizacion === 1 ? 'circuito/tramo asignado' : 'circuitos/tramos asignados'}
                       </p>
                     </div>
                   </div>
 
-                  <button 
-                    onClick={() => deleteCanalizacion(c.id)} 
-                    className="text-slate-400 hover:text-red-400 p-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
-                    title="Eliminar canalización"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <div className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2">
+                      <span className="text-xs text-slate-400 font-medium">Factor Agrupamiento (Ka):</span>
+                      <span className="text-amber-400 font-mono font-bold text-sm">{factorKa.valor}</span>
+                    </div>
+
+                    <button 
+                      onClick={() => deleteCanalizacion(c.id)} 
+                      className="text-slate-400 hover:text-red-400 p-2.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                      title="Eliminar canalización"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Resumen técnico informativo del agrupamiento */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                      <Zap size={16} />
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-400 font-medium block">Efecto Térmico en Cables</span>
+                      <span className="text-sm font-semibold text-slate-200">{factorKa.desc}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                      <CheckCircle2 size={16} />
+                    </div>
+                    <div>
+                      <span className="text-xs text-slate-400 font-medium block">Dimensionamiento en Paso Siguiente</span>
+                      <span className="text-sm font-semibold text-slate-200">Se aplicará sobre la Iz de cada conductor en "Conductores"</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Error de validación de agrupamiento si existe */}
@@ -208,13 +234,6 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                     <span>{val.errores[0]}</span>
                   </div>
                 )}
-
-                {/* Corte transversal interactivo del caño */}
-                <ConduitCrossSection 
-                  canalizacionNombre={c.nombre}
-                  cantidadCircuitos={cantCircuitosEnCanalizacion}
-                  norma={normaPredominante}
-                />
 
                 {/* Selección de circuitos agrupados */}
                 <div className="space-y-3 pt-2">
