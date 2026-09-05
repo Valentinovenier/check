@@ -56,27 +56,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
           <h2 className="text-2xl font-bold text-white">Tableros</h2>
         </div>
         
-        {/* Input Ik TGBT */}
-        <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
-            <span className="text-xs font-semibold text-slate-400">Ik TGBT (kA)</span>
-            <input 
-                type="number"
-                step="0.01"
-                className="w-20 bg-slate-950 text-white text-xs p-1 rounded text-center border border-slate-700"
-                value={(project.tableroPrincipal as any)?.corrienteCortocircuitoIk || ''}
-                onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    onChange({ 
-                        ...project, 
-                        tableroPrincipal: { 
-                            ...(project.tableroPrincipal || {}), 
-                            corrienteCortocircuitoIk: val 
-                        } as any
-                    });
-                }}
-            />
-        </div>
-
         <div className="flex gap-2">
             <button
                 onClick={agregar}
@@ -96,7 +75,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">#</th>
                 <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Nombre</th>
                 <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Potencia (kVA)</th>
-                <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ik (kA)</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -122,16 +100,6 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                           onChange={e => actualizar(t.id, 'potencia', e.target.value)}
                         />
                     </td>
-                    <td className="px-4 py-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          className="bg-slate-800 text-white text-xs rounded-lg px-3 py-1.5 border border-slate-700 w-24"
-                          value={t.Ik || ''}
-                          placeholder="Ik"
-                          onChange={e => actualizar(t.id, 'Ik', e.target.value)}
-                        />
-                    </td>
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => eliminar(t.id)}
@@ -142,7 +110,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                     </td>
                   </tr>
                   <tr>
-                    <td colSpan={5} className="px-5 py-3 bg-slate-900/50">
+                    <td colSpan={4} className="px-5 py-3 bg-slate-900/50">
                         <div className="text-xs text-slate-400 mb-2 font-bold flex items-center gap-2">
                             <Shield size={14} /> Configuración de Protecciones: {t.nombre}
                         </div>
