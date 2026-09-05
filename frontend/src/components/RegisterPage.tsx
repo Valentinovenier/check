@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { startPayment } from '../utils/payment';
+import { FREE_ACCESS_MODE } from '../config/accessConfig';
 
 interface RegisterPageProps {
   onLoginClick: () => void;
@@ -32,6 +34,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +64,13 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
 
       if (data.token) {
         login(data.token);
-        // Redirigir directamente al checkout de suscripción de MercadoPago con el plan seleccionado
-        await startPayment(selectedPlan);
+        if (FREE_ACCESS_MODE) {
+          // Modo gratuito: ir directo a la app
+          navigate('/app');
+        } else {
+          // Modo de pago: redirigir al checkout de MercadoPago
+          await startPayment(selectedPlan);
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -84,11 +92,21 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
         )}
         
         <h3 className="text-2xl font-bold text-white text-center mb-1">Crear tu Cuenta</h3>
-        <p className="text-xs text-slate-400 text-center mb-6">
-          Selecciona tu plan y regístrate para acceder a la plataforma
-        </p>
+        {FREE_ACCESS_MODE ? (
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold px-3 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Acceso Gratuito Habilitado
+            </span>
+          </div>
+        ) : (
+          <p className="text-xs text-slate-400 text-center mb-6">
+            Selecciona tu plan y regístrate para acceder a la plataforma
+          </p>
+        )}
 
-        {/* Selector interactivo de Plan */}
+        {/* Selector interactivo de Plan — solo visible en modo de pago */}
+        {!FREE_ACCESS_MODE && (
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             type="button"
@@ -123,6 +141,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
             <p className="text-base font-extrabold text-white">{planPrices.pro} <span className="text-[10px] font-normal text-slate-400">/mes</span></p>
           </button>
         </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -172,7 +191,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
               disabled={loading}
               className="w-full py-3 text-slate-950 font-bold bg-gradient-to-r from-emerald-400 to-teal-400 rounded-xl hover:brightness-110 disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/25 text-sm"
             >
-              {loading ? 'Procesando...' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? `Pro (${planPrices.pro}/mes)` : `Básico (${planPrices.basic}/mes)`}`}
+              {loading ? 'Procesando...' : FREE_ACCESS_MODE ? 'Crear Cuenta Gratis' : `Registrarse y Pagar Plan ${selectedPlan === 'pro' ? `Pro (${planPrices.pro}/mes)` : `Básico (${planPrices.basic}/mes)`}`}
             </button>
           </div>
 

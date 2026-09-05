@@ -45,6 +45,28 @@ export async function onRequest(context: any) {
             return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { status: 404 });
         }
 
+        // =========================================================
+        // FEATURE FLAG: FREE_ACCESS_MODE
+        // Si está activo, retornar active/pro directamente sin
+        // consultar Mercado Pago. Toda la lógica de MP permanece
+        // intacta debajo de este bloque.
+        // Para reactivar el cobro: setear FREE_ACCESS_MODE=false.
+        // =========================================================
+        const freeAccessMode = env.FREE_ACCESS_MODE === 'true' || env.FREE_ACCESS_MODE === true;
+        if (freeAccessMode) {
+            const freeToken = jwt.sign({ 
+                userId: user.id, 
+                username: user.username,
+                role: user.role || 'user',
+                subscription_status: 'active',
+                plan_type: 'pro'
+            }, secret, { expiresIn: '7d' });
+
+            return new Response(JSON.stringify({ status: 'active', plan_type: 'pro', token: freeToken }), {
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         // Bypass exclusivo por rol de Administrador en Base de Datos
         if (user.role === 'admin') {
             const adminToken = jwt.sign({ 

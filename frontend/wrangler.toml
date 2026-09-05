@@ -7,6 +7,13 @@ compatibility_flags = [ "nodejs_compat" ]
 [vars]
 # Tus variables de entorno aquí
 SECRET_KEY = "super_secret_jwt_key_please_change_me"
+# =========================================================
+# FEATURE FLAG: Modo de Acceso Gratuito
+# true  = Registro y login sin pago (ACTUAL)
+# false = Modelo de pago con Mercado Pago (reactivar cuando sea necesario)
+# IMPORTANTE: También setear esta variable en el Dashboard de Cloudflare Pages.
+# =========================================================
+FREE_ACCESS_MODE = "true"
 
 [[d1_databases]]
 binding = "DB"
