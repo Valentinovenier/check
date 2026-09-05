@@ -24,9 +24,12 @@ export const ProjectSummaryBar: React.FC<Props> = ({ project }) => {
     const supplyType = project.datosVivienda?.supplyType;
     tensionDisplay = supplyType === 'trifasic' ? 'Trifásica (380V)' : 'Monofásica (220V)';
     
-    const potenciaMaxima = project.datosVivienda?.potenciaMaximaSimultanea;
-    if (potenciaMaxima && potenciaMaxima > 0) {
-      potenciaDisplay = `${(potenciaMaxima / 1000).toFixed(1)} kW`;
+    const potenciaMaximaVA = project.datosVivienda?.potenciaMaximaSimultanea || 0;
+    const cosPhi = project.cosPhi || 0.92; // Valor por defecto si no está definido
+    
+    if (potenciaMaximaVA > 0) {
+      const potenciaKW = (potenciaMaximaVA * cosPhi) / 1000;
+      potenciaDisplay = `${potenciaKW.toFixed(1)} kW`;
     }
   } else {
     tensionDisplay = project.tipoInstalacion || 'Trifásica (380V)';
