@@ -126,7 +126,7 @@ export const RegisterPage = ({ onLoginClick, onLandingClick }: RegisterPageProps
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-white text-xs font-semibold mb-1" htmlFor="username">Correo Electrónico</label>
+            <label className="block text-white text-xs font-semibold mb-1" htmlFor="username">Correo Electrónico (Utilizar el asociado a Mercado Pago)</label>
             <input 
               type="email" 
               placeholder="tu@email.com"
