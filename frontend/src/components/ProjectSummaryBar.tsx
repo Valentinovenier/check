@@ -1,6 +1,7 @@
 import React from 'react';
 import { Project } from '../types/project';
 import { Zap } from 'lucide-react';
+import { calcularDPMS } from '../engine/strategies/vivienda/calculoPotencia';
 
 interface Props {
   project: Project | null;
@@ -19,22 +20,35 @@ export const ProjectSummaryBar: React.FC<Props> = ({ project }) => {
   // Potencia estimada
   let potenciaDisplay = '—';
   let tensionDisplay: string;
+  const cosPhi = project.cosPhi ?? 0.85;
 
   if (isVivienda) {
     const supplyType = project.datosVivienda?.supplyType;
     tensionDisplay = supplyType === 'trifasic' ? 'Trifásica (380V)' : 'Monofásica (220V)';
     
-    const potenciaMaximaVA = project.datosVivienda?.potenciaMaximaSimultanea || 0;
-    const cosPhi = project.cosPhi || 0.92; // Valor por defecto si no está definido
+    // Obtener la DPMS calculada directamente de los parámetros de vivienda
+    let cargaTotalVA = project.datosVivienda?.potenciaMaximaSimultanea || 0;
+    if (project.datosVivienda) {
+      try {
+        const dpmsResult = calcularDPMS(project.datosVivienda);
+        if (dpmsResult?.cargaTotal && dpmsResult.cargaTotal > 0) {
+          cargaTotalVA = dpmsResult.cargaTotal;
+        }
+      } catch (e) {
+        console.error('Error calculando DPMS en ProjectSummaryBar:', e);
+      }
+    }
     
-    if (potenciaMaximaVA > 0) {
-      const potenciaKW = (potenciaMaximaVA * cosPhi) / 1000;
-      potenciaDisplay = `${potenciaKW.toFixed(1)} kW`;
+    if (cargaTotalVA > 0) {
+      const potenciaKW = (cargaTotalVA * cosPhi) / 1000;
+      potenciaDisplay = `${potenciaKW.toFixed(2)} kW`;
     }
   } else {
     tensionDisplay = project.tipoInstalacion || 'Trifásica (380V)';
     if (project.transformador?.potencia) {
-      potenciaDisplay = `${project.transformador.potencia} kVA`;
+      const trafoKVA = project.transformador.potencia;
+      const trafoKW = trafoKVA * (project.transformador.cosFi ?? cosPhi);
+      potenciaDisplay = `${trafoKW.toFixed(2)} kW (${trafoKVA} kVA)`;
     }
   }
 

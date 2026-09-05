@@ -929,7 +929,7 @@ function generarInformeDpmsGeneral(
   doc.setTextColor(PDF_COLORS.text[0], PDF_COLORS.text[1], PDF_COLORS.text[2]);
   doc.text(`• Tipo de Instalación: ${project.tipoInstalacion || 'Trifásica'}`, marginLeft + 3, cursorY); cursorY += 5;
   doc.text(`• Temperatura Ambiente: ${project.tempAmbiente || 30} °C`, marginLeft + 3, cursorY); cursorY += 5;
-  doc.text(`• Factor de Potencia (cos phi): ${project.cosPhi || 0.95}`, marginLeft + 3, cursorY); cursorY += 5;
+  doc.text(`• Factor de Potencia (cos phi): ${project.cosPhi || 0.85}`, marginLeft + 3, cursorY); cursorY += 5;
   doc.text(`• Coeficiente de Simultaneidad Global: ${project.coefSimultaneidad || 1.0}`, marginLeft + 3, cursorY);
   cursorY += 10;
 

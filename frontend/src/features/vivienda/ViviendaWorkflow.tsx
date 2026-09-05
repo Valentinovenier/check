@@ -6,6 +6,8 @@ import { ViviendaCircuitos } from './ViviendaCircuitos';
 import { ViviendaAsignacion } from './ViviendaAsignacion';
 import { ViviendaResumen } from './ViviendaResumen';
 import { ChevronRight, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { calcularDPMS } from '../../engine/strategies/vivienda/calculoPotencia';
+import { calcularPotencias } from '../../engine/strategies/vivienda/normas770';
 
 interface Props {
   project: Project;
@@ -22,18 +24,40 @@ export const ViviendaWorkflow = ({ project, onChange, onSave }: Props) => {
   const nextStep = () => setStep(s => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
+  const handleProjectChange = (updated: Project) => {
+    if (updated.datosVivienda) {
+      try {
+        const dpmsData = calcularDPMS(updated.datosVivienda);
+        const { potenciaInstalada } = calcularPotencias(updated.datosVivienda);
+        if (dpmsData?.cargaTotal !== undefined) {
+          updated = {
+            ...updated,
+            datosVivienda: {
+              ...updated.datosVivienda,
+              potenciaInstalada,
+              potenciaMaximaSimultanea: dpmsData.cargaTotal
+            }
+          };
+        }
+      } catch (e) {
+        console.error('Error calculando DPMS en ViviendaWorkflow:', e);
+      }
+    }
+    onChange(updated);
+  };
+
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <ViviendaConfiguracion project={project} onChange={onChange} />;
+        return <ViviendaConfiguracion project={project} onChange={handleProjectChange} />;
       case 2:
-        return <ViviendaAmbientes project={project} onChange={onChange} />;
+        return <ViviendaAmbientes project={project} onChange={handleProjectChange} />;
       case 3:
-        return <ViviendaCircuitos project={project} onChange={onChange} />;
+        return <ViviendaCircuitos project={project} onChange={handleProjectChange} />;
       case 4:
-        return <ViviendaAsignacion project={project} onChange={onChange} />;
+        return <ViviendaAsignacion project={project} onChange={handleProjectChange} />;
       case 5:
-        return <ViviendaResumen project={project} onChange={onChange} />;
+        return <ViviendaResumen project={project} onChange={handleProjectChange} />;
       default:
         return null;
     }

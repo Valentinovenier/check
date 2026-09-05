@@ -43,7 +43,7 @@ export const IndustrialSettings = ({ project, onChange }: Props) => {
                     min="0"
                     max="1"
                     className="w-full bg-[var(--bg-secondary)] p-2 rounded border border-slate-700 text-white"
-                    value={project.cosPhi || 0.95}
+                    value={project.cosPhi || 0.85}
                     onChange={(e) => onChange({...project, cosPhi: Number(e.target.value)})}
                 />
             </div>

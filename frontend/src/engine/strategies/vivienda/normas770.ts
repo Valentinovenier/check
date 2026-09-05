@@ -128,8 +128,8 @@ export const calcularPotencias = (datos: DatosVivienda): { potenciaInstalada: nu
                     // AEA 770: Si tiene tomas derivados, se considera la potencia del circuito
                     potenciaCircuito = 2200;
                 } else {
-                    // AEA 770: (2/3) * puntosIUG * 60 VA
-                    potenciaCircuito = (2 / 3) * puntosIUG * 60;
+                    // AEA 770: (2/3) * puntosIUG * 60 VA, con un mínimo reglamentario de 660 VA
+                    potenciaCircuito = Math.max(660, (2 / 3) * puntosIUG * 60);
                 }
                 break;
             case 'tomacorrientes_usos_generales':

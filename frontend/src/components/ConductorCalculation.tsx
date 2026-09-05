@@ -228,7 +228,7 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
       Ik_calculado,
       tiempoApertura,
       (Number(conductor.longitud) || 0) / 1000,
-      Number(project.transformador?.cosFi) || 0.95,
+      Number(project.transformador?.cosFi) || project.cosPhi || 0.85,
       caidaMaxPermitida,
       catalogo,
       tempAmbiente,

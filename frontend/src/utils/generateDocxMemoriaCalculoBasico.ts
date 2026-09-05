@@ -990,7 +990,7 @@ function construirContenidoGeneral(project: Project, caratula: DatosCaratula): (
               }),
               new Paragraph({
                 children: [
-                  new TextRun({ text: `• Factor de Potencia (cos phi): ${project.cosPhi || 0.95}`, size: 18 }),
+                  new TextRun({ text: `• Factor de Potencia (cos phi): ${project.cosPhi || 0.85}`, size: 18 }),
                 ],
               }),
               new Paragraph({

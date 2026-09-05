@@ -7,7 +7,7 @@ export const ProjectCriteria = () => {
     currentAcceptanceMargin: 10, // %
     voltageDropMargin: 5, // %
     shortCircuitMargin: 10, // %
-    powerFactor: 0.92,
+    powerFactor: 0.85,
   });
 
   const handleChange = (key: string, value: number) => {

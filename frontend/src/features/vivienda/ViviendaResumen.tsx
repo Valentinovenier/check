@@ -95,9 +95,13 @@ export const ViviendaResumen = ({ project, onChange }: Props) => {
                         // 2. Calcular potencia nominal base si no está definida
                         let nominalVA = c.potencia || 0;
                         if (!c.esEspecifico && nominalVA === 0) {
-                            if (c.tipo === 'iluminacion_usos_generales') nominalVA = puntosIUG * 60;
-                            else if (c.tipo === 'tomacorrientes_usos_generales') nominalVA = 2200; // Valor fijo normativo
-                            else if (c.tipo === 'usos_especiales') nominalVA = 3300;
+                            if (c.tipo === 'iluminacion_usos_generales') {
+                                nominalVA = c.tieneTomacorrientesDerivados ? 2200 : Math.max(660, puntosIUG * 60);
+                            } else if (c.tipo === 'tomacorrientes_usos_generales') {
+                                nominalVA = 2200; // Valor fijo normativo
+                            } else if (c.tipo === 'usos_especiales') {
+                                nominalVA = 3300;
+                            }
                         }
 
                         const potenciaNominalVA = c.unidadPotencia === 'W' ? nominalVA / cosPhi : nominalVA;

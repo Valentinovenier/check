@@ -57,7 +57,7 @@ export const calcularTramoResidencial = (
   const pasosVerificacion: any[] = [];
 
   // PASO 1: Corriente de Proyecto (IB)
-  const cosPhi = condiciones.cosPhi || 0.9;
+  const cosPhi = condiciones.cosPhi || project?.cosPhi || 0.85;
   const I_B = condiciones.corrienteDiseñoAmperes;
   
   // Selección de Sección Mínima Reglamentaria
