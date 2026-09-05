@@ -7,7 +7,6 @@ import { AppEntry } from './components/AppEntry';
 import { TermsPage } from './components/TermsPage';
 import { PrivacyPage } from './components/PrivacyPage';
 import { useAuth } from './context/AuthContext';
-import { FREE_ACCESS_MODE } from './config/accessConfig';
 
 // Este componente sirve de guardia para proteger las rutas de la app
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -16,9 +15,6 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Cargando...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
   
-  // 0. Si el modo de acceso gratuito está activo, permitir acceso directo
-  if (FREE_ACCESS_MODE) return children;
-
   // 1. Si el usuario es administrador, permitir acceso total
   if (user?.role === 'admin') return children;
 

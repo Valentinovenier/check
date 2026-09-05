@@ -32,18 +32,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    // =========================================================
-    // FEATURE FLAG: FREE_ACCESS_MODE
-    // Cuando FREE_ACCESS_MODE está activo, todos los usuarios
-    // se registran directamente como 'active'/'free' sin pago.
-    // 'free' como plan_type los identifica como usuarios del
-    // período gratuito: cuando se desactive el flag, el backend
-    // los redirigirá a elegir un plan de suscripción.
-    // Para reactivar el cobro, setear FREE_ACCESS_MODE=false.
-    // =========================================================
-    const freeAccessMode = env.FREE_ACCESS_MODE === 'true' || env.FREE_ACCESS_MODE === true;
-    const targetPlanType = freeAccessMode ? 'free' : ((planType === 'basic' || planType === 'pro') ? planType : 'basic');
-    const initialStatus = freeAccessMode ? 'active' : 'pending';
+    const targetPlanType = (planType === 'basic' || planType === 'pro') ? planType : 'basic';
 
     const existingUser = await env.DB.prepare('SELECT id FROM users WHERE username = ?')
       .bind(cleanUsername)
@@ -60,7 +49,7 @@ export async function onRequestPost(context) {
     const userId = crypto.randomUUID();
 
     await env.DB.prepare('INSERT INTO users (id, username, password_hash, role, subscription_status, plan_type) VALUES (?, ?, ?, ?, ?, ?)')
-      .bind(userId, cleanUsername, passwordHash, 'user', initialStatus, targetPlanType)
+      .bind(userId, cleanUsername, passwordHash, 'user', 'pending', targetPlanType)
       .run();
 
     const secret = env.SECRET_KEY || "super_secret_jwt_key_please_change_me";
@@ -68,9 +57,9 @@ export async function onRequestPost(context) {
       userId, 
       username: cleanUsername,
       role: 'user',
-      subscription_status: initialStatus,
+      subscription_status: 'pending',
       plan_type: targetPlanType
-    }, secret, { expiresIn: freeAccessMode ? '7d' : '1h' });
+    }, secret, { expiresIn: '1h' });
 
     return new Response(JSON.stringify({ message: 'User registered successfully', token }), {
       status: 201,

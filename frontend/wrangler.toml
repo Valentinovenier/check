@@ -7,10 +7,6 @@ compatibility_flags = [ "nodejs_compat" ]
 [vars]
 # Tus variables de entorno aquí
 SECRET_KEY = "super_secret_jwt_key_please_change_me"
-# NOTA: FREE_ACCESS_MODE se configura exclusivamente en:
-#   - Desarrollo local: .dev.vars (FREE_ACCESS_MODE=true)
-#   - Producción: Dashboard de Cloudflare Pages → Settings → Environment Variables
-# NO definirla aquí para evitar conflicto de binding en Cloudflare Pages.
 
 [[d1_databases]]
 binding = "DB"

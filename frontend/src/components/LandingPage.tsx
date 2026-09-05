@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { startPayment } from '../utils/payment';
-import { FREE_ACCESS_MODE } from '../config/accessConfig';
 import { UserMenu } from './UserMenu';
 import {
   Zap,
@@ -55,20 +54,10 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
   }, []);
 
   const handleSubscribeClick = (planType: 'basic' | 'pro') => {
-    if (FREE_ACCESS_MODE) {
-      // Modo gratuito: ir directo al registro o a la app si ya está autenticado
-      if (isAuthenticated) {
-        navigate('/app');
-      } else {
-        navigate('/register');
-      }
+    if (isAuthenticated) {
+      startPayment(planType);
     } else {
-      // Modo de pago: flujo original
-      if (isAuthenticated) {
-        startPayment(planType);
-      } else {
-        navigate(`/register?plan=${planType}`);
-      }
+      navigate(`/register?plan=${planType}`);
     }
   };
 
@@ -264,39 +253,25 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
       <section id="precio" className="py-24 px-4 bg-slate-900/30">
         <div className="text-center mb-12">
           <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4 block">Planes</span>
-          {FREE_ACCESS_MODE ? (
-            <>
-              <h2 className="text-3xl font-bold text-white">Acceso Completamente Gratuito</h2>
-              <div className="flex items-center justify-center gap-2 mt-3">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-sm font-bold px-4 py-1.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Por tiempo limitado — Sin tarjeta de crédito
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 className="text-3xl font-bold text-white">Elige tu Plan</h2>
-              <p className="text-slate-400 mt-2">Accede a las herramientas que necesitas.</p>
-            </>
-          )}
+          <h2 className="text-3xl font-bold text-white">Elige tu Plan</h2>
+          <p className="text-slate-400 mt-2">Accede a las herramientas que necesitas.</p>
         </div>
         
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {[
             {
               title: "Calculadora",
-              badge: FREE_ACCESS_MODE ? "Gratis" : "Disponible",
-              price: FREE_ACCESS_MODE ? "Gratis" : planPrices.basic,
+              badge: "Disponible",
+              price: planPrices.basic,
               desc: "Acceso a cálculos de parámetros",
               features: [
                 { name: "Cálculos normativos AEA", included: true },
                 { name: "Informes técnicos PDF", included: true },
-                { name: "Verificación de protecciones", included: FREE_ACCESS_MODE },
-                { name: "Dimensionamiento de conductores", included: FREE_ACCESS_MODE },
+                { name: "Verificación de protecciones", included: false },
+                { name: "Dimensionamiento de conductores", included: false },
                 { name: "Soporte prioritario", included: false },
               ],
-              buttonText: FREE_ACCESS_MODE ? (isAuthenticated ? "Ir a la App" : "Comenzar Gratis") : "Suscribirse Ahora",
+              buttonText: "Suscribirse Ahora",
               isPro: false,
               available: true,
               planType: 'basic' as const,
@@ -304,8 +279,8 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
 
             {
               title: "Acceso Total",
-              badge: FREE_ACCESS_MODE ? "Gratis" : "Recomendado",
-              price: FREE_ACCESS_MODE ? "Gratis" : planPrices.pro,
+              badge: "Recomendado",
+              price: planPrices.pro,
               desc: "Todo incluido, sin límites para tus proyectos",
               features: [
                 { name: "Cálculos normativos AEA", included: true },
@@ -344,14 +319,10 @@ export const LandingPage = ({ onLoginClick }: LandingPageProps) => {
               </h3>
               <p className="text-slate-400 text-sm mb-5">{plan.desc}</p>
               <div className="flex items-baseline gap-1 mb-8">
-                {FREE_ACCESS_MODE ? (
-                  <span className="text-5xl font-black text-emerald-400">Gratis</span>
-                ) : (
-                  <>
-                    <span className="text-5xl font-black text-white">{plan.price}</span>
-                    <span className="text-slate-400">/ mes</span>
-                  </>
-                )}
+                <span className="text-5xl font-black text-white">
+                  {plan.price}
+                </span>
+                <span className="text-slate-400">/ mes</span>
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
