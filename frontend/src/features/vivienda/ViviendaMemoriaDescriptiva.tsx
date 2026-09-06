@@ -13,8 +13,9 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
   const dpmsKW = (dpmsVA * (project.cosPhi || 0.85)) / 1000;
   const corrienteAlim = dpmsVA > 0 ? (dpmsVA / (project.tipoInstalacion === 'Trifásica' ? 380 * Math.sqrt(3) : 220)).toFixed(2) : '-';
 
-  const protTPCab = project.tableroPrincipal?.proteccionCabecera;
-  const protTPDif = project.tableroPrincipal?.proteccionDiferencial;
+  const getProt = (id?: string) => project.protecciones?.find(p => p.id === id);
+  const protTPCab = getProt(project.tableroPrincipal?.proteccionCabeceraId);
+  const protTPDif = getProt(project.tableroPrincipal?.proteccionDiferencialId);
 
   const obtenerCond = (cId: string): Conductor | undefined => {
     const conds = project.conductores || {};
@@ -120,54 +121,63 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {(project.datosVivienda?.tableros || []).map(tablero => (
-                <React.Fragment key={tablero.id}>
-                  {tablero.proteccionCabecera && (
-                    <tr className="bg-slate-950/60 hover:bg-slate-800/50">
-                      <td className="p-3 font-bold text-white">{tablero.nombre} (Cabecera)</td>
-                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-emerald-400">{tablero.proteccionCabecera.in_amp ? `${tablero.proteccionCabecera.in_amp} A` : '-'}</td>
-                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.curva_disparo || 'C'}</td>
-                      <td className="p-3 text-slate-300">{tablero.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA</td>
-                      <td className="p-3 text-slate-500">-</td>
-                      <td className="p-3 text-slate-400">{tablero.proteccionCabecera.marca || 'Normalizada'}</td>
-                      </tr>
-                      )}
-                      {tablero.proteccionDiferencial && (
+              {(project.datosVivienda?.tableros || []).map(tablero => {
+                const cabecera = getProt(tablero.proteccionCabeceraId);
+                const diferencial = getProt(tablero.proteccionDiferencialId);
+                const salidas = (tablero.proteccionesSalidaIds || []).map(id => getProt(id)).filter(p => !!p);
+                
+                return (
+                  <React.Fragment key={tablero.id}>
+                    {cabecera && (
                       <tr className="bg-slate-950/60 hover:bg-slate-800/50">
-                      <td className="p-3 font-bold text-white">{tablero.nombre} (Diferencial)</td>
-                      <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.tipo_proteccion}</td>
-                      <td className="p-3 font-mono font-bold text-indigo-400">{tablero.proteccionDiferencial.in_amp ? `${tablero.proteccionDiferencial.in_amp} A` : '-'}</td>
-                      <td className="p-3 text-slate-500">-</td>
-                      <td className="p-3 text-slate-300">{tablero.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA</td>
-                      <td className="p-3 font-mono font-bold text-amber-400">{tablero.proteccionDiferencial.sensibilidad || 30} mA</td>
-                      <td className="p-3 text-slate-400">{tablero.proteccionDiferencial.marca || 'Normalizada'}</td>
+                        <td className="p-3 font-bold text-white">{tablero.nombre} (Cabecera)</td>
+                        <td className="p-3 text-slate-300">{cabecera.tipo_proteccion}</td>
+                        <td className="p-3 font-mono font-bold text-emerald-400">{cabecera.in_amp ? `${cabecera.in_amp} A` : '-'}</td>
+                        <td className="p-3 text-slate-300">{cabecera.curva_disparo || 'C'}</td>
+                        <td className="p-3 text-slate-300">{cabecera.capacidades?.[0]?.icn_ka || 3} kA</td>
+                        <td className="p-3 text-slate-500">-</td>
+                        <td className="p-3 text-slate-400">{cabecera.marca || 'Normalizada'}</td>
                       </tr>
-                      )}
-                      {(tablero.proteccionesSalida || []).map((ps, idx) => (
+                    )}
+                    {diferencial && (
+                      <tr className="bg-slate-950/60 hover:bg-slate-800/50">
+                        <td className="p-3 font-bold text-white">{tablero.nombre} (Diferencial)</td>
+                        <td className="p-3 text-slate-300">{diferencial.tipo_proteccion}</td>
+                        <td className="p-3 font-mono font-bold text-indigo-400">{diferencial.in_amp ? `${diferencial.in_amp} A` : '-'}</td>
+                        <td className="p-3 text-slate-500">-</td>
+                        <td className="p-3 text-slate-300">{diferencial.capacidades?.[0]?.icn_ka || 3} kA</td>
+                        <td className="p-3 font-mono font-bold text-amber-400">{diferencial.sensibilidad || 30} mA</td>
+                        <td className="p-3 text-slate-400">{diferencial.marca || 'Normalizada'}</td>
+                      </tr>
+                    )}
+                    {salidas.map((ps, idx) => ps && (
                       <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
-                      <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion?.tipo_proteccion || 'PIA'}</td>
-                      <td className="p-3 font-mono font-bold text-emerald-400">{ps.proteccion?.in_amp ? `${ps.proteccion.in_amp} A` : '-'}</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion?.curva_disparo || 'C'}</td>
-                      <td className="p-3 text-slate-300">{ps.proteccion?.capacidades?.[0]?.icn_ka || 3} kA</td>
-                      <td className="p-3 text-slate-500">-</td>
-                      <td className="p-3 text-slate-400">{ps.proteccion?.marca || 'Normalizada'}</td>
-                    </tr>
-                  ))}
-                </React.Fragment>
-              ))}
-              {circuitos.map((c, idx) => (
-                <tr key={`circuito-${c.id}`} className="hover:bg-slate-800/50">
-                  <td className="p-3 font-medium text-slate-200">Cto {idx + 1}: {c.nombre}</td>
-                  <td className="p-3 text-slate-300">{c.proteccion?.tipo_proteccion || 'PIA'}</td>
-                  <td className="p-3 font-mono font-bold text-emerald-400">{c.proteccion ? `${c.proteccion.in_amp} A` : '-'}</td>
-                  <td className="p-3 text-slate-300">{c.proteccion?.curva_disparo || 'C'}</td>
-                  <td className="p-3 text-slate-300">{c.proteccion?.capacidades?.[0]?.icn_ka ? `${c.proteccion.capacidades[0].icn_ka} kA` : '3 kA'}</td>
-                  <td className="p-3 text-slate-500">-</td>
-                  <td className="p-3 text-slate-400">{c.proteccion?.marca || 'IEC 60898'}</td>
-                </tr>
-              ))}
+                        <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
+                        <td className="p-3 text-slate-300">{ps.tipo_proteccion || 'PIA'}</td>
+                        <td className="p-3 font-mono font-bold text-emerald-400">{ps.in_amp ? `${ps.in_amp} A` : '-'}</td>
+                        <td className="p-3 text-slate-300">{ps.curva_disparo || 'C'}</td>
+                        <td className="p-3 text-slate-300">{ps.capacidades?.[0]?.icn_ka || 3} kA</td>
+                        <td className="p-3 text-slate-500">-</td>
+                        <td className="p-3 text-slate-400">{ps.marca || 'Normalizada'}</td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                );
+              })}
+              {circuitos.map((c, idx) => {
+                const proteccion = getProt(c.proteccionId);
+                return (
+                  <tr key={`circuito-${c.id}`} className="hover:bg-slate-800/50">
+                    <td className="p-3 font-medium text-slate-200">Cto {idx + 1}: {c.nombre}</td>
+                    <td className="p-3 text-slate-300">{proteccion?.tipo_proteccion || 'PIA'}</td>
+                    <td className="p-3 font-mono font-bold text-emerald-400">{proteccion ? `${proteccion.in_amp} A` : '-'}</td>
+                    <td className="p-3 text-slate-300">{proteccion?.curva_disparo || 'C'}</td>
+                    <td className="p-3 text-slate-300">{proteccion?.capacidades?.[0]?.icn_ka ? `${proteccion.capacidades[0].icn_ka} kA` : '3 kA'}</td>
+                    <td className="p-3 text-slate-500">-</td>
+                    <td className="p-3 text-slate-400">{proteccion?.marca || 'IEC 60898'}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

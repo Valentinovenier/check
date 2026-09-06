@@ -82,8 +82,11 @@ export const obtenerProteccionAsignada = (
     const allTablerosInd = [project.tableroPrincipal, ...(project.tableros || [])].filter(Boolean);
     for (const t of allTablerosInd) {
       const ct = t?.circuitosTerminales?.find(c => c.id === targetId);
-      if (ct && ct.proteccion && ct.proteccion.in_amp) {
-        return ct.proteccion;
+      if (ct && ct.proteccionId) {
+        const proteccion = project.protecciones?.find(p => p.id === ct.proteccionId);
+        if (proteccion && proteccion.in_amp) {
+            return proteccion;
+        }
       }
     }
   }
