@@ -96,7 +96,7 @@ export interface CircuitoTerminal {
   tipo: string;
   potencia: number;
   conductor: Conductor;
-  proteccion: Proteccion;
+  proteccionId: string; // Referencia por ID
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
 }
 
@@ -105,9 +105,9 @@ export interface BaseTablero {
   nombre: string;
   subTableros: (Tablero | TableroSeccional)[];
   circuitosTerminales: CircuitoTerminal[];
-  proteccionCabecera?: Proteccion; // Opcional para todos
-  proteccionDiferencial?: Proteccion; // Nueva: Opcional
-  proteccionesSalida: Proteccion[]; // Lista uniforme para todos
+  proteccionCabeceraId?: string; // Referencia por ID
+  proteccionDiferencialId?: string; // Referencia por ID
+  proteccionesSalidaIds: string[]; // Referencia por ID
 }
 
 export interface Tablero extends BaseTablero {
@@ -130,8 +130,8 @@ export interface TableroSeccionalSimple {
   nombre: string;
   potencia: number;
   Ik?: number;
-  proteccionCabecera?: Proteccion;
-  proteccionesSalida: Proteccion[];
+  proteccionCabeceraId?: string; // Referencia por ID
+  proteccionesSalidaIds: string[]; // Referencia por ID
 }
 
 export interface Canalizacion {
@@ -174,6 +174,8 @@ export interface Project {
   conductores?: Record<string, Conductor>;
   informeConductores?: Conductor[];
   canalizaciones?: Canalizacion[];
+  
+  protecciones: Proteccion[]; // Nueva lista maestra de protecciones
   
   tempAmbiente?: number;
   coefSimultaneidad?: number;

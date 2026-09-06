@@ -20,7 +20,7 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
       id: `ts-${Date.now()}`,
       nombre: `Tablero Seccional ${maxNumero + 1}`,
       potencia: 0,
-      proteccionesSalida: []
+      proteccionesSalidaIds: []
     };
     onChange({
       ...project,
@@ -115,12 +115,19 @@ export const TablerosSeccionales = ({ project, onChange }: Props) => {
                             <Shield size={14} /> Configuración de Protecciones: {t.nombre}
                         </div>
                         <ConfiguracionProteccion 
-                            proteccionCabecera={t.proteccionCabecera}
-                            proteccionesSalida={t.proteccionesSalida || []}
+                            proteccionesMaestras={project.protecciones || []}
+                            proteccionCabeceraId={t.proteccionCabeceraId}
+                            proteccionesSalidaIds={t.proteccionesSalidaIds || []}
                             onChange={(data: any) => {
+                                const { nuevaProteccion, ...datosReferencia } = data;
+                                const nuevasProtecciones = nuevaProteccion 
+                                  ? [...(project.protecciones || []).filter(p => p.id !== nuevaProteccion.id), nuevaProteccion]
+                                  : (project.protecciones || []);
+                                
                                 onChange({
                                     ...project,
-                                    tablerosSeccionales: tableros.map(tab => tab.id === t.id ? {...tab, ...data} : tab)
+                                    protecciones: nuevasProtecciones,
+                                    tablerosSeccionales: tableros.map(tab => tab.id === t.id ? {...tab, ...datosReferencia} : tab)
                                 });
                             }}
                         />

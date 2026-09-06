@@ -80,10 +80,11 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
       const energia = computeEnergiaPasante();
       const payload = { 
         ...formData, 
+        id: formData.id || `prot-${Date.now()}`, // Generar ID si no existe
         energia_pasante: energia,
         tipo_interruptor: isCompacto ? 'compacto' : 'abierto',
         specs_tecnicas: { ...formData.specs_tecnicas, marca: formData.marca },
-        capacidades: formData.capacidades // Asegurar explícitamente el envío
+        capacidades: formData.capacidades 
       };
       await onSave(payload);
     } catch (error) {
@@ -191,7 +192,6 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--text-secondary)]">Clase Lim.</label>
                   <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={cap.clase_limitacion} onChange={e => updateCapacidad(i, 'clase_limitacion', Number(e.target.value))}>
-                    <option value={1}>Clase 1</option>
                     <option value={2}>Clase 2</option>
                     <option value={3}>Clase 3</option>
                   </select>

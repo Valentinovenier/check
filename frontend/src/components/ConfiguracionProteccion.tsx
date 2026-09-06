@@ -4,34 +4,55 @@ import { ProteccionesForm } from './ProteccionesForm';
 import { Plus, Trash2, Edit2, Shield } from 'lucide-react';
 
 interface Props {
-  proteccionCabecera?: Proteccion;
-  proteccionesSalida: Proteccion[];
-  onChange: (data: { proteccionCabecera?: Proteccion; proteccionesSalida: Proteccion[] }) => void;
+  proteccionesMaestras: Proteccion[]; // Lista maestra del proyecto
+  proteccionCabeceraId?: string;
+  proteccionesSalidaIds: string[];
+  onChange: (data: { proteccionCabeceraId?: string; proteccionesSalidaIds: string[]; nuevaProteccion?: Proteccion }) => void;
   esSeccional?: boolean; // Para saber si la cabecera es opcional
 }
 
-export const ConfiguracionProteccion = ({ proteccionCabecera, proteccionesSalida, onChange, esSeccional = false }: Props) => {
+export const ConfiguracionProteccion = ({ proteccionesMaestras, proteccionCabeceraId, proteccionesSalidaIds, onChange, esSeccional = false }: Props) => {
   const [editingProteccion, setEditingProteccion] = useState<{tipo: 'cabecera' | 'salida', index?: number, data?: Proteccion} | null>(null);
 
+  // Helper para buscar protección
+  const getProteccion = (id?: string) => proteccionesMaestras.find(p => p.id === id);
+
   const handleSave = (proteccion: Proteccion) => {
+    // Comunicamos la nueva protección al padre para que la actualice en la lista maestra
+    // y también actualizamos las referencias (IDs)
     if (editingProteccion?.tipo === 'cabecera') {
-      onChange({ proteccionCabecera: proteccion, proteccionesSalida });
+      onChange({ 
+        proteccionCabeceraId: proteccion.id, 
+        proteccionesSalidaIds: proteccionesSalidaIds,
+        nuevaProteccion: proteccion // Pasamos el objeto completo para actualizar la lista maestra
+      });
     } else {
       if (editingProteccion?.index !== undefined) {
-        const nuevas = [...proteccionesSalida];
-        nuevas[editingProteccion.index] = proteccion;
-        onChange({ proteccionCabecera, proteccionesSalida: nuevas });
+        const nuevas = [...proteccionesSalidaIds];
+        nuevas[editingProteccion.index] = proteccion.id;
+        onChange({ 
+          proteccionCabeceraId, 
+          proteccionesSalidaIds: nuevas,
+          nuevaProteccion: proteccion 
+        });
       } else {
-        onChange({ proteccionCabecera, proteccionesSalida: [...proteccionesSalida, proteccion] });
+        onChange({ 
+          proteccionCabeceraId, 
+          proteccionesSalidaIds: [...proteccionesSalidaIds, proteccion.id],
+          nuevaProteccion: proteccion 
+        });
       }
     }
     setEditingProteccion(null);
   };
 
   const eliminarSalida = (index: number) => {
-    const nuevas = proteccionesSalida.filter((_, i) => i !== index);
-    onChange({ proteccionCabecera, proteccionesSalida: nuevas });
+    const nuevas = proteccionesSalidaIds.filter((_, i) => i !== index);
+    onChange({ proteccionCabeceraId, proteccionesSalidaIds: nuevas });
   };
+
+  const cabecera = getProteccion(proteccionCabeceraId);
+  const salidas = proteccionesSalidaIds.map(id => getProteccion(id)).filter(p => !!p) as Proteccion[];
 
   return (
     <div className="space-y-6">
@@ -40,10 +61,10 @@ export const ConfiguracionProteccion = ({ proteccionCabecera, proteccionesSalida
         <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
             <Shield size={16} /> Protección Cabecera
         </h4>
-        {proteccionCabecera ? (
+        {cabecera ? (
           <div className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800">
-            <span className="text-sm text-white">{proteccionCabecera.modelo} - {proteccionCabecera.in_amp}A</span>
-            <button onClick={() => setEditingProteccion({tipo: 'cabecera', data: proteccionCabecera})} className="text-blue-400"><Edit2 size={16} /></button>
+            <span className="text-sm text-white">{cabecera.modelo} - {cabecera.in_amp}A</span>
+            <button onClick={() => setEditingProteccion({tipo: 'cabecera', data: cabecera})} className="text-blue-400"><Edit2 size={16} /></button>
           </div>
         ) : (
             <button onClick={() => setEditingProteccion({tipo: 'cabecera'})} className="text-sm text-[var(--accent)]">+ Configurar Cabecera</button>
@@ -56,7 +77,7 @@ export const ConfiguracionProteccion = ({ proteccionCabecera, proteccionesSalida
             <Shield size={16} /> Protecciones por Salida
         </h4>
         <div className="space-y-2">
-            {proteccionesSalida.map((p, i) => (
+            {salidas.map((p, i) => (
                 <div key={i} className="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-800">
                     <span className="text-sm text-white">{p.modelo} - {p.in_amp}A</span>
                     <div className="flex gap-2">

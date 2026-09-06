@@ -287,10 +287,10 @@ export const CanalizacionesPage = ({ project, onChange }: Props) => {
                 value={circ.normaCable || 'IRAM 2178'}
                 onChange={(e) => updateCircuitoNorma(circ.id, e.target.value)}
               >
-                <option value="IRAM-NM 247-3">IRAM-NM 247-3 (Unipolar flexible)</option>
+                <option value="IRAM-NM 247-3">IRAM-NM 247-3</option>
                 <option value="IRAM 62266">IRAM 62266</option>
-                <option value="IRAM 62267">IRAM 62267 (Libre halógenos)</option>
-                <option value="IRAM 2178">IRAM 2178 (Subterráneo / Envolvente)</option>
+                <option value="IRAM 62267">IRAM 62267 </option>
+                <option value="IRAM 2178">IRAM 2178 </option>
               </select>
             </div>
           ))}
