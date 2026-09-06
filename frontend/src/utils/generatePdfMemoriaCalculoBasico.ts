@@ -639,14 +639,17 @@ function generarInformeDpmsVivienda(
     const filasTableros: string[][] = [];
 
     const ibTotalNum = Number(ibTotal) || 0;
+    const getProt = (id?: string) => project.protecciones?.find(p => p.id === id);
+    const protCab = getProt(project.tableroPrincipal?.proteccionCabeceraId);
+    
     // Tablero Principal
-    if (project.tableroPrincipal?.proteccionCabecera) {
+    if (protCab) {
       filasTableros.push([
         'Tablero Principal (TP)',
         'Interruptor Cabecera (PIA)',
-        `${project.tableroPrincipal.proteccionCabecera.in_amp || 25} A`,
-        project.tableroPrincipal.proteccionCabecera.curva_disparo || 'C',
-        `${project.tableroPrincipal.proteccionCabecera.capacidades?.[0]?.icn_ka || 3} kA`,
+        `${protCab.in_amp || 25} A`,
+        protCab.curva_disparo || 'C',
+        `${protCab.capacidades?.[0]?.icn_ka || 3} kA`,
         '-',
         'CUMPLE',
       ]);
@@ -662,14 +665,15 @@ function generarInformeDpmsVivienda(
       ]);
     }
 
-    if (project.tableroPrincipal?.proteccionDiferencial) {
+    const protDif = getProt(project.tableroPrincipal?.proteccionDiferencialId);
+    if (protDif) {
       filasTableros.push([
         'Tablero Principal (TP)',
         'Interruptor Diferencial (ID)',
-        `${project.tableroPrincipal.proteccionDiferencial.in_amp || 25} A`,
+        `${protDif.in_amp || 25} A`,
         '-',
-        `${project.tableroPrincipal.proteccionDiferencial.capacidades?.[0]?.icn_ka || 3} kA`,
-        `${project.tableroPrincipal.proteccionDiferencial.sensibilidad || 30} mA`,
+        `${protDif.capacidades?.[0]?.icn_ka || 3} kA`,
+        `${protDif.sensibilidad || 30} mA`,
         'CUMPLE (Idn ≤ 30mA)',
       ]);
     } else {
