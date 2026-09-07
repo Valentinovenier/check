@@ -12,20 +12,27 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
   // Validación robusta: verificar existencia de los arrays antes de renderizar
   const pasos = resultado?.pasosVerificacion;
   const tienePasos = pasos && Array.isArray(pasos) && pasos.length > 0;
-  
+
   if (!resultado || !tienePasos) {
     return null;
   }
 
   const advertencias = Array.isArray(resultado.advertencias) ? resultado.advertencias : [];
 
+  // Filtrar solo los pasos deseados (3, 4, 6, 8)
+  const verificaciones = pasos.filter(paso => 
+    paso !== null && 
+    paso !== undefined && 
+    [3, 4, 6, 8].includes(paso.numero)
+  );
+
   return (
     <div className="mt-4 border border-slate-700 rounded-xl overflow-hidden bg-slate-900">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex justify-between items-center p-3 bg-slate-800 hover:bg-slate-700 transition-colors"
       >
-        <span className="font-semibold text-sm text-white">Memoria de Cálculo AEA 770 (8 Pasos)</span>
+        <span className="font-semibold text-sm text-white">Memoria de Cálculo AEA 770 (Verificaciones)</span>
         {isOpen ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
       </button>
 
@@ -42,7 +49,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
           </div>
 
           <div className="space-y-2">
-            {pasos.filter(paso => paso !== null && paso !== undefined).map((paso, idx) => (
+            {verificaciones.map((paso, idx) => (
               <div key={idx} className={`p-3 rounded-lg border flex flex-col md:flex-row md:items-center justify-between gap-2 ${paso.cumple ? 'bg-emerald-900/10 border-emerald-900/30' : 'bg-red-900/10 border-red-900/30'}`}>
                 <div className="flex items-start gap-3">
                     <div className="mt-0.5">
@@ -50,7 +57,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
                     </div>
                     <div>
                         <p className="text-sm font-bold text-slate-200">
-                            Paso {paso.numero}: {paso.nombre}
+                            Verificación {paso.numero}: {paso.nombre}
                         </p>
                         <p className="text-xs text-slate-400 mt-0.5">
                             Valor: <span className="text-slate-300 font-mono">
