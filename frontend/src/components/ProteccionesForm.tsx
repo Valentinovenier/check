@@ -153,7 +153,6 @@ export const ProteccionesForm = ({ onClose, onSave, onDelete, initialData }: { o
               <select className="w-full bg-[var(--bg-primary)] p-3 rounded-lg text-white border border-slate-700" value={formData.curva_disparo} onChange={e => setFormData({ ...formData, curva_disparo: e.target.value })}>
                 <option value="B">Curva B</option>
                 <option value="C">Curva C</option>
-                <option value="D">Curva D</option>
               </select>
             </div>
           )}
