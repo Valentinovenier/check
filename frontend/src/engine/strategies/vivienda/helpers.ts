@@ -33,25 +33,38 @@ export const obtenerProteccionAsignada = (
     // buscamos en el tablero padre (el origen) la protección de salida hacia este destino.
     if (tableroDestino && tableroDestino.tableroPadreId) {
         const padre = tablerosVivienda.find(t => t.id === tableroDestino.tableroPadreId);
-        if (padre && padre.proteccionesSalida) {
-            const protSalida = padre.proteccionesSalida.find(ps => ps.tableroDestinoId === tableroDestino.id);
-            if (protSalida && protSalida.proteccion && protSalida.proteccion.in_amp !== undefined) {
-                return protSalida.proteccion;
+        if (padre) {
+            const salidas: any[] = (padre.proteccionesSalida as any[]) || (padre.proteccionesSalidaIds as any[]) || [];
+            const protSalida = salidas.find((ps: any) => typeof ps === 'object' && ps.tableroDestinoId === tableroDestino.id);
+            if (protSalida) {
+                if (protSalida.proteccion) return protSalida.proteccion;
+                if (protSalida.proteccionId) {
+                    return project.protecciones?.find(p => p.id === protSalida.proteccionId);
+                }
             }
         }
-        if (tableroDestino.proteccionCabecera && tableroDestino.proteccionCabecera.in_amp !== undefined) {
+        if (tableroDestino.proteccionCabecera) {
             return tableroDestino.proteccionCabecera;
         }
-        if (padre?.proteccionCabecera && padre.proteccionCabecera.in_amp !== undefined) {
+        if (tableroDestino.proteccionCabeceraId) {
+            return project.protecciones?.find(p => p.id === tableroDestino.proteccionCabeceraId);
+        }
+        if (padre?.proteccionCabecera) {
             return padre.proteccionCabecera;
+        }
+        if (padre?.proteccionCabeceraId) {
+            return project.protecciones?.find(p => p.id === padre.proteccionCabeceraId);
         }
     }
 
     // Si es un circuito terminal
     if (!isPanelTramo && targetId && targetId !== 'int-general-salida' && targetId !== 'tp') {
       const circ = circuitosVivienda.find(c => c.id === targetId);
-      if (circ && circ.proteccion && circ.proteccion.in_amp) {
-        return circ.proteccion;
+      if (circ) {
+        if (circ.proteccion) return circ.proteccion;
+        if (circ.proteccionId) {
+          return project.protecciones?.find(p => p.id === circ.proteccionId);
+        }
       }
       return undefined;
     }
@@ -70,9 +83,11 @@ export const obtenerProteccionAsignada = (
     }
 
     if (tablero) {
-      const prot = tablero.proteccionCabecera || tablero.proteccionDiferencial;
-      if (prot && (prot.in_amp !== undefined)) {
-        return prot;
+      if (tablero.proteccionCabecera) return tablero.proteccionCabecera;
+      if (tablero.proteccionDiferencial) return tablero.proteccionDiferencial;
+      const protId = tablero.proteccionCabeceraId || tablero.proteccionDiferencialId;
+      if (protId) {
+        return project.protecciones?.find(p => p.id === protId);
       }
     }
   }

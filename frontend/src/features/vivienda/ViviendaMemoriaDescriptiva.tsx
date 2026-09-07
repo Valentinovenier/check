@@ -1,5 +1,5 @@
 import React from 'react';
-import { Project, Conductor } from '../../types/project';
+import { Project, Conductor, Proteccion } from '../../types/project';
 import { ShieldCheck, Zap, Layers, FileCheck, CheckCircle2, Box } from 'lucide-react';
 
 export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) => {

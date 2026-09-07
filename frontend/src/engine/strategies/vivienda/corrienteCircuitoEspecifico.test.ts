@@ -10,6 +10,17 @@ describe('Cálculo de corriente y caída de tensión para cargas específicas', 
     projectType: 'Vivienda',
     createdAt: '2026-09-03',
     status: 'draft',
+    protecciones: [
+        {
+            id: 'prot-1',
+            modelo: 'Termomagnética Curva C 16A',
+            tipo_proteccion: 'Termomagnética',
+            in_amp: 16,
+            curva_disparo: 'C',
+            polos: 2,
+            capacidades: [{ tension_v: 220, icn_ka: 3, clase_limitacion: 3 }]
+        }
+    ],
     armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3: 0, h5: 0, h7: 0, h9: 0 },
     cosPhi: 0.85,
     tableros: [],
@@ -34,15 +45,7 @@ describe('Cálculo de corriente y caída de tensión para cargas específicas', 
           puntosTUG: 0,
           puntosTUE: 0,
           ambientesIds: [],
-          proteccion: {
-            id: 'prot-1',
-            modelo: 'Termomagnética Curva C 16A',
-            tipo_proteccion: 'Termomagnética',
-            in_amp: 16,
-            curva_disparo: 'C',
-            polos: 2,
-            capacidades: [{ tension_v: 220, icn_ka: 3, clase_limitacion: 3 }]
-          }
+          proteccionId: 'prot-1'
         } as unknown as CircuitoCalculado
       ]
     }

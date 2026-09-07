@@ -21,7 +21,7 @@ export const ProjectStepper: React.FC<Props> = ({ activePage, onNavigate, projec
     tableros: tableros.length > 0 && circuitos.length > 0 && circuitos.every(c =>
       tableros.some(t => t.circuitosIds?.includes(c.id))
     ),
-    protecciones: circuitos.length > 0 && circuitos.some(c => Boolean(c.proteccion)),
+    protecciones: circuitos.length > 0 && circuitos.some(c => Boolean(c.proteccionId)),
     canalizaciones: canalizaciones.length > 0,
     conductores: informeConductores.length > 0 || Boolean((project as any)?.conductores && Object.keys((project as any).conductores).length > 0),
     informe: false,

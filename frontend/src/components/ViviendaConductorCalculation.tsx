@@ -310,7 +310,7 @@ export const ViviendaConductorCalculation = ({ project, onChange }: { project: P
                 <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800/60 w-full">
                   <span className="flex items-center gap-1">
                     <Shield size={11} className="text-blue-400" />
-                    {c.proteccion ? `${c.proteccion.in_amp}A` : 'Sin prot.'}
+                    {project.protecciones.find(p => p.id === c.proteccionId) ? `${project.protecciones.find(p => p.id === c.proteccionId)?.in_amp}A` : 'Sin prot.'}
                   </span>
                   <span>•</span>
                   <span className="truncate flex items-center gap-1">

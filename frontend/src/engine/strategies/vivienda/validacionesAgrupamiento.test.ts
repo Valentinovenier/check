@@ -8,6 +8,7 @@ describe('validarAgrupamiento', () => {
     projectType: 'Vivienda',
     createdAt: '',
     status: 'draft',
+    protecciones: [],
     armonicos: { habilitado: false, modoEntrada: 'porcentaje', h3: 0, h5: 0, h7: 0, h9: 0 },
     tableros: [],
     tableroPrincipal: {} as any,
