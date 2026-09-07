@@ -57,7 +57,7 @@ export const DetalleCalculoConductor = ({ resultado }: Props) => {
                     </div>
                     <div>
                         <p className="text-sm font-bold text-slate-200">
-                            Verificación {paso.numero}: {paso.nombre}
+                            Verificación {idx + 1}: {paso.nombre}
                         </p>
                         <p className="text-xs text-slate-400 mt-0.5">
                             Valor: <span className="text-slate-300 font-mono">
