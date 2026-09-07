@@ -36,7 +36,7 @@ export interface CircuitoCalculado {
   tieneTomacorrientesDerivados?: boolean;
   ambientesIds: string[];
   normaCable?: 'IRAM-NM 247-3' | 'IRAM 62267' | 'IRAM 2178';
-  proteccion?: Proteccion;
+  proteccionId?: string; // Referencia por ID
 
   // Propiedades para usos específicos
   esEspecifico?: boolean;
@@ -52,7 +52,7 @@ export interface CircuitoCalculado {
 export interface ProteccionSalida {
   id: string; // ID único para esta protección de salida
   tableroDestinoId: string; // ID del tablero seccional al que alimenta
-  proteccion: Proteccion; // La protección elegida del catálogo
+  proteccionId: string; // La ID de la protección elegida del catálogo
 }
 
 export interface TableroVivienda {
@@ -61,9 +61,9 @@ export interface TableroVivienda {
   tipo: 'Principal' | 'Seccional' | 'SubSeccional';
   tableroPadreId?: string; // Para definir la jerarquía
   circuitosIds: string[];
-  proteccionCabecera?: Proteccion;
-  proteccionDiferencial?: Proteccion;
-  proteccionesSalida?: ProteccionSalida[];
+  proteccionCabeceraId?: string;
+  proteccionDiferencialId?: string;
+  proteccionesSalidaIds?: ProteccionSalida[]; // Lista de objetos de salida con IDs
 }
 
 export interface TomasCircuito {

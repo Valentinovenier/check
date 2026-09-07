@@ -150,7 +150,7 @@ export const ViviendaMemoriaDescriptiva = ({ project }: { project: Project }) =>
                         <td className="p-3 text-slate-400">{diferencial.marca || 'Normalizada'}</td>
                       </tr>
                     )}
-                    {salidas.map((ps, idx) => ps && (
+                    {salidas.map((ps: Proteccion, idx: number) => ps && (
                       <tr key={`salida-${tablero.id}-${idx}`} className="hover:bg-slate-800/50">
                         <td className="p-3 text-slate-200">{tablero.nombre} (Salida {idx + 1})</td>
                         <td className="p-3 text-slate-300">{ps.tipo_proteccion || 'PIA'}</td>
