@@ -385,42 +385,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
 
               <div className="border-t border-slate-800 pt-3 space-y-1.5">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                  Corrientes del Tramo
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Corriente nominal (I<sub>nom</sub>):</span>
-                  <span className="font-bold text-white">{currentResultado.I_nominal?.toFixed(1)} A</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Ik (Corriente de Cortocircuito):</span>
-                  <span className="font-bold text-red-400">{currentResultado.Ik?.toFixed(2)} kA</span>
-                </div>
-                {currentResultado.armonicosActivos && (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-amber-400">Corriente real por fase (con armónicos):</span>
-                      <span className="font-bold text-amber-300">
-                        {currentResultado.I_fase?.toFixed(1)} A
-                      </span>
-                    </div>
-                    {currentResultado.I_neutro !== undefined && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-orange-400">Corriente por neutro (3° + 9° arm.):</span>
-                        <span className="font-bold text-orange-300">
-                          {currentResultado.I_neutro?.toFixed(1)} A
-                        </span>
-                      </div>
-                    )}
-                    <div className="mt-2 p-2 bg-amber-950/40 rounded border border-amber-900/50 text-[10px] text-amber-400">
-                      ⚠ Diseño con armónicos activos. Conductor seleccionado para I<sub>fase</sub> ={' '}
-                      {currentResultado.I_fase?.toFixed(1)} A.
-                      {currentResultado.I_neutro !== undefined &&
-                        ` El neutro debe soportar ${currentResultado.I_neutro?.toFixed(1)} A.`}
-                    </div>
-                  </>
-                )}
-              <div className="border-t border-slate-800 pt-3 space-y-1.5">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
                   Verificaciones
                 </p>
                 <div className="flex justify-between items-center text-xs">
@@ -441,7 +405,6 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                   <span className="text-slate-400">Selección Normativa:</span>
                   <span className="font-bold text-emerald-400">✓ CUMPLE</span>
                 </div>
-              </div>
               </div>
             </div>
           )}
