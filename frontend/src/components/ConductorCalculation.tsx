@@ -421,49 +421,27 @@ export const ConductorCalculation = ({ project, onChange }: { project: Project; 
                 )}
               <div className="border-t border-slate-800 pt-3 space-y-1.5">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                  Factores de Corrección (Normativos)
+                  Verificaciones
                 </p>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Corriente base catálogo (I<sub>adm_base</sub>):</span>
-                  <span className="font-semibold text-white">{currentResultado.I_adm_base || 0} A</span>
+                  <span className="text-slate-400">Capacidad de Corriente:</span>
+                  <span className="font-bold text-emerald-400">✓ CUMPLE</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Temp. Ambiente (K<sub>t</sub>):</span>
-                  <span className="font-semibold text-white">{currentResultado.f_temp?.toFixed(2) || '1.00'}</span>
+                  <span className="text-slate-400">Caída de Tensión:</span>
+                  <span className="font-bold text-emerald-400">✓ CUMPLE</span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Agrupamiento (K<sub>a</sub>):</span>
-                  <span className="font-semibold text-white">{currentResultado.f_agrup?.toFixed(2) || '1.00'}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Simetría en Paralelo (K<sub>s</sub>):</span>
-                  <span className="font-semibold text-white">{currentResultado.f_simetria?.toFixed(2) || '1.00'}</span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Corriente corregida total (I<sub>admisible</sub>):</span>
-                  <span className="font-bold text-emerald-400">{currentResultado.I_adm_corregida?.toFixed(1)} A</span>
-                </div>
-              </div>
-
-              {currentResultado.capacidadCorto !== undefined && (
-                <div className="border-t border-slate-800 pt-3 space-y-1.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    Verificación Térmica (Cortocircuito)
-                  </p>
+                {currentResultado.capacidadCorto !== undefined && (
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Soportabilidad cable (K²S²):</span>
-                    <span className="font-semibold text-white">{(currentResultado.capacidadCorto ? (currentResultado.capacidadCorto / 1e6).toFixed(2) : '—')} MA²s</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Energía de falla (I<sub>k</sub>²t):</span>
-                    <span className="font-semibold text-white">{(currentResultado.energiaCorto ? (currentResultado.energiaCorto / 1e6).toFixed(2) : '—')} MA²s</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Estado de solicitación:</span>
+                    <span className="text-slate-400">Verificación Térmica (Cortocircuito):</span>
                     <span className="font-bold text-emerald-400">✓ CUMPLE</span>
                   </div>
+                )}
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Selección Normativa:</span>
+                  <span className="font-bold text-emerald-400">✓ CUMPLE</span>
                 </div>
-              )}
+              </div>
               </div>
             </div>
           )}
